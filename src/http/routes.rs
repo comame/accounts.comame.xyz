@@ -1,7 +1,7 @@
 use hyper::{Request, Body, Response, StatusCode, http::HeaderValue, Method};
 
 use crate::handler;
-use crate::http::static_file;
+use crate::static_file;
 
 pub fn routes (req: Request<Body>) -> Response<Body> {
     let mut response = Response::new(Body::empty());

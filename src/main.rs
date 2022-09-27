@@ -5,6 +5,7 @@ use hyper::service::{make_service_fn, service_fn};
 mod http;
 mod handler;
 mod crypto;
+mod static_file;
 
 async fn service(req: Request<Body>) -> Result<Response<Body>, Infallible> {
     let mut path = String::from(req.uri().path());
