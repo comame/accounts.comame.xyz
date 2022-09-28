@@ -1,7 +1,7 @@
 use openssl::rand::rand_bytes;
 
 pub fn random_str(len: usize) -> String {
-    let mut buf = vec!();
+    let mut buf = vec![];
     let bytes_len = len * 3 / 4 + 1;
     for _i in 0..bytes_len {
         buf.push(0);
@@ -23,7 +23,7 @@ mod tests {
 
     #[test]
     fn test_random_len() {
-        let mut buf = vec!();
+        let mut buf = vec![];
         let len = 30;
         for _i in 0..len {
             buf.push(0);

@@ -27,10 +27,10 @@ fn to_byte(c: char) -> u8 {
 }
 
 fn hex_to_u8_map() -> Vec<Vec<u8>> {
-    let mut v: Vec<Vec<u8>> = vec!();
+    let mut v: Vec<Vec<u8>> = vec![];
     for i in 0..=255 {
         if i % 16 == 0 {
-            let mut vv: Vec<u8> = vec!();
+            let mut vv: Vec<u8> = vec![];
             vv.push(i);
             v.push(vv);
         } else {
@@ -43,7 +43,7 @@ fn hex_to_u8_map() -> Vec<Vec<u8>> {
 }
 
 fn u8_to_hex_map() -> [String; 256] {
-    let mut vec: Vec<String> = vec!();
+    let mut vec: Vec<String> = vec![];
     for i in 0..=255 {
         let mut str = String::new();
         str.push(to_hex(i >> 4));
@@ -66,7 +66,7 @@ pub fn encode_hex(bytes: Vec<u8>) -> String {
 pub fn decode_hex(hex: &str) -> Vec<u8> {
     let hex = hex.to_ascii_uppercase();
 
-    let mut arr: Vec<u8> = vec!();
+    let mut arr: Vec<u8> = vec![];
     let mut chars: [usize; 2] = [0, 0];
 
     for (i, char) in hex.chars().into_iter().enumerate() {
@@ -96,7 +96,12 @@ mod tests {
             (vec![255], "FF"),
             (vec![1, 0], "0100"),
             (vec![255, 255], "FFFF"),
-            (vec![105, 196, 224, 216, 106, 123, 4, 48, 216, 205, 183, 128, 112, 180, 197, 90], "69C4E0D86A7B0430D8CDB78070B4C55A"),
+            (
+                vec![
+                    105, 196, 224, 216, 106, 123, 4, 48, 216, 205, 183, 128, 112, 180, 197, 90,
+                ],
+                "69C4E0D86A7B0430D8CDB78070B4C55A",
+            ),
         ]
     }
 
@@ -109,10 +114,7 @@ mod tests {
 
     #[test]
     fn test_encode_case() {
-        let testcases = vec!(
-            (vec![255], "ff"),
-            (vec![255], "fF"),
-        );
+        let testcases = vec![(vec![255], "ff"), (vec![255], "fF")];
         for testcase in testcases {
             assert_eq!(encode_hex(testcase.0), testcase.1.to_uppercase());
         }
@@ -134,10 +136,13 @@ mod tests {
                 encode_hex(testcase.0);
             }
         }
-        let time_ms = std::time::SystemTime::now().duration_since(start).unwrap().as_millis() as f64 / 1000.0;
+        let time_ms = std::time::SystemTime::now()
+            .duration_since(start)
+            .unwrap()
+            .as_millis() as f64
+            / 1000.0;
         dbg!(time_ms);
     }
-
 
     #[test]
     #[ignore = "benchmark"]
@@ -148,7 +153,11 @@ mod tests {
                 decode_hex(testcase.1);
             }
         }
-        let time_ms = std::time::SystemTime::now().duration_since(start).unwrap().as_millis() as f64 / 1000.0;
+        let time_ms = std::time::SystemTime::now()
+            .duration_since(start)
+            .unwrap()
+            .as_millis() as f64
+            / 1000.0;
         dbg!(time_ms);
     }
 }

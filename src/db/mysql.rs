@@ -1,7 +1,6 @@
-use std::sync::Mutex;
-use mysql::{PooledConn, Pool};
+use mysql::{Pool, PooledConn};
 use once_cell::sync::OnceCell;
-
+use std::sync::Mutex;
 
 static POOL: OnceCell<Mutex<Pool>> = OnceCell::new();
 

@@ -1,4 +1,4 @@
-use hyper::{Response, Body, http::HeaderValue, StatusCode};
+use hyper::{http::HeaderValue, Body, Response, StatusCode};
 
 pub fn moved_permanently(path: &str) -> Response<Body> {
     let mut response = Response::new(Body::empty());

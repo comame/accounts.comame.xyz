@@ -1,6 +1,6 @@
+use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufReader;
-use std::fs::File;
 use std::io::Result;
 
 fn internal_read(path: &str) -> Result<Vec<u8>> {

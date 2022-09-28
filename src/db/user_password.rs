@@ -1,7 +1,7 @@
-use crate::data::user_password::UserPassword;
 use super::mysql::get_conn;
-use mysql::{ params, Error };
+use crate::data::user_password::UserPassword;
 use mysql::prelude::*;
+use mysql::{params, Error};
 
 pub fn password_matched(user_password: &UserPassword) -> bool {
     let result = get_conn().unwrap().exec_map(
@@ -17,13 +17,16 @@ pub fn password_matched(user_password: &UserPassword) -> bool {
 }
 
 fn password_exists(user_id: &str) -> bool {
-    let result = get_conn().unwrap().exec_map(
-        "SELECT user_id FROM user_passwords WHERE user_id = :user_id",
-        params! {
-            "user_id" => user_id,
-        },
-        |(_user_id,): (String,)| 0
-    ).unwrap();
+    let result = get_conn()
+        .unwrap()
+        .exec_map(
+            "SELECT user_id FROM user_passwords WHERE user_id = :user_id",
+            params! {
+                "user_id" => user_id,
+            },
+            |(_user_id,): (String,)| 0,
+        )
+        .unwrap();
 
     result.len() > 0
 }
@@ -37,7 +40,7 @@ pub fn insert_password(user_password: &UserPassword) -> Result<(), Error> {
             std::iter::once(params! {
                 "new_p" => user_password.hashed_password.clone(),
                 "id" => user_password.user_id.clone(),
-            })
+            }),
         )
     } else {
         get_conn().unwrap().exec_batch(
@@ -45,7 +48,7 @@ pub fn insert_password(user_password: &UserPassword) -> Result<(), Error> {
             std::iter::once(params! {
                 "id" => user_password.user_id.clone(),
                 "pass" => user_password.hashed_password.clone(),
-            })
+            }),
         )
     };
 
@@ -58,15 +61,18 @@ pub fn insert_password(user_password: &UserPassword) -> Result<(), Error> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::super::_test_init::init;
+    use super::*;
     use crate::data::user_password::UserPassword;
 
     #[test]
     #[ignore = "Single thread only"]
     fn single_thread_insert_password() {
         init();
-        let pass = UserPassword { user_id: "user-a".to_string(), hashed_password: "pass".to_string() };
+        let pass = UserPassword {
+            user_id: "user-a".to_string(),
+            hashed_password: "pass".to_string(),
+        };
         let result = insert_password(&pass);
         assert!(result.is_ok());
     }
@@ -75,11 +81,17 @@ mod tests {
     #[ignore = "Single thread only"]
     fn single_thread_can_authenticate() {
         init();
-        let pass_1 = UserPassword { user_id: "user-a".to_string(), hashed_password: "pass".to_string() };
+        let pass_1 = UserPassword {
+            user_id: "user-a".to_string(),
+            hashed_password: "pass".to_string(),
+        };
         insert_password(&pass_1).unwrap();
         let result = password_matched(&pass_1);
         assert!(result);
-        let pass_2 = UserPassword { user_id: "user-a".to_string(), hashed_password: "wrong".to_string() };
+        let pass_2 = UserPassword {
+            user_id: "user-a".to_string(),
+            hashed_password: "wrong".to_string(),
+        };
         let result = password_matched(&pass_2);
         assert!(!result);
     }
@@ -88,9 +100,15 @@ mod tests {
     #[ignore = "Single thread only"]
     fn single_thread_can_update() {
         init();
-        let pass_1 = UserPassword { user_id: "user-a".to_string(), hashed_password: "pass".to_string() };
+        let pass_1 = UserPassword {
+            user_id: "user-a".to_string(),
+            hashed_password: "pass".to_string(),
+        };
         insert_password(&pass_1).unwrap();
-        let pass_2 = UserPassword { user_id: "user-a".to_string(), hashed_password: "new".to_string() };
+        let pass_2 = UserPassword {
+            user_id: "user-a".to_string(),
+            hashed_password: "new".to_string(),
+        };
         insert_password(&pass_2).unwrap();
         assert!(!password_matched(&pass_1));
         assert!(password_matched(&pass_2));
