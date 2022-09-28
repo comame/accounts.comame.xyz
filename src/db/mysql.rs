@@ -2,6 +2,7 @@ use std::sync::Mutex;
 use mysql::{PooledConn, Pool};
 use once_cell::sync::OnceCell;
 
+
 static POOL: OnceCell<Mutex<Pool>> = OnceCell::new();
 
 pub fn init(mysql_url: &str) {
