@@ -1,4 +1,4 @@
-use hyper::{Request, Body, Response, StatusCode, http::HeaderValue, Method};
+use hyper::{Request, Body, Response, StatusCode, Method};
 
 use crate::handler;
 use crate::static_file;
