@@ -23,13 +23,9 @@ pub fn init() {
     }
 
     for table in tables {
-        let result = get_conn()
+        get_conn()
             .unwrap()
-            .exec_drop(format!("DELETE FROM {}", table), Params::Empty);
-        dbg!(table);
-        dbg!(&result);
-        if let Err(err) = result {
-            panic!("{}", err);
-        }
+            .exec_drop(format!("DELETE FROM {}", table), Params::Empty)
+            .unwrap();
     }
 }

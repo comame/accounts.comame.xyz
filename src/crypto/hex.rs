@@ -53,7 +53,6 @@ fn u8_to_hex_map() -> [String; 256] {
     vec.try_into().unwrap()
 }
 
-#[allow(dead_code)]
 pub fn encode_hex(bytes: Vec<u8>) -> String {
     let mut str = String::new();
     for byte in bytes {
@@ -62,7 +61,6 @@ pub fn encode_hex(bytes: Vec<u8>) -> String {
     str
 }
 
-#[allow(dead_code)]
 pub fn decode_hex(hex: &str) -> Vec<u8> {
     let hex = hex.to_ascii_uppercase();
 
