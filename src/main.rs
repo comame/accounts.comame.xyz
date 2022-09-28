@@ -6,15 +6,16 @@ mod http;
 mod handler;
 mod crypto;
 mod static_file;
+mod data;
 
 async fn service(req: Request<Body>) -> Result<Response<Body>, Infallible> {
-    let mut path = String::from(req.uri().path());
-    let trimed = http::uri::trim(&mut path);
-
-    Ok(if trimed {
-        http::routes::redirect(&path)
-    } else {
-        http::routes::routes(req)
+    Ok(match http::uri::trim(req.uri().path()) {
+        Some(path) => {
+            http::redirect::moved_permanently(path.as_str())
+        },
+        None => {
+            http::routes::routes(req)
+        }
     })
 }
 

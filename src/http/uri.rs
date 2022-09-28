@@ -24,48 +24,55 @@ fn trim_slash(uri_path: &mut String) -> bool {
     false
 }
 
-pub fn trim(uri_path: &mut String) -> bool {
+pub fn trim(uri_path: &str) -> Option<String> {
     if uri_path == "/" {
-        return false;
+        return None;
     }
 
     if uri_path == "" {
-        *uri_path = String::from("/");
-        return true;
+        return Some("/".to_string());
     }
 
-    let trimed_by_index = trim_index(uri_path);
-    let trimed_by_slash = trim_slash(uri_path);
+    let mut uri_path = uri_path.to_string();
+
+    let trimed_by_index = trim_index(&mut uri_path);
+    let trimed_by_slash = trim_slash(&mut uri_path);
 
     if uri_path == "" {
-        *uri_path = String::from("/");
-        return true;
+        return Some("/".to_string());
     }
 
-    trimed_by_index || trimed_by_slash
+    let trimed = trimed_by_index || trimed_by_slash;
+    if trimed {
+        Some(uri_path.to_string())
+    } else {
+        None
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    type Testcase = (&'static str, &'static str, bool);
+    type Testcase = (&'static str, &'static str);
 
     fn testcases() -> Vec<Testcase> {
         vec![
-            ("/", "/", false),
-            ("", "/", true),
-            ("/foo", "/foo", false),
-            ("/index.html", "/", true),
-            ("/foo/", "/foo", true),
-            ("/foo/index.html", "/foo", true),
+            ("/", "/"),
+            ("", "/"),
+            ("/foo", "/foo"),
+            ("/index.html", "/"),
+            ("/foo/", "/foo"),
+            ("/foo/index.html", "/foo"),
         ]
     }
 
     fn test(testcase: Testcase) {
-        let mut path = String::from(testcase.0);
-        assert_eq!(trim(&mut path), testcase.2);
-        assert_eq!(path, testcase.1);
+        if testcase.0 == testcase.1 {
+            assert!(trim(testcase.0).is_none());
+        } else {
+            assert_eq!(trim(testcase.0).unwrap(), testcase.1);
+        }
     }
 
     #[test]
