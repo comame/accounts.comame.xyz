@@ -1,5 +1,5 @@
 #[derive(Debug, Clone)]
 pub struct UserPassword {
-    user_id: String,
-    hashed_password: String,
+    pub user_id: String,
+    pub hashed_password: String,
 }
