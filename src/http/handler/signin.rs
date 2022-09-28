@@ -1,6 +1,6 @@
 use hyper::{Response, Body};
 
-use crate::static_file;
+use crate::http::static_file;
 use crate::crypto::rand;
 
 pub fn handler() -> Response<Body> {

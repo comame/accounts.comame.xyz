@@ -1,3 +1,4 @@
 pub mod rand;
-pub mod enc;
+pub mod base64;
 pub mod hex;
+pub mod sha;

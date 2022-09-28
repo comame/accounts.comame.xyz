@@ -7,7 +7,7 @@ pub fn random_str(len: usize) -> String {
         buf.push(0);
     }
     rand_bytes(&mut buf).unwrap();
-    let mut answer = super::enc::encode_base64(buf);
+    let mut answer = super::base64::encode_base64(buf);
 
     let diff = answer.len() - len;
     if diff > 0 {
