@@ -31,8 +31,8 @@ mod tests {
         rand_bytes(&mut buf).unwrap();
 
         for size in buf.iter() {
-            let text = random_str(size.clone() as usize);
-            assert_eq!(text.len(), size.clone() as usize);
+            let text = random_str(*size as usize);
+            assert_eq!(text.len(), *size as usize);
         }
     }
 
