@@ -2,6 +2,8 @@ use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request, Response, Server};
 use std::{convert::Infallible, env, net::SocketAddr};
 
+use crate::auth::password::set_password;
+
 mod auth;
 mod crypto;
 mod data;
@@ -12,20 +14,14 @@ fn create_admin_user() {
     let user_id = env::var("ADMIN_USER").unwrap();
     let password = env::var("ADMIN_PASSWORD").unwrap();
 
-    let user = data::user::User {
-        id: user_id.clone(),
-    };
+    let user = data::user::User { id: user_id };
     let create_user = db::user::insert_user(&user);
     if let Err(err) = create_user {
         println!("{}", err);
         println!("Skipped creating admin user.");
         return;
     }
-    let user_password = data::user_password::UserPassword {
-        user_id: user_id.clone(),
-        hashed_password: auth::password::calculate_password_hash(&password, user_id.as_str()),
-    };
-    db::user_password::insert_password(&user_password).unwrap();
+    set_password(&user.id, &password);
     println!("Admin user created.");
 }
 

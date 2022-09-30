@@ -3,6 +3,7 @@ use crate::data::user::User;
 use mysql::prelude::*;
 use mysql::{params, Error};
 
+#[allow(dead_code)]
 pub fn find_user_by_id(id: &str) -> Option<User> {
     let users = get_conn()
         .unwrap()
@@ -29,7 +30,7 @@ pub fn insert_user(user: &User) -> Result<(), Error> {
 
 #[cfg(test)]
 mod tests {
-    use super::super::_test_init::init;
+    use super::super::_test_init::init_mysql;
     use super::*;
 
     fn generate_user(id: &str) -> User {
@@ -39,7 +40,7 @@ mod tests {
     #[test]
     #[ignore = "Single thread only"]
     fn single_thread_create_user() {
-        init();
+        init_mysql();
         let result = insert_user(&generate_user("foo"));
         assert!(result.is_ok());
     }
@@ -47,7 +48,7 @@ mod tests {
     #[test]
     #[ignore = "Single thread only"]
     fn single_thread_can_find_user() {
-        init();
+        init_mysql();
         let user = generate_user("foo");
         insert_user(&user).unwrap();
         let result = find_user_by_id("foo");
@@ -57,7 +58,7 @@ mod tests {
     #[test]
     #[ignore = "Single thread only"]
     fn single_thread_fail_find_user() {
-        init();
+        init_mysql();
         let user = generate_user("foo");
         insert_user(&user).unwrap();
         let result = find_user_by_id("bar");

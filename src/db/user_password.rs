@@ -55,14 +55,14 @@ pub fn insert_password(user_password: &UserPassword) -> Result<(), Error> {
 
 #[cfg(test)]
 mod tests {
-    use super::super::_test_init::init;
+    use super::super::_test_init::init_mysql;
     use super::*;
     use crate::data::user_password::UserPassword;
 
     #[test]
     #[ignore = "Single thread only"]
     fn single_thread_insert_password() {
-        init();
+        init_mysql();
         let pass = UserPassword {
             user_id: "user-a".to_string(),
             hashed_password: "pass".to_string(),
@@ -74,7 +74,7 @@ mod tests {
     #[test]
     #[ignore = "Single thread only"]
     fn single_thread_can_authenticate() {
-        init();
+        init_mysql();
         let pass_1 = UserPassword {
             user_id: "user-a".to_string(),
             hashed_password: "pass".to_string(),
@@ -93,7 +93,7 @@ mod tests {
     #[test]
     #[ignore = "Single thread only"]
     fn single_thread_can_update() {
-        init();
+        init_mysql();
         let pass_1 = UserPassword {
             user_id: "user-a".to_string(),
             hashed_password: "pass".to_string(),

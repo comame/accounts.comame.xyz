@@ -1,16 +1,16 @@
-use super::mysql::{get_conn, init as init_mysql};
+use super::mysql::get_conn;
 use mysql::prelude::*;
 use mysql::Params;
 use std::env;
 
 #[allow(dead_code)]
-pub fn init() {
+pub fn init_mysql() {
     let tables = vec!["users", "user_passwords"];
 
     let mysql_user = env::var("MYSQL_USER").unwrap();
     let mysql_password = env::var("MYSQL_PASSWORD").unwrap();
     let mysql_db = env::var("MYSQL_DATABASE").unwrap();
-    init_mysql(&format!(
+    super::mysql::init(&format!(
         "mysql://{}:{}@mysql.comame.dev/{}",
         mysql_user, mysql_password, mysql_db
     ));
@@ -25,4 +25,9 @@ pub fn init() {
             .exec_drop(format!("DELETE FROM {}", table), Params::Empty)
             .unwrap();
     }
+}
+
+#[allow(dead_code)]
+pub fn init_redis() {
+    super::redis::init("redis://redis.comame.dev");
 }
