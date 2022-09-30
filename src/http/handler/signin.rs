@@ -3,11 +3,11 @@ use serde_json::{from_str, to_string};
 
 use crate::auth::password::authenticated;
 use crate::crypto::rand;
+use crate::db::redis;
 use crate::http::data::sign_in_request::SignInRequest;
 use crate::http::data::sign_in_response::SignInResponse;
 use crate::http::parse_body::parse_body;
 use crate::http::static_file;
-use crate::db::redis;
 
 pub fn page() -> Response<Body> {
     let mut response = Response::new(Body::empty());
@@ -16,7 +16,11 @@ pub fn page() -> Response<Body> {
     let html_file = String::from_utf8(html_file_vec).unwrap();
 
     let token = rand::random_str(32);
-    redis::set((String::from("csrf-token-") + token.as_str()).as_str(), "", 10 * 60);
+    redis::set(
+        (String::from("csrf-token-") + token.as_str()).as_str(),
+        "",
+        10 * 60,
+    );
 
     let replaced_html_file = html_file.replace("$CSRF", token.as_str());
 

@@ -1,7 +1,7 @@
-use std::{sync::Mutex};
+use std::sync::Mutex;
 
 use once_cell::sync::OnceCell;
-use redis::{Client, Connection, Commands};
+use redis::{Client, Commands, Connection};
 
 static CLIENT: OnceCell<Mutex<Client>> = OnceCell::new();
 static PREFIX: &'static str = "id.comame.dev:";
@@ -39,21 +39,25 @@ pub fn set(key: &str, value: &str, time_sec: u16) {
 
 pub fn get(key: &str) -> Option<String> {
     let mut conn = get_conn().unwrap();
-    conn.get::<String, Option<String>>(String::from(PREFIX) + key).unwrap()
+    conn.get::<String, Option<String>>(String::from(PREFIX) + key)
+        .unwrap()
 }
 
 pub fn list_keys() -> Vec<String> {
     let mut conn = get_conn().unwrap();
     let keys: Vec<String> = conn.keys(String::from(PREFIX) + "*").unwrap();
-    keys.iter().map(|key| String::from(&key[PREFIX.len()..key.len()])).collect()
+    keys.iter()
+        .map(|key| String::from(&key[PREFIX.len()..key.len()]))
+        .collect()
 }
 
 pub fn list_keys_pattern(pattern: &str) -> Vec<String> {
     let mut conn = get_conn().unwrap();
     let keys: Vec<String> = conn.keys(String::from(PREFIX) + pattern).unwrap();
-    keys.iter().map(|key| String::from(&key[PREFIX.len()..key.len()])).collect()
+    keys.iter()
+        .map(|key| String::from(&key[PREFIX.len()..key.len()]))
+        .collect()
 }
-
 
 pub fn del(key: &str) {
     let mut conn = get_conn().unwrap();
@@ -84,15 +88,23 @@ mod tests {
         set("list_foo", "foo", EX_TIME);
         set("list_bar", "bar", EX_TIME);
         let result = list_keys();
-        assert!(result.contains(&"list_foo".to_string()) && result.contains(&"list_bar".to_string()));
+        assert!(
+            result.contains(&"list_foo".to_string()) && result.contains(&"list_bar".to_string())
+        );
     }
 
     #[test]
     fn test_list_pattern() {
         init();
         set("list_pattern_abc", "foo", EX_TIME);
-        assert_eq!(list_keys_pattern("list_pattern_a*"), vec!("list_pattern_abc"));
-        assert_eq!(list_keys_pattern("list_pattern_abc"), vec!("list_pattern_abc"));
+        assert_eq!(
+            list_keys_pattern("list_pattern_a*"),
+            vec!("list_pattern_abc")
+        );
+        assert_eq!(
+            list_keys_pattern("list_pattern_abc"),
+            vec!("list_pattern_abc")
+        );
         assert_eq!(list_keys_pattern("list_pattern_xyz"), vec!() as Vec<&str>);
     }
 
