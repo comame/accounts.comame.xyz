@@ -26,6 +26,7 @@ fn create_admin_user() {
         hashed_password: auth::password::calculate_password_hash(&password, user_id.as_str()),
     };
     db::user_password::insert_password(&user_password).unwrap();
+    println!("Admin user created.");
 }
 
 async fn service(req: Request<Body>) -> Result<Response<Body>, Infallible> {
@@ -49,6 +50,8 @@ async fn main() {
     );
 
     create_admin_user();
+
+    db::redis::init("redis://redis.comame.dev");
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
     let make_service = make_service_fn(|_conn| async { Ok::<_, Infallible>(service_fn(service)) });

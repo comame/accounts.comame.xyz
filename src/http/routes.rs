@@ -15,7 +15,7 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
             response = handler::signin::page();
         }
         (&Method::POST, "/sign-in") => {
-            response = handler::signin::sign_in(req).await;
+            response = handler::signin::sign_in_with_password(req).await;
         }
         _ => {
             let file = static_file::read(req.uri().path());

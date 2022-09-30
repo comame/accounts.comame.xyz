@@ -7,6 +7,7 @@ use crate::http::data::sign_in_request::SignInRequest;
 use crate::http::data::sign_in_response::SignInResponse;
 use crate::http::parse_body::parse_body;
 use crate::http::static_file;
+use crate::db::redis;
 
 pub fn page() -> Response<Body> {
     let mut response = Response::new(Body::empty());
@@ -15,6 +16,7 @@ pub fn page() -> Response<Body> {
     let html_file = String::from_utf8(html_file_vec).unwrap();
 
     let token = rand::random_str(32);
+    redis::set((String::from("csrf-token-") + token.as_str()).as_str(), "", 10 * 60);
 
     let replaced_html_file = html_file.replace("$CSRF", token.as_str());
 
@@ -23,7 +25,7 @@ pub fn page() -> Response<Body> {
     response
 }
 
-pub async fn sign_in(req: Request<Body>) -> Response<Body> {
+pub async fn sign_in_with_password(req: Request<Body>) -> Response<Body> {
     let mut has_error = false;
 
     let body = parse_body(req.into_body()).await;
@@ -39,12 +41,16 @@ pub async fn sign_in(req: Request<Body>) -> Response<Body> {
 
     let user_id = body.user_id;
     let password = body.password;
+    let token = body.csrf_token;
+
+    let redis_key = String::from("csrf-token-") + token.as_str();
 
     let is_authenticated = authenticated(&user_id.as_str(), &password.as_str());
-
-    dbg!(is_authenticated);
+    let is_token_collect = redis::list_keys_pattern(redis_key.as_str()).len() > 0;
+    redis::del(redis_key.as_str());
 
     has_error = has_error || !is_authenticated;
+    has_error = has_error || !is_token_collect;
 
     if has_error {
         let mut response = Response::new(Body::from("{}"));
