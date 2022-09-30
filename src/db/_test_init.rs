@@ -10,13 +10,10 @@ pub fn init() {
     let mysql_user = env::var("MYSQL_USER").unwrap();
     let mysql_password = env::var("MYSQL_PASSWORD").unwrap();
     let mysql_db = env::var("MYSQL_DATABASE").unwrap();
-    init_mysql(
-        format!(
-            "mysql://{}:{}@mysql.comame.dev/{}",
-            mysql_user, mysql_password, mysql_db
-        )
-        .as_str(),
-    );
+    init_mysql(&format!(
+        "mysql://{}:{}@mysql.comame.dev/{}",
+        mysql_user, mysql_password, mysql_db
+    ));
 
     if mysql_db != "id_dev" {
         panic!("Not in development environment");

@@ -41,13 +41,10 @@ async fn main() {
     let mysql_user = env::var("MYSQL_USER").unwrap();
     let mysql_password = env::var("MYSQL_PASSWORD").unwrap();
     let mysql_db = env::var("MYSQL_DATABASE").unwrap();
-    db::mysql::init(
-        format!(
-            "mysql://{}:{}@mysql.comame.dev/{}",
-            mysql_user, mysql_password, mysql_db
-        )
-        .as_str(),
-    );
+    db::mysql::init(&format!(
+        "mysql://{}:{}@mysql.comame.dev/{}",
+        mysql_user, mysql_password, mysql_db
+    ));
 
     create_admin_user();
 

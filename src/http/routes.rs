@@ -8,9 +8,6 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
     println!("Request {}", req.uri().path());
 
     match (req.method(), req.uri().path()) {
-        (&Method::GET, "/ping") => {
-            *response.body_mut() = "pong".into();
-        }
         (&Method::GET, "/sign-in") => {
             response = handler::signin::page();
         }

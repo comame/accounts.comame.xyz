@@ -16,11 +16,7 @@ pub fn page() -> Response<Body> {
     let html_file = String::from_utf8(html_file_vec).unwrap();
 
     let token = rand::random_str(32);
-    redis::set(
-        (String::from("csrf-token-") + token.as_str()).as_str(),
-        "",
-        10 * 60,
-    );
+    redis::set(&(String::from("csrf-token-") + &token), "", 10 * 60);
 
     let replaced_html_file = html_file.replace("$CSRF", token.as_str());
 
@@ -49,9 +45,9 @@ pub async fn sign_in_with_password(req: Request<Body>) -> Response<Body> {
 
     let redis_key = String::from("csrf-token-") + token.as_str();
 
-    let is_authenticated = authenticated(user_id.as_str(), password.as_str());
-    let is_token_collect = !redis::list_keys_pattern(redis_key.as_str()).is_empty();
-    redis::del(redis_key.as_str());
+    let is_authenticated = authenticated(&user_id, &password);
+    let is_token_collect = !redis::list_keys_pattern(&redis_key).is_empty();
+    redis::del(&redis_key);
 
     has_error = has_error || !is_authenticated;
     has_error = has_error || !is_token_collect;
