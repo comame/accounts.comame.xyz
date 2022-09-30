@@ -3,7 +3,7 @@ use hyper::{Body, Method, Request, Response, StatusCode};
 use crate::http::handler;
 use crate::http::static_file;
 
-pub fn routes(req: Request<Body>) -> Response<Body> {
+pub async fn routes(req: Request<Body>) -> Response<Body> {
     let mut response = Response::new(Body::empty());
     println!("Request {}", req.uri().path());
 
@@ -12,7 +12,10 @@ pub fn routes(req: Request<Body>) -> Response<Body> {
             *response.body_mut() = "pong".into();
         }
         (&Method::GET, "/sign-in") => {
-            response = handler::signin::handler();
+            response = handler::signin::page();
+        }
+        (&Method::POST, "/sign-in") => {
+            response = handler::signin::sign_in(req).await;
         }
         _ => {
             let file = static_file::read(req.uri().path());

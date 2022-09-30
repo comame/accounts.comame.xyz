@@ -17,7 +17,6 @@ fn internal_read(path: &str) -> Result<Vec<u8>> {
     let mut buf: Vec<u8> = vec![];
 
     if let Err(err) = reader.read_to_end(&mut buf) {
-        dbg!(&err);
         return Err(err);
     }
 

@@ -8,10 +8,28 @@ mod data;
 mod db;
 mod http;
 
+fn create_admin_user() {
+    let user_id = env::var("ADMIN_USER").unwrap();
+    let password = env::var("ADMIN_PASSWORD").unwrap();
+
+    let user = data::user::User { id: user_id.clone() };
+    let create_user = db::user::insert_user(&user);
+    if let Err(err) = create_user {
+        println!("{}", err);
+        println!("Skipped creating admin user.");
+        return;
+    }
+    let user_password = data::user_password::UserPassword {
+        user_id: user_id.clone(),
+        hashed_password: auth::password::calculate_password_hash(&password, user_id.as_str())
+    };
+    db::user_password::insert_password(&user_password).unwrap();
+}
+
 async fn service(req: Request<Body>) -> Result<Response<Body>, Infallible> {
     Ok(match http::uri::trim(req.uri().path()) {
         Some(path) => http::redirect::moved_permanently(path.as_str()),
-        None => http::routes::routes(req),
+        None => http::routes::routes(req).await,
     })
 }
 
@@ -27,6 +45,8 @@ async fn main() {
         )
         .as_str(),
     );
+
+    create_admin_user();
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
     let make_service = make_service_fn(|_conn| async { Ok::<_, Infallible>(service_fn(service)) });

@@ -4,10 +4,38 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="x-csrf-token" content="$CSRF">
+    <meta name="x-csrf-token" content="$CSRF" id="csrf-token">
     <title>Sign in</title>
 </head>
 <body>
-    Sign in here.
+    <form action="/sign-in" method="POST" id="form">
+        <label>User ID<input name="user_id" required></label>
+        <label>Password<input name="password" type="password" required></label>
+        <button type="submit">SIGN IN</button>
+    </form>
+    <script>
+        /** @type { HTMLFormElement } form */
+        const form = document.getElementById("form")
+        /** @type { HTMLMetaElement } tokenEl*/
+        const tokenEl = document.getElementById('csrf-token')
+        form.addEventListener("submit", e => {
+            e.preventDefault()
+            const formData = new FormData(form)
+            const body = JSON.stringify({
+                user_id: formData.get('user_id'),
+                password: formData.get('password'),
+                csrf_token: tokenEl.content,
+            })
+            fetch('/sign-in', {
+                method: 'POST',
+                body,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(res => res.json()).then(json => {
+                console.log(json)
+            })
+        })
+    </script>
 </body>
 </html>
