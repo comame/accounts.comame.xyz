@@ -1,12 +1,12 @@
-use hyper::{Body, Response, Request, StatusCode};
+use hyper::{Body, Request, Response, StatusCode};
 use serde_json::{from_str, to_string};
 
 use crate::auth::password::authenticated;
 use crate::crypto::rand;
+use crate::http::data::sign_in_request::SignInRequest;
 use crate::http::data::sign_in_response::SignInResponse;
 use crate::http::parse_body::parse_body;
 use crate::http::static_file;
-use crate::http::data::sign_in_request::SignInRequest;
 
 pub fn page() -> Response<Body> {
     let mut response = Response::new(Body::empty());

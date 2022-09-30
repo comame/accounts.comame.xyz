@@ -7,6 +7,8 @@ pub struct SignInResponse {
 
 impl SignInResponse {
     pub fn new(user_id: &str) -> SignInResponse {
-        SignInResponse { user_id: user_id.to_string() }
+        SignInResponse {
+            user_id: user_id.to_string(),
+        }
     }
 }

@@ -12,7 +12,9 @@ fn create_admin_user() {
     let user_id = env::var("ADMIN_USER").unwrap();
     let password = env::var("ADMIN_PASSWORD").unwrap();
 
-    let user = data::user::User { id: user_id.clone() };
+    let user = data::user::User {
+        id: user_id.clone(),
+    };
     let create_user = db::user::insert_user(&user);
     if let Err(err) = create_user {
         println!("{}", err);
@@ -21,7 +23,7 @@ fn create_admin_user() {
     }
     let user_password = data::user_password::UserPassword {
         user_id: user_id.clone(),
-        hashed_password: auth::password::calculate_password_hash(&password, user_id.as_str())
+        hashed_password: auth::password::calculate_password_hash(&password, user_id.as_str()),
     };
     db::user_password::insert_password(&user_password).unwrap();
 }
