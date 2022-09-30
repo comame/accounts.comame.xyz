@@ -13,24 +13,18 @@ pub fn find_user_by_id(id: &str) -> Option<User> {
         )
         .unwrap();
 
-    if users.len() > 0 {
-        Some(users.get(0).unwrap().clone())
-    } else {
+    if users.is_empty() {
         None
+    } else {
+        Some(users.get(0).unwrap().clone())
     }
 }
 
 pub fn insert_user(user: &User) -> Result<(), Error> {
-    let result = get_conn().unwrap().exec_batch(
+    get_conn().unwrap().exec_batch(
         "INSERT INTO users (id) VALUES (:id)",
         std::iter::once(params! { "id" => user.id.to_string() }),
-    );
-
-    if let Err(error) = result {
-        return Err(error);
-    } else {
-        return Ok(());
-    }
+    )
 }
 
 #[cfg(test)]

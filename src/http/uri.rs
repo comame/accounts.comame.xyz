@@ -29,7 +29,7 @@ pub fn trim(uri_path: &str) -> Option<String> {
         return None;
     }
 
-    if uri_path == "" {
+    if uri_path.is_empty() {
         return Some("/".to_string());
     }
 
@@ -38,7 +38,7 @@ pub fn trim(uri_path: &str) -> Option<String> {
     let trimed_by_index = trim_index(&mut uri_path);
     let trimed_by_slash = trim_slash(&mut uri_path);
 
-    if uri_path == "" {
+    if uri_path.is_empty() {
         return Some("/".to_string());
     }
 

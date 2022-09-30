@@ -49,8 +49,8 @@ pub async fn sign_in_with_password(req: Request<Body>) -> Response<Body> {
 
     let redis_key = String::from("csrf-token-") + token.as_str();
 
-    let is_authenticated = authenticated(&user_id.as_str(), &password.as_str());
-    let is_token_collect = redis::list_keys_pattern(redis_key.as_str()).len() > 0;
+    let is_authenticated = authenticated(user_id.as_str(), password.as_str());
+    let is_token_collect = !redis::list_keys_pattern(redis_key.as_str()).is_empty();
     redis::del(redis_key.as_str());
 
     has_error = has_error || !is_authenticated;
@@ -62,9 +62,7 @@ pub async fn sign_in_with_password(req: Request<Body>) -> Response<Body> {
         return response;
     }
 
-    let res = SignInResponse::new(&user_id.as_str());
+    let res = SignInResponse::new(user_id.as_str());
 
-    let response = Response::new(Body::from(to_string(&res).unwrap()));
-
-    response
+    Response::new(Body::from(to_string(&res).unwrap()))
 }

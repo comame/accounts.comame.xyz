@@ -16,9 +16,7 @@ fn internal_read(path: &str) -> Result<Vec<u8>> {
     let mut reader = BufReader::new(f.unwrap());
     let mut buf: Vec<u8> = vec![];
 
-    if let Err(err) = reader.read_to_end(&mut buf) {
-        return Err(err);
-    }
+    reader.read_to_end(&mut buf)?;
 
     Ok(buf)
 }

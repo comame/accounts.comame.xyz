@@ -4,7 +4,7 @@ use once_cell::sync::OnceCell;
 use redis::{Client, Commands, Connection};
 
 static CLIENT: OnceCell<Mutex<Client>> = OnceCell::new();
-static PREFIX: &'static str = "id.comame.dev:";
+static PREFIX: &str = "id.comame.dev:";
 
 pub fn init(redis_url: &str) {
     CLIENT.get_or_init(|| {

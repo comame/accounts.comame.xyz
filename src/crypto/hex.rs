@@ -3,8 +3,8 @@ fn to_hex(half_byte: u8) -> char {
         panic!();
     }
 
-    let charcode_of_a = 'A' as u8;
-    let charcode_of_zero = '0' as u8;
+    let charcode_of_a = b'A';
+    let charcode_of_zero = b'0';
 
     if half_byte < 10 {
         (charcode_of_zero + half_byte) as char
@@ -14,12 +14,12 @@ fn to_hex(half_byte: u8) -> char {
 }
 
 fn to_byte(c: char) -> u8 {
-    let charcode_of_a = 'A' as u8;
-    let charcode_of_zero = '0' as u8;
+    let charcode_of_a = b'A';
+    let charcode_of_zero = b'0';
 
-    if '0' <= c && c <= '9' {
+    if ('0'..='9').contains(&c) {
         c as u8 - charcode_of_zero
-    } else if 'A' <= c && c <= 'F' {
+    } else if ('A'..='F').contains(&c) {
         c as u8 - charcode_of_a + 10
     } else {
         panic!();
@@ -30,8 +30,7 @@ fn hex_to_u8_map() -> Vec<Vec<u8>> {
     let mut v: Vec<Vec<u8>> = vec![];
     for i in 0..=255 {
         if i % 16 == 0 {
-            let mut vv: Vec<u8> = vec![];
-            vv.push(i);
+            let vv: Vec<u8> = vec![i];
             v.push(vv);
         } else {
             let index_first: u8 = i >> 4;

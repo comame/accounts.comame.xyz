@@ -13,7 +13,7 @@ pub fn password_matched(user_password: &UserPassword) -> bool {
         |(_user_id,): (String,)| 0
     ).unwrap();
 
-    result.len() > 0
+    !result.is_empty()
 }
 
 fn password_exists(user_id: &str) -> bool {
@@ -28,13 +28,13 @@ fn password_exists(user_id: &str) -> bool {
         )
         .unwrap();
 
-    result.len() > 0
+    !result.is_empty()
 }
 
 pub fn insert_password(user_password: &UserPassword) -> Result<(), Error> {
     let exists = password_exists(&user_password.user_id);
 
-    let result = if exists {
+    if exists {
         get_conn().unwrap().exec_batch(
             "UPDATE user_passwords SET hashed_password = :new_p WHERE user_id = :id",
             std::iter::once(params! {
@@ -50,12 +50,6 @@ pub fn insert_password(user_password: &UserPassword) -> Result<(), Error> {
                 "pass" => user_password.hashed_password.clone(),
             }),
         )
-    };
-
-    if let Err(error) = result {
-        return Err(error);
-    } else {
-        return Ok(());
     }
 }
 
