@@ -95,7 +95,9 @@ pub async fn sign_in_with_session(req: Request<Body>) -> Response<Body> {
         return response_bad_request();
     }
 
-    let body = SessionSignInResponse { user_id: user.unwrap().id };
+    let body = SessionSignInResponse {
+        user_id: user.unwrap().id,
+    };
 
     Response::new(Body::from(to_string(&body).unwrap()))
 }
@@ -140,7 +142,7 @@ mod tests {
 
         let res = sign_in_with_password(req).await;
 
-        assert!((&res).status() == StatusCode::OK);
+        assert!(res.status() == StatusCode::OK);
     }
 
     #[tokio::test]
@@ -207,7 +209,8 @@ mod tests {
         let res = sign_in_with_password(req).await;
 
         let set_cookie_value = &res.headers().get("Set-Cookie").unwrap().to_str().unwrap();
-        let set_cookie_value = &set_cookie_value[..(set_cookie_value.len() - "; Secure; HttpOnly".len())];
+        let set_cookie_value =
+            &set_cookie_value[..(set_cookie_value.len() - "; Secure; HttpOnly".len())];
         let cookie = parse_cookie(set_cookie_value).unwrap();
         let session = cookie.get("Session").unwrap().clone();
 
