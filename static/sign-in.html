@@ -8,9 +8,10 @@
     <title>Sign in</title>
 </head>
 <body>
-    <form action="/sign-in" method="POST" id="form">
+    <form action="/signin" method="POST" id="form">
         <label>User ID<input name="user_id" required></label>
         <label>Password<input name="password" type="password" required></label>
+        <label>Keep<input name="keep" type="checkbox"></label>
         <button type="submit">SIGN IN</button>
     </form>
     <script>
@@ -24,9 +25,10 @@
             const body = JSON.stringify({
                 user_id: formData.get('user_id'),
                 password: formData.get('password'),
+                keep: formData.get('keep'),
                 csrf_token: tokenEl.content,
             })
-            fetch('/sign-in', {
+            fetch('/signin', {
                 method: 'POST',
                 body,
                 headers: {

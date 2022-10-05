@@ -2,6 +2,10 @@ use super::mysql::get_conn;
 use mysql::prelude::*;
 use mysql::Params;
 use std::env;
+use std::sync::Once;
+
+static INIT_MYSQL: Once = Once::new();
+static INIT_REDIS: Once = Once::new();
 
 #[allow(dead_code)]
 pub fn init_mysql() {
@@ -19,15 +23,24 @@ pub fn init_mysql() {
         panic!("Not in development environment");
     }
 
-    for table in tables {
-        get_conn()
-            .unwrap()
-            .exec_drop(format!("DELETE FROM {}", table), Params::Empty)
-            .unwrap();
-    }
+    INIT_MYSQL.call_once(|| {
+        for table in tables {
+            get_conn()
+                .unwrap()
+                .exec_drop(format!("DELETE FROM {}", table), Params::Empty)
+                .unwrap();
+        }
+    });
 }
 
 #[allow(dead_code)]
 pub fn init_redis() {
     super::redis::init("redis://redis.comame.dev");
+
+    INIT_REDIS.call_once(|| {
+        let keys = super::redis::list_keys();
+        for key in keys {
+            super::redis::del(&key);
+        }
+    })
 }

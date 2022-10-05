@@ -38,28 +38,27 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "Single thread only"]
-    fn single_thread_create_user() {
+    fn create_user() {
         init_mysql();
-        let result = insert_user(&generate_user("foo"));
+        let result = insert_user(&generate_user("db-user-create-user"));
         assert!(result.is_ok());
     }
 
     #[test]
-    #[ignore = "Single thread only"]
-    fn single_thread_can_find_user() {
+    fn can_find_user() {
         init_mysql();
-        let user = generate_user("foo");
+        let user_id = "db-user-can-find-user";
+        let user = generate_user(user_id);
         insert_user(&user).unwrap();
-        let result = find_user_by_id("foo");
+        let result = find_user_by_id(user_id);
         assert_eq!(user, result.unwrap());
     }
 
     #[test]
-    #[ignore = "Single thread only"]
-    fn single_thread_fail_find_user() {
+    fn fail_find_user() {
         init_mysql();
-        let user = generate_user("foo");
+        let user_id = "db-user-fail-find-user";
+        let user = generate_user(user_id);
         insert_user(&user).unwrap();
         let result = find_user_by_id("bar");
         assert!(result.is_none());

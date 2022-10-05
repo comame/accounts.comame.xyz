@@ -8,10 +8,10 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
     println!("Request {}", req.uri().path());
 
     match (req.method(), req.uri().path()) {
-        (&Method::GET, "/sign-in") => {
+        (&Method::GET, "/signin") => {
             response = handler::signin::page();
         }
-        (&Method::POST, "/sign-in") => {
+        (&Method::POST, "/signin") => {
             response = handler::signin::sign_in_with_password(req).await;
         }
         _ => {

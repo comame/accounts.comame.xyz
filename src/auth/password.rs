@@ -37,27 +37,27 @@ mod tests {
     };
 
     #[test]
-    #[ignore = "Single thread only"]
-    fn single_thread_valid_password() {
+    fn valid_password() {
         init_mysql();
+        let user_id = "password-valid-password";
         insert_user(&User {
-            id: "user".to_string(),
+            id: user_id.to_string(),
         })
         .unwrap();
-        set_password("user", "foo");
-        assert!(authenticated("user", "foo"));
+        set_password(user_id, "foo");
+        assert!(authenticated(user_id, "foo"));
     }
 
     #[test]
-    #[ignore = "Single thread only"]
-    fn single_thread_invalid_password() {
+    fn invalid_password() {
         init_mysql();
+        let user_id = "password-invalid-password";
         insert_user(&User {
-            id: "user".to_string(),
+            id: user_id.to_string(),
         })
         .unwrap();
-        set_password("user", "foo");
-        assert!(!authenticated("user", "bar"));
+        set_password(user_id, "foo");
+        assert!(!authenticated(user_id, "bar"));
         assert!(!authenticated("bob", "bar"));
     }
 }

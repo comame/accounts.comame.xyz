@@ -2,7 +2,7 @@ use crate::{crypto::rand, db::redis};
 use std::ops::Not;
 
 const PREFIX: &str = "csrf-token-";
-const TOKEN_ALIVE_MIN: u16 = 10;
+const TOKEN_ALIVE_MIN: u64 = 10;
 
 pub fn generate() -> String {
     let token = rand::random_str(32);

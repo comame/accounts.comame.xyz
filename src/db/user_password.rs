@@ -60,11 +60,10 @@ mod tests {
     use crate::data::user_password::UserPassword;
 
     #[test]
-    #[ignore = "Single thread only"]
-    fn single_thread_insert_password() {
+    fn test_insert_password() {
         init_mysql();
         let pass = UserPassword {
-            user_id: "user-a".to_string(),
+            user_id: "db-user-password-insert-password".to_string(),
             hashed_password: "pass".to_string(),
         };
         let result = insert_password(&pass);
@@ -72,18 +71,18 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "Single thread only"]
-    fn single_thread_can_authenticate() {
+    fn can_authenticate() {
         init_mysql();
+        let user_id_a = "db-user-password-can-authenticate-1";
         let pass_1 = UserPassword {
-            user_id: "user-a".to_string(),
+            user_id: user_id_a.to_string(),
             hashed_password: "pass".to_string(),
         };
         insert_password(&pass_1).unwrap();
         let result = password_matched(&pass_1);
         assert!(result);
         let pass_2 = UserPassword {
-            user_id: "user-a".to_string(),
+            user_id: user_id_a.to_string(),
             hashed_password: "wrong".to_string(),
         };
         let result = password_matched(&pass_2);
@@ -91,16 +90,16 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "Single thread only"]
-    fn single_thread_can_update() {
+    fn can_update() {
         init_mysql();
+        let user_id = "db-user_password-can_update";
         let pass_1 = UserPassword {
-            user_id: "user-a".to_string(),
+            user_id: user_id.to_string(),
             hashed_password: "pass".to_string(),
         };
         insert_password(&pass_1).unwrap();
         let pass_2 = UserPassword {
-            user_id: "user-a".to_string(),
+            user_id: user_id.to_string(),
             hashed_password: "new".to_string(),
         };
         insert_password(&pass_2).unwrap();

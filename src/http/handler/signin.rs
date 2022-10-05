@@ -72,24 +72,26 @@ mod tests {
         },
     };
 
-    fn setup_user() {
+    fn setup_user(user_id: &str) {
         insert_user(&User {
-            id: "user".to_string(),
+            id: user_id.to_string(),
         })
         .unwrap();
-        set_password("user", "password");
+        set_password(user_id, "password");
     }
 
     #[tokio::test]
-    #[ignore = "Single thread only"]
-    async fn single_thread_correct() {
+    async fn correct() {
         init_mysql();
         init_redis();
-        setup_user();
+
+        let user_id = "http-handler-signin-correct";
+
+        setup_user(user_id);
 
         let csrf_token = generate();
         let req = SignInRequest {
-            user_id: "user".to_string(),
+            user_id: user_id.to_string(),
             password: "password".to_string(),
             csrf_token,
         };
@@ -101,11 +103,13 @@ mod tests {
     }
 
     #[tokio::test]
-    #[ignore = "Single thread only"]
-    async fn single_thread_invalid_credential() {
+    async fn invalid_credential() {
         init_mysql();
         init_redis();
-        setup_user();
+
+        let user_id = "http-handler-signin-invalid_credential";
+
+        setup_user(user_id);
 
         let csrf_token = generate();
 
@@ -122,16 +126,18 @@ mod tests {
     }
 
     #[tokio::test]
-    #[ignore = "Single thread only"]
-    async fn single_thread_invalid_csrf_token() {
+    async fn invalid_csrf_token() {
         init_mysql();
         init_redis();
-        setup_user();
+
+        let user_id = "http-handler-signin-invalid_csrf_token";
+
+        setup_user(user_id);
 
         let _csrf_token = generate();
 
         let req = SignInRequest {
-            user_id: "user".to_string(),
+            user_id: user_id.to_string(),
             password: "password".to_string(),
             csrf_token: "fake".to_string(),
         };

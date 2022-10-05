@@ -32,7 +32,7 @@ fn get_conn() -> Result<Connection, ()> {
     Ok(client.unwrap())
 }
 
-pub fn set(key: &str, value: &str, time_sec: u16) {
+pub fn set(key: &str, value: &str, time_sec: u64) {
     let mut conn = get_conn().unwrap();
     let _r: Result<(), _> = conn.set_ex(String::from(PREFIX) + key, value, time_sec as usize);
 }
@@ -71,7 +71,7 @@ mod tests {
     use super::super::_test_init::init_redis;
     use super::*;
 
-    const EX_TIME: u16 = 3;
+    const EX_TIME: u64 = 3;
 
     #[test]
     fn test_set_and_get() {
