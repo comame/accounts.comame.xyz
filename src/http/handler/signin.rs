@@ -4,10 +4,12 @@ use serde_json::{from_str, to_string};
 use crate::auth::csrf_token;
 use crate::auth::password::authenticated;
 
+use crate::auth::session::{create_session, get_session};
 use crate::http::data::sign_in_request::SignInRequest;
 use crate::http::data::sign_in_response::SignInResponse;
 use crate::http::parse_body::parse_body;
-use crate::http::static_file;
+use crate::http::set_header::set_header;
+use crate::http::{parse_cookie::parse_cookie, static_file};
 
 #[inline]
 fn response_bad_request() -> Response<Body> {
@@ -55,9 +57,46 @@ pub async fn sign_in_with_password(req: Request<Body>) -> Response<Body> {
         return response_bad_request();
     }
 
-    let res = SignInResponse::new(user_id.as_str());
+    let body = SignInResponse::new(user_id.as_str());
+    let mut response = Response::new(Body::from(to_string(&body).unwrap()));
 
-    Response::new(Body::from(to_string(&res).unwrap()))
+    let session = create_session(&user_id);
+
+    let header_value = format!("Session={}; Secure; HttpOnly", session.token());
+    set_header(&mut response, "Set-Cookie", &header_value);
+
+    response
+}
+
+pub async fn sign_in_with_session(req: Request<Body>) -> Response<Body> {
+    let cookie = req.headers().get("Cookie");
+
+    if cookie.is_none() {
+        return response_bad_request();
+    }
+
+    let cookie = parse_cookie(cookie.unwrap().to_str().unwrap());
+
+    if cookie.is_err() {
+        return response_bad_request();
+    }
+
+    let cookie_map = cookie.unwrap();
+    let session_token = cookie_map.get("Session");
+
+    if session_token.is_none() {
+        return response_bad_request();
+    }
+
+    let user = get_session(session_token.unwrap());
+
+    if user.is_none() {
+        return response_bad_request();
+    }
+
+    dbg!(&user);
+
+    Response::new(Body::from("{}"))
 }
 
 #[cfg(test)]

@@ -10,17 +10,17 @@ const USER_TO_TOKEN: &str = "SESSION-USER-";
 pub fn create_session(user_id: &str) -> Session {
     let session = Session::new(user_id);
 
-    let redis_key = String::from(TOKEN_TO_USER) + &session.token();
+    let redis_key = String::from(TOKEN_TO_USER) + session.token();
     redis::set(&redis_key, user_id, 24 * 60 * 60);
 
     let rand = random_str(16);
     let redis_key = format!("{}{}-{}", USER_TO_TOKEN, user_id, rand);
-    redis::set(&redis_key, &session.token(), 24 * 60 * 60);
+    redis::set(&redis_key, session.token(), 24 * 60 * 60);
 
     session
 }
 
-pub fn revoke_session(user_id: &str) {
+pub fn revoke_session_by_user_id(user_id: &str) {
     let key_pattern = format!("{}{}*", USER_TO_TOKEN, user_id);
     let keys = redis::list_keys_pattern(&key_pattern);
 
@@ -39,19 +39,26 @@ pub fn revoke_session(user_id: &str) {
     }
 }
 
+pub fn revoke_session_by_token(token: &str) {
+    let key = format!("{}{}", TOKEN_TO_USER, token);
+    let user = get_session(token);
+
+    redis::del(&key);
+
+    if let Some(user) = user {
+        revoke_session_by_user_id(&user.id);
+    }
+}
+
 pub fn get_session(token: &str) -> Option<User> {
     let redis_key = String::from(TOKEN_TO_USER) + token;
     let user = redis::get(&redis_key);
 
-    if user.is_none() {
-        return None;
-    }
+    user.as_ref()?;
 
     let user = find_user_by_id(&user.unwrap());
 
-    if user.is_none() {
-        return None;
-    }
+    user.as_ref()?;
 
     Some(user.unwrap())
 }
@@ -74,7 +81,7 @@ mod tests {
         .unwrap();
 
         let session = create_session(user_id);
-        let user = get_session(&session.token());
+        let user = get_session(session.token());
 
         assert_eq!(user_id, user.unwrap().id);
     }
@@ -97,18 +104,37 @@ mod tests {
     }
 
     #[test]
-    fn can_revoke() {
+    fn can_revoke_by_user_id() {
         _test_init::init_mysql();
         _test_init::init_redis();
 
-        let user_id = "session-can-revoke";
+        let user_id = "session-can-revoke-by-user";
         db::user::insert_user(&User {
             id: String::from(user_id),
         })
         .unwrap();
 
         let session = create_session(user_id);
-        revoke_session(user_id);
+        revoke_session_by_user_id(user_id);
+
+        let user = get_session(session.token());
+
+        assert!(user.is_none());
+    }
+
+    #[test]
+    fn can_revoke_by_token() {
+        _test_init::init_mysql();
+        _test_init::init_redis();
+
+        let user_id = "session-can-revoke-by-token";
+        db::user::insert_user(&User {
+            id: String::from(user_id),
+        })
+        .unwrap();
+
+        let session = create_session(user_id);
+        revoke_session_by_token(session.token());
 
         let user = get_session(session.token());
 

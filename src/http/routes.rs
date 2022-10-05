@@ -11,8 +11,11 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
         (&Method::GET, "/signin") => {
             response = handler::signin::page();
         }
-        (&Method::POST, "/signin") => {
+        (&Method::POST, "/signin-password") => {
             response = handler::signin::sign_in_with_password(req).await;
+        }
+        (&Method::POST, "/signin-session") => {
+            response = handler::signin::sign_in_with_session(req).await;
         }
         _ => {
             let file = static_file::read(req.uri().path());

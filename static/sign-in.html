@@ -8,10 +8,9 @@
     <title>Sign in</title>
 </head>
 <body>
-    <form action="/signin" method="POST" id="form">
+    <form id="form">
         <label>User ID<input name="user_id" required></label>
         <label>Password<input name="password" type="password" required></label>
-        <label>Keep<input name="keep" type="checkbox"></label>
         <button type="submit">SIGN IN</button>
     </form>
     <script>
@@ -19,16 +18,23 @@
         const form = document.getElementById("form")
         /** @type { HTMLMetaElement } tokenEl*/
         const tokenEl = document.getElementById('csrf-token')
+
+        fetch('/signin-session', {
+            method: 'POST',
+            credentials: 'include'
+        }).then(res => res.json()).thne(json => {
+            console.log(json)
+        })
+
         form.addEventListener("submit", e => {
             e.preventDefault()
             const formData = new FormData(form)
             const body = JSON.stringify({
                 user_id: formData.get('user_id'),
                 password: formData.get('password'),
-                keep: formData.get('keep'),
                 csrf_token: tokenEl.content,
             })
-            fetch('/signin', {
+            fetch('/signin-password', {
                 method: 'POST',
                 body,
                 headers: {

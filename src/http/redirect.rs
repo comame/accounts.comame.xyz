@@ -1,12 +1,13 @@
 use hyper::{http::HeaderValue, Body, Response, StatusCode};
 
+use super::set_header::set_header;
+
 pub fn moved_permanently(path: &str) -> Response<Body> {
     let mut response = Response::new(Body::empty());
 
-    let header_value = HeaderValue::from_str(path).unwrap();
-
     *response.status_mut() = StatusCode::MOVED_PERMANENTLY;
-    response.headers_mut().append("Location", header_value);
+
+    set_header(&mut response, "Location", path);
 
     response
 }
