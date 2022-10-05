@@ -46,7 +46,7 @@ async fn main() {
 
     db::redis::init("redis://redis.comame.dev");
 
-    let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
+    let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
     let make_service = make_service_fn(|_conn| async { Ok::<_, Infallible>(service_fn(service)) });
     let serve = Server::bind(&addr).serve(make_service);
     let result = tokio::spawn(serve);
