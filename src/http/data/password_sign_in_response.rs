@@ -1,13 +1,13 @@
 use serde::Serialize;
 
 #[derive(Serialize)]
-pub struct SignInResponse {
+pub struct PasswordSignInResponse {
     user_id: String,
 }
 
-impl SignInResponse {
+impl PasswordSignInResponse {
     pub fn new(user_id: &str) -> Self {
-        SignInResponse {
+        PasswordSignInResponse {
             user_id: user_id.to_string(),
         }
     }

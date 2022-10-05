@@ -8,7 +8,7 @@
     <title>Sign in</title>
 </head>
 <body>
-    <form id="form">
+    <form id="form" action="#">
         <label>User ID<input name="user_id" required></label>
         <label>Password<input name="password" type="password" required></label>
         <button type="submit">SIGN IN</button>
@@ -22,7 +22,7 @@
         fetch('/signin-session', {
             method: 'POST',
             credentials: 'include'
-        }).then(res => res.json()).thne(json => {
+        }).then(res => res.json()).then(json => {
             console.log(json)
         })
 
