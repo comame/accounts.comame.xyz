@@ -32,8 +32,8 @@ pub async fn signout(req: Request<Body>) -> Response<Body> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use hyper::{Body, Request, Response, StatusCode};
-    use serde_json::{from_str, to_string};
+    use hyper::{Body, Request, StatusCode};
+    use serde_json::{to_string};
 
     use crate::{
         auth::{csrf_token::generate, password::set_password},
