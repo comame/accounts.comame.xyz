@@ -3,7 +3,7 @@ use std::collections::HashMap;
 pub fn parse_cookie(value: &str) -> Result<HashMap<String, String>, ()> {
     let mut map: HashMap<String, String> = HashMap::new();
 
-    if value == "" {
+    if value.is_empty() {
         return Ok(map);
     }
 
@@ -65,7 +65,7 @@ pub fn parse_cookie(value: &str) -> Result<HashMap<String, String>, ()> {
     let key: String = key_chars.iter().collect();
     let value: String = value_chars.iter().collect();
 
-    if key.len() > 0 && value.len() > 0 {
+    if !key.is_empty() && !value.is_empty() {
         map.insert(key, value);
     }
 
@@ -83,7 +83,7 @@ mod tests {
     #[test]
     fn single_cookie() {
         let cookies = parse_cookie("key=value").unwrap();
-        let keys: Vec<String> = cookies.keys().map(|str| str.clone()).collect();
+        let keys: Vec<String> = cookies.keys().cloned().collect();
         assert_eq!(vec!("key"), keys);
         assert_eq!(cookies.get("key").unwrap(), "value");
     }
@@ -91,7 +91,7 @@ mod tests {
     #[test]
     fn multi_cookies() {
         let cookies = parse_cookie("foo=foo; bar=bar; baz=baz").unwrap();
-        let mut keys: Vec<String> = cookies.keys().map(|str| str.clone()).collect();
+        let mut keys: Vec<String> = cookies.keys().cloned().collect();
         keys.sort();
         assert_eq!(vec!("bar", "baz", "foo"), keys);
         assert_eq!(cookies.get("foo").unwrap(), "foo");

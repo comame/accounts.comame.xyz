@@ -1,4 +1,4 @@
-use hyper::{http::HeaderValue, Body, Response, StatusCode};
+use hyper::{Body, Response, StatusCode};
 
 use super::set_header::set_header;
 
