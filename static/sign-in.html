@@ -8,22 +8,27 @@
     <title>Sign in</title>
 </head>
 <body>
-    <form id="form" action="#">
+    <label>user: <input readonly id="user_id_read"></label>
+    <form id="form" action="">
         <label>User ID<input name="user_id" required></label>
         <label>Password<input name="password" type="password" required></label>
         <button type="submit">SIGN IN</button>
     </form>
+    <button id="signout">SIGN OUT</button>
     <script>
         /** @type { HTMLFormElement } form */
         const form = document.getElementById("form")
         /** @type { HTMLMetaElement } tokenEl*/
         const tokenEl = document.getElementById('csrf-token')
+        const idEl = document.getElementById('user_id_read')
+        const signoutButton = document.getElementById('signout')
 
         fetch('/signin-session', {
             method: 'POST',
             credentials: 'include'
         }).then(res => res.json()).then(json => {
             console.log(json)
+            idEl.value = json['user_id']
         })
 
         form.addEventListener("submit", e => {
@@ -42,6 +47,15 @@
                 }
             }).then(res => res.json()).then(json => {
                 console.log(json)
+                idEl.value = json['user_id']
+            })
+        })
+
+        signoutButton.addEventListener('click', () => {
+            fetch('/signout', {
+                credentials: 'include'
+            }).then(() => {
+                location.reload()
             })
         })
     </script>
