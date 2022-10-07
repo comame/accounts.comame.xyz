@@ -37,14 +37,16 @@ async fn main() {
     let mysql_user = env::var("MYSQL_USER").unwrap();
     let mysql_password = env::var("MYSQL_PASSWORD").unwrap();
     let mysql_db = env::var("MYSQL_DATABASE").unwrap();
+    let mysql_host = env::var("MYSQL_HOST").unwrap();
     db::mysql::init(&format!(
-        "mysql://{}:{}@mysql.comame.dev/{}",
-        mysql_user, mysql_password, mysql_db
+        "mysql://{}:{}@{}/{}",
+        mysql_user, mysql_password, mysql_host, mysql_db
     ));
 
     create_admin_user();
 
-    db::redis::init("redis://redis.comame.dev");
+    let redis_host = env::var("REDIS_HOST").unwrap();
+    db::redis::init(&format!("redis://{}", redis_host));
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
     let make_service = make_service_fn(|_conn| async { Ok::<_, Infallible>(service_fn(service)) });

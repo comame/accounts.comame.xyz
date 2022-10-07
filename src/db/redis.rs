@@ -1,10 +1,14 @@
+use std::env;
 use std::sync::Mutex;
 
 use once_cell::sync::OnceCell;
 use redis::{Client, Commands, Connection};
 
 static CLIENT: OnceCell<Mutex<Client>> = OnceCell::new();
-static PREFIX: &str = "id.comame.dev:";
+
+fn get_prefix() -> String {
+    env::var("REDIS_PREFIX").unwrap()
+}
 
 pub fn init(redis_url: &str) {
     CLIENT.get_or_init(|| {
@@ -34,36 +38,36 @@ fn get_conn() -> Result<Connection, ()> {
 
 pub fn set(key: &str, value: &str, time_sec: u64) {
     let mut conn = get_conn().unwrap();
-    let _r: Result<(), _> = conn.set_ex(String::from(PREFIX) + key, value, time_sec as usize);
+    let _r: Result<(), _> = conn.set_ex(String::from(get_prefix()) + key, value, time_sec as usize);
 }
 
 #[allow(dead_code)]
 pub fn get(key: &str) -> Option<String> {
     let mut conn = get_conn().unwrap();
-    conn.get::<String, Option<String>>(String::from(PREFIX) + key)
+    conn.get::<String, Option<String>>(String::from(get_prefix()) + key)
         .unwrap()
 }
 
 #[allow(dead_code)]
 pub fn list_keys() -> Vec<String> {
     let mut conn = get_conn().unwrap();
-    let keys: Vec<String> = conn.keys(String::from(PREFIX) + "*").unwrap();
+    let keys: Vec<String> = conn.keys(String::from(get_prefix()) + "*").unwrap();
     keys.iter()
-        .map(|key| String::from(&key[PREFIX.len()..key.len()]))
+        .map(|key| String::from(&key[get_prefix().len()..key.len()]))
         .collect()
 }
 
 pub fn list_keys_pattern(pattern: &str) -> Vec<String> {
     let mut conn = get_conn().unwrap();
-    let keys: Vec<String> = conn.keys(String::from(PREFIX) + pattern).unwrap();
+    let keys: Vec<String> = conn.keys(String::from(get_prefix()) + pattern).unwrap();
     keys.iter()
-        .map(|key| String::from(&key[PREFIX.len()..key.len()]))
+        .map(|key| String::from(&key[get_prefix().len()..key.len()]))
         .collect()
 }
 
 pub fn del(key: &str) {
     let mut conn = get_conn().unwrap();
-    let _r: Result<(), _> = conn.del(String::from(PREFIX) + key);
+    let _r: Result<(), _> = conn.del(String::from(get_prefix()) + key);
 }
 
 #[cfg(test)]

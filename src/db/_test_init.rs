@@ -14,9 +14,10 @@ pub fn init_mysql() {
     let mysql_user = env::var("MYSQL_USER").unwrap();
     let mysql_password = env::var("MYSQL_PASSWORD").unwrap();
     let mysql_db = env::var("MYSQL_DATABASE").unwrap();
+    let mysql_host = env::var("MYSQL_HOST").unwrap();
     super::mysql::init(&format!(
-        "mysql://{}:{}@mysql.comame.dev/{}",
-        mysql_user, mysql_password, mysql_db
+        "mysql://{}:{}@{}/{}",
+        mysql_user, mysql_password, mysql_host, mysql_db
     ));
 
     if mysql_db != "id_dev" {
@@ -35,7 +36,8 @@ pub fn init_mysql() {
 
 #[allow(dead_code)]
 pub fn init_redis() {
-    super::redis::init("redis://redis.comame.dev");
+    let redis_host = env::var("REDIS_HOST").unwrap();
+    super::redis::init(&format!("redis://{}", redis_host));
 
     INIT_REDIS.call_once(|| {
         let keys = super::redis::list_keys();

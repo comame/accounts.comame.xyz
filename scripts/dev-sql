@@ -13,8 +13,9 @@ const dotenvFile = readFileSync('./.env', { encoding: 'utf-8' })
 const mysqlUser = /MYSQL_USER=(.+)/.exec(dotenvFile)?.[1]
 const mysqlPassword = /MYSQL_PASSWORD=(.+)/.exec(dotenvFile)?.[1]
 const mysqlDb = /MYSQL_DATABASE=(.+)/.exec(dotenvFile)?.[1]
+const mysqlHost = /MYSQL_HOST=(.+)/.exec(dotenvFile)?.[1]
 
-if (!mysqlUser || !mysqlPassword || !mysqlDb) throw 'set .env'
+if (!mysqlUser || !mysqlPassword || !mysqlDb || !mysqlHost) throw 'set .env'
 
 const dir = readdirSync('./sql').sort()
 
@@ -25,5 +26,5 @@ for (const file of dir) {
     replacedFile = replacedFile.replace(/\$MYSQL_DATABASE/g, mysqlDb)
     writeFileSync('/tmp/comame-dev-id-sql.sql', replacedFile)
 
-    execSync(`mysql -hmysql.comame.dev -u${user} -p${password} < /tmp/comame-dev-id-sql.sql`)
+    execSync(`mysql -h${mysqlHost} -u${user} -p${password} < /tmp/comame-dev-id-sql.sql`)
 }
