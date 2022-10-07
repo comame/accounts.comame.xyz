@@ -7,6 +7,7 @@ use crate::auth::password::authenticated;
 use crate::auth::session::{create_session, get_session};
 use crate::http::data::password_sign_in_request::PasswordSignInRequest;
 use crate::http::data::password_sign_in_response::PasswordSignInResponse;
+use crate::http::data::session_sign_in_request::SessionSignInRequest;
 use crate::http::data::session_sign_in_response::SessionSignInResponse;
 use crate::http::parse_body::parse_body;
 use crate::http::set_header::set_header;
@@ -52,7 +53,7 @@ pub async fn sign_in_with_password(req: Request<Body>) -> Response<Body> {
     let token = request.csrf_token;
 
     let is_authenticated = authenticated(&user_id, &password);
-    let is_token_collect = csrf_token::validate(&token);
+    let is_token_collect = csrf_token::validate_once(&token);
 
     if !(is_authenticated && is_token_collect) {
         return response_bad_request();
@@ -92,6 +93,24 @@ pub async fn sign_in_with_session(req: Request<Body>) -> Response<Body> {
     let user = get_session(session_token.unwrap());
 
     if user.is_none() {
+        return response_bad_request();
+    }
+
+    let body = parse_body(req.into_body()).await;
+    if body.is_err() {
+        return response_bad_request();
+    }
+
+    let request = match from_str::<SessionSignInRequest>(&body.unwrap()) {
+        Ok(v) => v,
+        Err(_) => {
+            return response_bad_request();
+        }
+    };
+
+    let csrf_token_correct = csrf_token::validate_keep_token(&request.csrf_token);
+
+    if !csrf_token_correct {
         return response_bad_request();
     }
 
@@ -214,7 +233,10 @@ mod tests {
         let cookie = parse_cookie(set_cookie_value).unwrap();
         let session = cookie.get("Session").unwrap().clone();
 
-        let mut req = Request::new(Body::empty());
+        let csrf_token = generate();
+        let req = SessionSignInRequest { csrf_token };
+
+        let mut req = Request::new(Body::from(to_string(&req).unwrap()));
         set_header_req(&mut req, "Cookie", &format!("Session={}", session));
 
         let res = sign_in_with_session(req).await;
@@ -229,8 +251,11 @@ mod tests {
         let user_id = "http-handler-signin-invalid_session";
         setup_user(user_id);
 
-        let mut req = Request::new(Body::empty());
-        set_header_req(&mut req, "Cookie", "Session=dummy");
+        let csrf_token = generate();
+        let req = SessionSignInRequest { csrf_token };
+
+        let mut req = Request::new(Body::from(to_string(&req).unwrap()));
+        set_header_req(&mut req, "Cookie", &format!("Session={}", "dummy_session"));
 
         let res = sign_in_with_session(req).await;
         assert!(res.status() == StatusCode::BAD_REQUEST);

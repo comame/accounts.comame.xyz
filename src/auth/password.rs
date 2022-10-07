@@ -19,6 +19,7 @@ pub fn set_password(user_id: &str, password: &str) {
     insert_password(&user_password).unwrap();
 }
 
+// TODO: ユーザーの存在確認もする
 pub fn authenticated(user_id: &str, password: &str) -> bool {
     let hash = calculate_password_hash(password, user_id);
     let user_password = UserPassword {

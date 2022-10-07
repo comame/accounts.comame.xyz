@@ -13,11 +13,16 @@ pub fn generate() -> String {
     token
 }
 
-pub fn validate(token: &str) -> bool {
+pub fn validate_once(token: &str) -> bool {
+    let is_collect = validate_keep_token(token);
     let redis_key = String::from(PREFIX) + token;
-    let is_collect = redis::list_keys_pattern(&redis_key).is_empty().not();
     redis::del(&redis_key);
     is_collect
+}
+
+pub fn validate_keep_token(token: &str) -> bool {
+    let redis_key = String::from(PREFIX) + token;
+    redis::list_keys_pattern(&redis_key).is_empty().not()
 }
 
 #[cfg(test)]
@@ -26,10 +31,18 @@ mod tests {
     use crate::db::_test_init::init_redis;
 
     #[test]
-    fn test() {
+    fn test_once() {
         init_redis();
         let token = generate();
-        assert!(validate(&token));
-        assert!(!validate(&token));
+        assert!(validate_once(&token));
+        assert!(!validate_once(&token));
+    }
+
+    #[test]
+    fn test_keep() {
+        init_redis();
+        let token = generate();
+        assert!(validate_keep_token(&token));
+        assert!(validate_keep_token(&token));
     }
 }

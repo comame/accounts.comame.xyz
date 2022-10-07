@@ -25,7 +25,13 @@
 
         fetch('/signin-session', {
             method: 'POST',
-            credentials: 'include'
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                csrf_token: tokenEl.content
+            })
         }).then(res => res.json()).then(json => {
             console.log(json)
             idEl.value = json['user_id']
