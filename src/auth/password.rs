@@ -36,9 +36,9 @@ pub fn authenticated(user_id: &str, password: &str) -> bool {
         return false;
     }
 
-    let user_exists = user::find_user_by_id(user_id).is_some();
+    
 
-    user_exists
+    user::find_user_by_id(user_id).is_some()
 }
 
 #[cfg(test)]
