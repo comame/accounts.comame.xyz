@@ -1,3 +1,5 @@
+use crate::crypto::rand::random_str;
+
 use super::mysql::get_conn;
 use mysql::prelude::*;
 use mysql::Params;
@@ -40,9 +42,7 @@ pub fn init_redis() {
     super::redis::init(&format!("redis://{}", redis_host));
 
     INIT_REDIS.call_once(|| {
-        let keys = super::redis::list_keys();
-        for key in keys {
-            super::redis::del(&key);
-        }
-    })
+        let redis_prefix = env::var("REDIS_PREFIX").unwrap();
+        env::set_var("REDIS_PREFIX", format!("{redis_prefix}-{}", random_str(8)));
+    });
 }

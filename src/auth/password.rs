@@ -1,5 +1,6 @@
 use crate::crypto::sha::sha256;
 use crate::data::user_password::UserPassword;
+use crate::db::user;
 use crate::db::user_password::{insert_password, password_matched};
 
 fn calculate_password_hash(password: &str, salt: &str) -> String {
@@ -12,6 +13,11 @@ fn calculate_password_hash(password: &str, salt: &str) -> String {
 }
 
 pub fn set_password(user_id: &str, password: &str) {
+    let user_exists = user::find_user_by_id(user_id).is_some();
+    if !user_exists {
+        return;
+    }
+
     let user_password = UserPassword {
         user_id: user_id.to_string(),
         hashed_password: calculate_password_hash(password, user_id),
@@ -19,14 +25,20 @@ pub fn set_password(user_id: &str, password: &str) {
     insert_password(&user_password).unwrap();
 }
 
-// TODO: ユーザーの存在確認もする
 pub fn authenticated(user_id: &str, password: &str) -> bool {
     let hash = calculate_password_hash(password, user_id);
     let user_password = UserPassword {
         user_id: user_id.to_string(),
         hashed_password: hash,
     };
-    password_matched(&user_password)
+    let password_ok = password_matched(&user_password);
+    if !password_ok {
+        return false;
+    }
+
+    let user_exists = user::find_user_by_id(user_id).is_some();
+
+    user_exists
 }
 
 #[cfg(test)]
@@ -34,7 +46,7 @@ mod tests {
     use super::*;
     use crate::{
         data::user::User,
-        db::{_test_init::init_mysql, user::insert_user},
+        db::{self, _test_init::init_mysql, user::insert_user},
     };
 
     #[test]
@@ -60,5 +72,21 @@ mod tests {
         set_password(user_id, "foo");
         assert!(!authenticated(user_id, "bar"));
         assert!(!authenticated("bob", "bar"));
+    }
+
+    #[test]
+    fn invalid_user() {
+        init_mysql();
+        let user_id = "auth-password-invalid_user-alice";
+        insert_user(&User {
+            id: user_id.to_string(),
+        })
+        .unwrap();
+        db::user_password::insert_password(&UserPassword {
+            user_id: "auth-password-invalid_user-user_not_exists".to_string(),
+            hashed_password: "dummy".to_string(),
+        })
+        .unwrap();
+        assert!(!authenticated("alice", "foo"));
     }
 }

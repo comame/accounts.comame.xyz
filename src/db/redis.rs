@@ -7,7 +7,8 @@ use redis::{Client, Commands, Connection};
 static CLIENT: OnceCell<Mutex<Client>> = OnceCell::new();
 
 fn get_prefix() -> String {
-    env::var("REDIS_PREFIX").unwrap()
+    let redis_prefix = env::var("REDIS_PREFIX").unwrap();
+    format!("{redis_prefix}:")
 }
 
 pub fn init(redis_url: &str) {
@@ -75,7 +76,7 @@ mod tests {
     use super::super::_test_init::init_redis;
     use super::*;
 
-    const EX_TIME: u64 = 3;
+    const EX_TIME: u64 = 10;
 
     #[test]
     fn test_set_and_get() {
