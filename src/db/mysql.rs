@@ -1,3 +1,4 @@
+use chrono::NaiveDate;
 use mysql::{Pool, PooledConn};
 use once_cell::sync::OnceCell;
 use std::sync::Mutex;
@@ -28,4 +29,19 @@ pub fn get_conn() -> Result<PooledConn, ()> {
     }
 
     Ok(conn.unwrap())
+}
+
+pub fn mysqldate_to_unixtime(value: mysql::Value) -> u64 {
+    match value {
+        mysql::Value::Date(y, m, d, h, mins, s, _) => {
+            NaiveDate::from_ymd(y as i32, m as u32, d as u32)
+                .and_hms(h as u32, mins as u32, s as u32)
+                .timestamp()
+                .try_into()
+                .unwrap()
+        }
+        _ => {
+            panic!();
+        }
+    }
 }

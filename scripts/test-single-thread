@@ -1,3 +1,0 @@
-#!/bin/bash
-
-cargo test single_thread -- --ignored --test-threads=1

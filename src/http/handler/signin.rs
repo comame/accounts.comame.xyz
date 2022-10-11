@@ -64,7 +64,7 @@ pub async fn sign_in_with_password(req: Request<Body>) -> Response<Body> {
 
     let session = create_session(&user_id);
 
-    let header_value = format!("Session={}; Secure; HttpOnly", session.token());
+    let header_value = format!("Session={}; Secure; HttpOnly", session.token);
     set_header(&mut response, "Set-Cookie", &header_value);
 
     response

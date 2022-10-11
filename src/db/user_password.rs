@@ -57,23 +57,18 @@ pub fn insert_password(user_password: &UserPassword) -> Result<(), Error> {
 mod tests {
     use super::super::_test_init::init_mysql;
     use super::*;
+    use crate::data::user::User;
     use crate::data::user_password::UserPassword;
-
-    #[test]
-    fn test_insert_password() {
-        init_mysql();
-        let pass = UserPassword {
-            user_id: "db-user-password-insert-password".to_string(),
-            hashed_password: "pass".to_string(),
-        };
-        let result = insert_password(&pass);
-        assert!(result.is_ok());
-    }
+    use crate::db::user::insert_user;
 
     #[test]
     fn can_authenticate() {
         init_mysql();
         let user_id_a = "db-user-password-can-authenticate-1";
+        insert_user(&User {
+            id: user_id_a.to_string(),
+        })
+        .unwrap();
         let pass_1 = UserPassword {
             user_id: user_id_a.to_string(),
             hashed_password: "pass".to_string(),
@@ -93,6 +88,10 @@ mod tests {
     fn can_update() {
         init_mysql();
         let user_id = "db-user_password-can_update";
+        insert_user(&User {
+            id: user_id.to_string(),
+        })
+        .unwrap();
         let pass_1 = UserPassword {
             user_id: user_id.to_string(),
             hashed_password: "pass".to_string(),

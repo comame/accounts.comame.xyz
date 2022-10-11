@@ -36,8 +36,6 @@ pub fn authenticated(user_id: &str, password: &str) -> bool {
         return false;
     }
 
-    
-
     user::find_user_by_id(user_id).is_some()
 }
 
@@ -75,6 +73,7 @@ mod tests {
     }
 
     #[test]
+    #[should_panic]
     fn invalid_user() {
         init_mysql();
         let user_id = "auth-password-invalid_user-alice";
@@ -82,11 +81,11 @@ mod tests {
             id: user_id.to_string(),
         })
         .unwrap();
+        // Panic here because user is not exist
         db::user_password::insert_password(&UserPassword {
             user_id: "auth-password-invalid_user-user_not_exists".to_string(),
             hashed_password: "dummy".to_string(),
         })
         .unwrap();
-        assert!(!authenticated("alice", "foo"));
     }
 }

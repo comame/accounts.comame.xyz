@@ -9,6 +9,7 @@ mod crypto;
 mod data;
 mod db;
 mod http;
+mod time;
 
 fn create_admin_user() {
     let user_id = env::var("ADMIN_USER").unwrap();

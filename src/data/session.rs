@@ -1,8 +1,10 @@
-use crate::crypto;
+use crate::{crypto, time::now};
 
+#[derive(Clone)]
 pub struct Session {
-    user_id: String,
-    token: String,
+    pub user_id: String,
+    pub token: String,
+    pub created_at: u64,
 }
 
 impl Session {
@@ -10,10 +12,7 @@ impl Session {
         Self {
             user_id: String::from(user_id),
             token: crypto::rand::random_str(128),
+            created_at: now(),
         }
-    }
-
-    pub fn token(&self) -> &str {
-        &self.token
     }
 }
