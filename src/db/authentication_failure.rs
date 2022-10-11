@@ -10,7 +10,7 @@ pub fn insert_authentication_failure(failure: &AuthenticationFailure) {
         .exec_batch(
             "INSERT INTO authentications values (:at, :aud, :sub, :met, :reason",
             std::iter::once(params! {
-                "at" => failure.tried_at.clone(),
+                "at" => failure.tried_at,
                 "aud" => failure.audience.clone(),
                 "sub" => failure.subject.clone(),
                 "met" => failure.method.to_string(),

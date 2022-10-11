@@ -10,7 +10,7 @@ pub fn insert_authentication(auth: &Authentication) {
         .exec_batch(
             "INSERT INTO authentications values (:at, :aud, :sub, :met, :prom)",
             std::iter::once(params! {
-                "at" => unixtime_to_datetime(auth.authenticated_at.clone()),
+                "at" => unixtime_to_datetime(auth.authenticated_at),
                 "aud" => auth.audience.clone(),
                 "sub" => auth.subject.clone(),
                 "met" => auth.method.to_string(),

@@ -9,7 +9,7 @@ pub fn decode(str: &str) -> String {
             i += 1;
             continue;
         } else if 0 < i && i <= 2 {
-            if !char.is_digit(16) {
+            if !char.is_ascii_hexdigit() {
                 panic!();
             }
             hex_chars[i - 1usize] = char;
@@ -17,7 +17,7 @@ pub fn decode(str: &str) -> String {
 
             if i == 3 {
                 let hex = hex_chars.iter().collect::<String>();
-                let char = hex::decode_hex(&hex).get(0).unwrap().to_owned() as char;
+                let char = hex::decode_hex(&hex).first().unwrap().to_owned() as char;
                 string.push(char);
                 i = 0;
             }

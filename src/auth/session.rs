@@ -1,5 +1,4 @@
 use crate::{
-    crypto::rand::random_str,
     data::{session::Session, user::User},
     db::{
         session::{delete_by_token, delete_by_user, insert_session, select_session_by_token},
