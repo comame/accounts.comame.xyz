@@ -5,7 +5,7 @@ use crate::auth::csrf_token;
 use crate::auth::password;
 
 use crate::auth::session::{self, create_session};
-use crate::data::authentication::{AuthenticationMethod, LoginPrompt};
+use crate::data::authentication::{LoginPrompt};
 use crate::http::data::password_sign_in_request::PasswordSignInRequest;
 use crate::http::data::password_sign_in_response::PasswordSignInResponse;
 use crate::http::data::session_sign_in_request::SessionSignInRequest;
