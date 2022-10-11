@@ -1,7 +1,6 @@
 use std::fs::File;
 use std::io::prelude::*;
-use std::io::BufReader;
-use std::io::Result;
+use std::io::{BufReader, Result};
 
 fn internal_read(path: &str) -> Result<Vec<u8>> {
     dbg!(&path);

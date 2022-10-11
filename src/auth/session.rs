@@ -1,15 +1,11 @@
-use crate::{
-    data::{
-        authentication::{Authentication, AuthenticationMethod, LoginPrompt},
-        authentication_failure::{AuthenticationFailure, Reason},
-        session::Session,
-        user::User,
-    },
-    db::{
-        session::{delete_by_token, delete_by_user, insert_session, select_session_by_token},
-        user::find_user_by_id,
-    },
+use crate::data::authentication::{Authentication, AuthenticationMethod, LoginPrompt};
+use crate::data::authentication_failure::{AuthenticationFailure, Reason};
+use crate::data::session::Session;
+use crate::data::user::User;
+use crate::db::session::{
+    delete_by_token, delete_by_user, insert_session, select_session_by_token,
 };
+use crate::db::user::find_user_by_id;
 
 pub fn create_session(user_id: &str) -> Session {
     let session = Session::new(user_id);

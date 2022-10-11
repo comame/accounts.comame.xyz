@@ -1,4 +1,5 @@
-use crate::{crypto::rand, db::redis};
+use crate::crypto::rand;
+use crate::db::redis;
 use std::ops::Not;
 
 const PREFIX: &str = "csrf-token-";

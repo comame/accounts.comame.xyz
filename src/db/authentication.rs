@@ -1,6 +1,7 @@
-use mysql::{params, prelude::Queryable};
-
-use crate::{data::authentication::Authentication, time::unixtime_to_datetime};
+use crate::data::authentication::Authentication;
+use crate::time::unixtime_to_datetime;
+use mysql::params;
+use mysql::prelude::Queryable;
 
 use super::mysql::get_conn;
 
@@ -23,10 +24,8 @@ pub fn insert_authentication(auth: &Authentication) {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        data::authentication::{Authentication, AuthenticationMethod, LoginPrompt},
-        time::now,
-    };
+    use crate::data::authentication::{Authentication, AuthenticationMethod, LoginPrompt};
+    use crate::time::now;
 
     #[test]
     #[should_panic]

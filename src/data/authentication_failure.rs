@@ -1,6 +1,6 @@
+use crate::db::authentication_failure::insert_authentication_failure;
+use crate::time::now;
 use std::fmt;
-
-use crate::{db::authentication_failure::insert_authentication_failure, time::now};
 
 use super::authentication::AuthenticationMethod;
 

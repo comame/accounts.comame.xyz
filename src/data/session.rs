@@ -1,4 +1,5 @@
-use crate::{crypto, time::now};
+use crate::crypto;
+use crate::time::now;
 
 #[derive(Clone)]
 pub struct Session {

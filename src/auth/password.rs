@@ -72,10 +72,10 @@ pub fn authenticate(user_id: &str, password: &str, audience: &str, prompt: Login
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        data::user::User,
-        db::{self, _test_init::init_mysql, user::insert_user},
-    };
+    use crate::data::user::User;
+    use crate::db::_test_init::init_mysql;
+    use crate::db::user::insert_user;
+    use crate::db::{self};
 
     #[test]
     fn valid_password() {

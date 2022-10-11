@@ -1,7 +1,5 @@
+use crate::http::{handler, static_file};
 use hyper::{Body, Method, Request, Response, StatusCode};
-
-use crate::http::handler;
-use crate::http::static_file;
 
 pub async fn routes(req: Request<Body>) -> Response<Body> {
     let mut response = Response::new(Body::empty());

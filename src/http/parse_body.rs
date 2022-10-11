@@ -1,4 +1,5 @@
-use hyper::{body::to_bytes, Body};
+use hyper::body::to_bytes;
+use hyper::Body;
 
 pub async fn parse_body(body: Body) -> Result<String, ()> {
     let bytes = to_bytes(body).await;

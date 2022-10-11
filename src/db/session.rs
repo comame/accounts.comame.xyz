@@ -1,5 +1,6 @@
+use crate::data::session::Session;
+use crate::db::mysql::get_conn;
 use crate::time::unixtime_to_datetime;
-use crate::{data::session::Session, db::mysql::get_conn};
 use mysql::params;
 use mysql::prelude::*;
 

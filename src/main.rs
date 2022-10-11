@@ -1,8 +1,9 @@
+use crate::auth::password::set_password;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request, Response, Server};
-use std::{convert::Infallible, env, net::SocketAddr};
-
-use crate::auth::password::set_password;
+use std::convert::Infallible;
+use std::env;
+use std::net::SocketAddr;
 
 mod auth;
 mod crypto;

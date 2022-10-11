@@ -1,18 +1,16 @@
-use hyper::{Body, Request, Response, StatusCode};
-use serde_json::{from_str, to_string};
-
-use crate::auth::csrf_token;
-use crate::auth::password;
-
 use crate::auth::session::{self, create_session};
-use crate::data::authentication::{LoginPrompt};
+use crate::auth::{csrf_token, password};
+use crate::data::authentication::LoginPrompt;
 use crate::http::data::password_sign_in_request::PasswordSignInRequest;
 use crate::http::data::password_sign_in_response::PasswordSignInResponse;
 use crate::http::data::session_sign_in_request::SessionSignInRequest;
 use crate::http::data::session_sign_in_response::SessionSignInResponse;
 use crate::http::parse_body::parse_body;
+use crate::http::parse_cookie::parse_cookie;
 use crate::http::set_header::set_header;
-use crate::http::{parse_cookie::parse_cookie, static_file};
+use crate::http::static_file;
+use hyper::{Body, Request, Response, StatusCode};
+use serde_json::{from_str, to_string};
 
 #[inline]
 fn response_bad_request() -> Response<Body> {
@@ -126,15 +124,12 @@ pub async fn sign_in_with_session(req: Request<Body>) -> Response<Body> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        auth::{csrf_token::generate, password::set_password},
-        data::user::User,
-        db::{
-            _test_init::{init_mysql, init_redis},
-            user::insert_user,
-        },
-        http::set_header::set_header_req,
-    };
+    use crate::auth::csrf_token::generate;
+    use crate::auth::password::set_password;
+    use crate::data::user::User;
+    use crate::db::_test_init::{init_mysql, init_redis};
+    use crate::db::user::insert_user;
+    use crate::http::set_header::set_header_req;
 
     fn setup_user(user_id: &str) {
         insert_user(&User {

@@ -1,4 +1,5 @@
-use hyper::{http::HeaderValue, Request, Response};
+use hyper::http::HeaderValue;
+use hyper::{Request, Response};
 
 pub fn set_header<T>(res: &mut Response<T>, key: &'static str, value: &str) {
     let header_value = HeaderValue::from_str(value).unwrap();
