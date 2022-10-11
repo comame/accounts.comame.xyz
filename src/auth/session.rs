@@ -21,7 +21,7 @@ pub fn revoke_session_by_token(token: &str) {
     delete_by_token(token);
 }
 
-pub fn authenticate(audience: &str, token: &str, prompt: LoginPrompt) -> Option<User> {
+pub fn authenticate(audience: &str, token: &str, prompt: LoginPrompt, is_continue: bool) -> Option<User> {
     if token.is_empty() {
         AuthenticationFailure::create(
             audience,
@@ -62,13 +62,15 @@ pub fn authenticate(audience: &str, token: &str, prompt: LoginPrompt) -> Option<
 
     let user = user.unwrap();
 
-    Authentication::create(
-        created_at,
-        audience,
-        &user.id,
-        AuthenticationMethod::Session,
-        prompt,
-    );
+    if !is_continue {
+        Authentication::create(
+            created_at,
+            audience,
+            &user.id,
+            AuthenticationMethod::Session,
+            prompt,
+        );
+    }
 
     Some(user)
 }
@@ -91,7 +93,7 @@ mod tests {
         .unwrap();
 
         let session = create_session(user_id);
-        let user = authenticate("aud.comame.dev", &session.token, LoginPrompt::Login);
+        let user = authenticate("aud.comame.dev", &session.token, LoginPrompt::Login, false);
 
         assert_eq!(user_id, user.unwrap().id);
     }
@@ -108,7 +110,7 @@ mod tests {
         .unwrap();
 
         let _session = create_session(user_id);
-        let user = authenticate("aud.comame.dev", "dummy_session", LoginPrompt::Login);
+        let user = authenticate("aud.comame.dev", "dummy_session", LoginPrompt::Login, false);
 
         assert!(user.is_none());
     }
@@ -127,7 +129,7 @@ mod tests {
         let session = create_session(user_id);
         revoke_session_by_user_id(user_id);
 
-        let user = authenticate("aud.comame.dev", &session.token, LoginPrompt::Login);
+        let user = authenticate("aud.comame.dev", &session.token, LoginPrompt::Login, false);
 
         assert!(user.is_none());
     }
@@ -146,7 +148,7 @@ mod tests {
         let session = create_session(user_id);
         revoke_session_by_token(&session.token);
 
-        let user = authenticate("aud.comame.dev", &session.token, LoginPrompt::Login);
+        let user = authenticate("aud.comame.dev", &session.token, LoginPrompt::Login, false);
 
         assert!(user.is_none());
     }
@@ -165,8 +167,8 @@ mod tests {
         let session_1 = create_session(user_id);
         let session_2 = create_session(user_id);
 
-        let user_1 = authenticate("aud.comame.dev", &session_1.token, LoginPrompt::Login);
-        let user_2 = authenticate("aud.comame.dev", &session_2.token, LoginPrompt::Login);
+        let user_1 = authenticate("aud.comame.dev", &session_1.token, LoginPrompt::Login, false);
+        let user_2 = authenticate("aud.comame.dev", &session_2.token, LoginPrompt::Login, false);
 
         assert_eq!(user_1.unwrap().id, user_id);
         assert_eq!(user_2.unwrap().id, user_id);
