@@ -39,7 +39,7 @@ pub fn authenticate(user_id: &str, password: &str, audience: &str, prompt: Login
     let user_found = user::find_user_by_id(user_id).is_some();
 
     if !password_ok {
-        AuthenticationFailure::new(
+        AuthenticationFailure::create(
             audience,
             user_id,
             AuthenticationMethod::Password,
@@ -49,7 +49,7 @@ pub fn authenticate(user_id: &str, password: &str, audience: &str, prompt: Login
     }
 
     if !user_found {
-        AuthenticationFailure::new(
+        AuthenticationFailure::create(
             audience,
             user_id,
             AuthenticationMethod::Password,
@@ -58,7 +58,7 @@ pub fn authenticate(user_id: &str, password: &str, audience: &str, prompt: Login
         return false;
     }
 
-    Authentication::new(
+    Authentication::create(
         now(),
         audience,
         user_id,

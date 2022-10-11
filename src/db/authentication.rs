@@ -32,7 +32,7 @@ mod tests {
     #[should_panic]
     fn test() {
         crate::db::_test_init::init_mysql();
-        super::insert_authentication(&Authentication::new(
+        super::insert_authentication(&Authentication::create(
             now(),
             "aud.comame.dev",
             "subject",

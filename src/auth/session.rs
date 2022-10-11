@@ -27,7 +27,7 @@ pub fn revoke_session_by_token(token: &str) {
 
 pub fn authenticate(audience: &str, token: &str, prompt: LoginPrompt) -> Option<User> {
     if token.is_empty() {
-        AuthenticationFailure::new(
+        AuthenticationFailure::create(
             audience,
             "",
             AuthenticationMethod::Session,
@@ -39,7 +39,7 @@ pub fn authenticate(audience: &str, token: &str, prompt: LoginPrompt) -> Option<
     let session = select_session_by_token(token);
 
     if session.is_none() {
-        AuthenticationFailure::new(
+        AuthenticationFailure::create(
             audience,
             "",
             AuthenticationMethod::Session,
@@ -55,7 +55,7 @@ pub fn authenticate(audience: &str, token: &str, prompt: LoginPrompt) -> Option<
     let user = find_user_by_id(&user_id);
 
     if user.is_none() {
-        AuthenticationFailure::new(
+        AuthenticationFailure::create(
             audience,
             "",
             AuthenticationMethod::Session,
@@ -66,7 +66,7 @@ pub fn authenticate(audience: &str, token: &str, prompt: LoginPrompt) -> Option<
 
     let user = user.unwrap();
 
-    Authentication::new(
+    Authentication::create(
         created_at,
         audience,
         &user.id,

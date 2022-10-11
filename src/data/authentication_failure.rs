@@ -13,7 +13,7 @@ pub struct AuthenticationFailure {
 }
 
 impl AuthenticationFailure {
-    pub fn new(
+    pub fn create(
         audience: &str,
         subject: &str,
         method: AuthenticationMethod,
@@ -62,7 +62,7 @@ mod tests {
     #[test]
     fn test() {
         crate::db::_test_init::init_mysql();
-        AuthenticationFailure::new(
+        AuthenticationFailure::create(
             "evil.comame.dev",
             "Alice",
             AuthenticationMethod::Password,

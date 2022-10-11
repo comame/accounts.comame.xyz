@@ -13,7 +13,7 @@ pub struct Authentication {
 }
 
 impl Authentication {
-    pub fn new(
+    pub fn create(
         authenticated_at: u64,
         audience: &str,
         subject: &str,
@@ -104,7 +104,7 @@ mod tests {
     #[test]
     fn can_insert() {
         init_mysql();
-        let _auth = Authentication::new(
+        let _auth = Authentication::create(
             now(),
             "audience.comame.dev",
             "Bob",
