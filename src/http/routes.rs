@@ -17,7 +17,7 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
         }
         (&Method::GET, "/signout") => {
             response = handler::signout::signout(req).await;
-        },
+        }
         (&Method::POST, "/signin-continue") => {
             response = handler::signin_continue::handler(req).await;
         }

@@ -21,7 +21,12 @@ pub fn revoke_session_by_token(token: &str) {
     delete_by_token(token);
 }
 
-pub fn authenticate(audience: &str, token: &str, prompt: LoginPrompt, is_continue: bool) -> Option<User> {
+pub fn authenticate(
+    audience: &str,
+    token: &str,
+    prompt: LoginPrompt,
+    is_continue: bool,
+) -> Option<User> {
     if token.is_empty() {
         AuthenticationFailure::create(
             audience,
@@ -167,8 +172,18 @@ mod tests {
         let session_1 = create_session(user_id);
         let session_2 = create_session(user_id);
 
-        let user_1 = authenticate("aud.comame.dev", &session_1.token, LoginPrompt::Login, false);
-        let user_2 = authenticate("aud.comame.dev", &session_2.token, LoginPrompt::Login, false);
+        let user_1 = authenticate(
+            "aud.comame.dev",
+            &session_1.token,
+            LoginPrompt::Login,
+            false,
+        );
+        let user_2 = authenticate(
+            "aud.comame.dev",
+            &session_2.token,
+            LoginPrompt::Login,
+            false,
+        );
 
         assert_eq!(user_1.unwrap().id, user_id);
         assert_eq!(user_2.unwrap().id, user_id);

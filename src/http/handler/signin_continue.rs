@@ -1,5 +1,9 @@
-use hyper::{Request, Body, Response, StatusCode};
-use crate::{http::{parse_cookie::parse_cookie, parse_body::parse_body, data::sign_in_continue_request::SignInContinueRequest}, data::{authentication::LoginPrompt}, auth::{session, csrf_token}};
+use crate::auth::{csrf_token, session};
+use crate::data::authentication::LoginPrompt;
+use crate::http::data::sign_in_continue_request::SignInContinueRequest;
+use crate::http::parse_body::parse_body;
+use crate::http::parse_cookie::parse_cookie;
+use hyper::{Body, Request, Response, StatusCode};
 
 #[inline]
 fn response_bad_request() -> Response<Body> {
@@ -47,5 +51,8 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
         return response_bad_request();
     }
 
-    Response::new(Body::from(format!("You are signed as {}.", user.unwrap().id)))
+    Response::new(Body::from(format!(
+        "You are signed as {}.",
+        user.unwrap().id
+    )))
 }
