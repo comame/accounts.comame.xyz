@@ -1,7 +1,10 @@
 use crate::crypto::sha::sha256;
+use crate::data::authentication::{Authentication, AuthenticationMethod, LoginPrompt};
+use crate::data::authentication_failure::{AuthenticationFailure, Reason};
 use crate::data::user_password::UserPassword;
 use crate::db::user;
 use crate::db::user_password::{insert_password, password_matched};
+use crate::time::now;
 
 fn calculate_password_hash(password: &str, salt: &str) -> String {
     let with_salt = password.to_string() + salt;
@@ -25,18 +28,45 @@ pub fn set_password(user_id: &str, password: &str) {
     insert_password(&user_password).unwrap();
 }
 
-pub fn authenticated(user_id: &str, password: &str) -> bool {
+pub fn authenticate(user_id: &str, password: &str, audience: &str, prompt: LoginPrompt) -> bool {
     let hash = calculate_password_hash(password, user_id);
     let user_password = UserPassword {
         user_id: user_id.to_string(),
         hashed_password: hash,
     };
+
     let password_ok = password_matched(&user_password);
+    let user_found = user::find_user_by_id(user_id).is_some();
+
     if !password_ok {
+        AuthenticationFailure::new(
+            audience,
+            user_id,
+            AuthenticationMethod::Password,
+            Reason::InvalidPassword,
+        );
         return false;
     }
 
-    user::find_user_by_id(user_id).is_some()
+    if !user_found {
+        AuthenticationFailure::new(
+            audience,
+            user_id,
+            AuthenticationMethod::Password,
+            Reason::UserNotFound,
+        );
+        return false;
+    }
+
+    Authentication::new(
+        now(),
+        audience,
+        user_id,
+        AuthenticationMethod::Password,
+        prompt,
+    );
+
+    password_ok && user_found
 }
 
 #[cfg(test)]
@@ -56,7 +86,12 @@ mod tests {
         })
         .unwrap();
         set_password(user_id, "foo");
-        assert!(authenticated(user_id, "foo"));
+        assert!(authenticate(
+            user_id,
+            "foo",
+            "aud.comame.dev",
+            LoginPrompt::Login
+        ));
     }
 
     #[test]
@@ -68,8 +103,18 @@ mod tests {
         })
         .unwrap();
         set_password(user_id, "foo");
-        assert!(!authenticated(user_id, "bar"));
-        assert!(!authenticated("bob", "bar"));
+        assert!(!authenticate(
+            user_id,
+            "bar",
+            "aud.comame.dev",
+            LoginPrompt::Login
+        ));
+        assert!(!authenticate(
+            "bob",
+            "bar",
+            "aud.comame.dev",
+            LoginPrompt::Login
+        ));
     }
 
     #[test]

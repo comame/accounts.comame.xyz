@@ -19,6 +19,7 @@ CREATE TABLE `sessions` (
 
 CREATE TABLE authentications (
     authenticated_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL,
     audience VARCHAR(100) NOT NULL,
     `subject` VARCHAR(100) NOT NULL,
     method VARCHAR(16) NOT NULL,

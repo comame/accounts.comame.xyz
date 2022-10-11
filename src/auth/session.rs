@@ -1,5 +1,10 @@
 use crate::{
-    data::{session::Session, user::User},
+    data::{
+        authentication::{Authentication, AuthenticationMethod, LoginPrompt},
+        authentication_failure::{AuthenticationFailure, Reason},
+        session::Session,
+        user::User,
+    },
     db::{
         session::{delete_by_token, delete_by_user, insert_session, select_session_by_token},
         user::find_user_by_id,
@@ -20,9 +25,55 @@ pub fn revoke_session_by_token(token: &str) {
     delete_by_token(token);
 }
 
-pub fn get_session(token: &str) -> Option<User> {
-    let session = select_session_by_token(token)?;
-    let user = find_user_by_id(&session.user_id)?;
+pub fn authenticate(audience: &str, token: &str, prompt: LoginPrompt) -> Option<User> {
+    if token.is_empty() {
+        AuthenticationFailure::new(
+            audience,
+            "",
+            AuthenticationMethod::Session,
+            Reason::EmptySessionCookie,
+        );
+        return None;
+    }
+
+    let session = select_session_by_token(token);
+
+    if session.is_none() {
+        AuthenticationFailure::new(
+            audience,
+            "",
+            AuthenticationMethod::Session,
+            Reason::InvalidSessionCookie,
+        );
+        return None;
+    }
+
+    let session = session.unwrap();
+    let user_id = session.user_id;
+    let created_at = session.created_at;
+
+    let user = find_user_by_id(&user_id);
+
+    if user.is_none() {
+        AuthenticationFailure::new(
+            audience,
+            "",
+            AuthenticationMethod::Session,
+            Reason::UserNotFound,
+        );
+        return None;
+    }
+
+    let user = user.unwrap();
+
+    Authentication::new(
+        created_at,
+        audience,
+        &user.id,
+        AuthenticationMethod::Session,
+        prompt,
+    );
+
     Some(user)
 }
 
@@ -44,7 +95,7 @@ mod tests {
         .unwrap();
 
         let session = create_session(user_id);
-        let user = get_session(&session.token);
+        let user = authenticate("aud.comame.dev", &session.token, LoginPrompt::Login);
 
         assert_eq!(user_id, user.unwrap().id);
     }
@@ -61,7 +112,7 @@ mod tests {
         .unwrap();
 
         let _session = create_session(user_id);
-        let user = get_session("dummy_session");
+        let user = authenticate("aud.comame.dev", "dummy_session", LoginPrompt::Login);
 
         assert!(user.is_none());
     }
@@ -80,7 +131,7 @@ mod tests {
         let session = create_session(user_id);
         revoke_session_by_user_id(user_id);
 
-        let user = get_session(&session.token);
+        let user = authenticate("aud.comame.dev", &session.token, LoginPrompt::Login);
 
         assert!(user.is_none());
     }
@@ -99,7 +150,7 @@ mod tests {
         let session = create_session(user_id);
         revoke_session_by_token(&session.token);
 
-        let user = get_session(&session.token);
+        let user = authenticate("aud.comame.dev", &session.token, LoginPrompt::Login);
 
         assert!(user.is_none());
     }
@@ -118,8 +169,8 @@ mod tests {
         let session_1 = create_session(user_id);
         let session_2 = create_session(user_id);
 
-        let user_1 = get_session(&session_1.token);
-        let user_2 = get_session(&session_2.token);
+        let user_1 = authenticate("aud.comame.dev", &session_1.token, LoginPrompt::Login);
+        let user_2 = authenticate("aud.comame.dev", &session_2.token, LoginPrompt::Login);
 
         assert_eq!(user_1.unwrap().id, user_id);
         assert_eq!(user_2.unwrap().id, user_id);

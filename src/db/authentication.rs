@@ -8,9 +8,10 @@ pub fn insert_authentication(auth: &Authentication) {
     get_conn()
         .unwrap()
         .exec_batch(
-            "INSERT INTO authentications values (:at, :aud, :sub, :met, :prom)",
+            "INSERT INTO authentications values (:auth_at, :cr_at, :aud, :sub, :met, :prom)",
             std::iter::once(params! {
-                "at" => unixtime_to_datetime(auth.authenticated_at),
+                "auth_at" => unixtime_to_datetime(auth.authenticated_at),
+                "cr_at" => unixtime_to_datetime(auth.created_at),
                 "aud" => auth.audience.clone(),
                 "sub" => auth.subject.clone(),
                 "met" => auth.method.to_string(),
@@ -22,13 +23,17 @@ pub fn insert_authentication(auth: &Authentication) {
 
 #[cfg(test)]
 mod tests {
-    use crate::data::authentication::{Authentication, AuthenticationMethod, LoginPrompt};
+    use crate::{
+        data::authentication::{Authentication, AuthenticationMethod, LoginPrompt},
+        time::now,
+    };
 
     #[test]
     #[should_panic]
     fn test() {
         crate::db::_test_init::init_mysql();
         super::insert_authentication(&Authentication::new(
+            now(),
             "aud.comame.dev",
             "subject",
             AuthenticationMethod::Password,

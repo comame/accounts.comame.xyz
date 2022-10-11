@@ -2,9 +2,10 @@ use hyper::{Body, Request, Response, StatusCode};
 use serde_json::{from_str, to_string};
 
 use crate::auth::csrf_token;
-use crate::auth::password::authenticated;
+use crate::auth::password;
 
-use crate::auth::session::{create_session, get_session};
+use crate::auth::session::{self, create_session};
+use crate::data::authentication::{AuthenticationMethod, LoginPrompt};
 use crate::http::data::password_sign_in_request::PasswordSignInRequest;
 use crate::http::data::password_sign_in_response::PasswordSignInResponse;
 use crate::http::data::session_sign_in_request::SessionSignInRequest;
@@ -52,8 +53,9 @@ pub async fn sign_in_with_password(req: Request<Body>) -> Response<Body> {
     let password = request.password;
     let token = request.csrf_token;
 
-    let is_authenticated = authenticated(&user_id, &password);
-    let is_token_collect = csrf_token::validate_once(&token);
+    let is_authenticated =
+        password::authenticate(&user_id, &password, "id.comame.dev", LoginPrompt::Login);
+    let is_token_collect = csrf_token::validate_keep_token(&token);
 
     if !(is_authenticated && is_token_collect) {
         return response_bad_request();
@@ -90,7 +92,7 @@ pub async fn sign_in_with_session(req: Request<Body>) -> Response<Body> {
         return response_bad_request();
     }
 
-    let user = get_session(session_token.unwrap());
+    let user = session::authenticate("id.comame.dev", session_token.unwrap(), LoginPrompt::Login);
 
     if user.is_none() {
         return response_bad_request();

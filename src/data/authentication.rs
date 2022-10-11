@@ -5,6 +5,7 @@ use crate::time::now;
 
 pub struct Authentication {
     pub authenticated_at: u64,
+    pub created_at: u64,
     pub audience: String,
     pub subject: String,
     pub method: AuthenticationMethod,
@@ -13,13 +14,15 @@ pub struct Authentication {
 
 impl Authentication {
     pub fn new(
+        authenticated_at: u64,
         audience: &str,
         subject: &str,
         method: AuthenticationMethod,
         prompt: LoginPrompt,
     ) -> Self {
         let instance = Self {
-            authenticated_at: now(),
+            authenticated_at,
+            created_at: now(),
             audience: audience.to_string(),
             subject: subject.to_string(),
             method,
@@ -36,6 +39,7 @@ pub enum AuthenticationMethod {
     None,
     Password,
     Google,
+    Session,
 }
 
 impl fmt::Display for AuthenticationMethod {
@@ -47,6 +51,7 @@ impl fmt::Display for AuthenticationMethod {
                 Self::None => "none".to_string(),
                 Self::Password => "password".to_string(),
                 Self::Google => "google".to_string(),
+                Self::Session => "session".to_string(),
             }
         )
     }
@@ -100,6 +105,7 @@ mod tests {
     fn can_insert() {
         init_mysql();
         let _auth = Authentication::new(
+            now(),
             "audience.comame.dev",
             "Bob",
             AuthenticationMethod::Password,

@@ -36,6 +36,8 @@ impl AuthenticationFailure {
 pub enum Reason {
     InvalidPassword,
     UserNotFound,
+    InvalidSessionCookie,
+    EmptySessionCookie,
 }
 
 impl fmt::Display for Reason {
@@ -46,7 +48,25 @@ impl fmt::Display for Reason {
             match self {
                 Self::InvalidPassword => "invalid password".to_string(),
                 Self::UserNotFound => "user not found".to_string(),
+                Self::InvalidSessionCookie => "invalid session cookie".to_string(),
+                Self::EmptySessionCookie => "empty sessoin cookie".to_string(),
             }
         )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test() {
+        crate::db::_test_init::init_mysql();
+        AuthenticationFailure::new(
+            "evil.comame.dev",
+            "Alice",
+            AuthenticationMethod::Password,
+            Reason::InvalidPassword,
+        );
     }
 }

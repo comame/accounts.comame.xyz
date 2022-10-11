@@ -11,7 +11,13 @@ static INIT_REDIS: Once = Once::new();
 
 #[allow(dead_code)]
 pub fn init_mysql() {
-    let tables = vec!["users", "user_passwords"];
+    let tables = vec![
+        "users",
+        "user_passwords",
+        "sessions",
+        "authentications",
+        "authentication_failures",
+    ];
 
     let mysql_user = env::var("MYSQL_USER").unwrap();
     let mysql_password = env::var("MYSQL_PASSWORD").unwrap();

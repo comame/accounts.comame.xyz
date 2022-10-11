@@ -1,6 +1,6 @@
 use mysql::{params, prelude::Queryable};
 
-use crate::data::authentication_failure::AuthenticationFailure;
+use crate::{data::authentication_failure::AuthenticationFailure, time::unixtime_to_datetime};
 
 use super::mysql::get_conn;
 
@@ -8,9 +8,9 @@ pub fn insert_authentication_failure(failure: &AuthenticationFailure) {
     get_conn()
         .unwrap()
         .exec_batch(
-            "INSERT INTO authentications values (:at, :aud, :sub, :met, :reason",
+            "INSERT INTO authentication_failures values (:at, :aud, :sub, :met, :reason)",
             std::iter::once(params! {
-                "at" => failure.tried_at,
+                "at" => unixtime_to_datetime(failure.tried_at),
                 "aud" => failure.audience.clone(),
                 "sub" => failure.subject.clone(),
                 "met" => failure.method.to_string(),
