@@ -1,17 +1,13 @@
-use crate::{
-    data::{
-        authentication::{Authentication, LoginPrompt},
-        oidc_flow::{
-            authentication_flow_state::{AuthenticationFlowState, LoginRequirement},
-            authentication_request::AuthenticationRequest,
-            authentication_response::AuthenticationResponse,
-            authenticationi_error_response::AuthenticationErrorResponse,
-            error_code::ErrorCode,
-        },
-        oidc_relying_party::RelyingParty,
-    },
-    time::now,
+use crate::data::authentication::{Authentication, LoginPrompt};
+use crate::data::oidc_flow::authentication_flow_state::{
+    AuthenticationFlowState, LoginRequirement,
 };
+use crate::data::oidc_flow::authentication_request::AuthenticationRequest;
+use crate::data::oidc_flow::authentication_response::AuthenticationResponse;
+use crate::data::oidc_flow::authenticationi_error_response::AuthenticationErrorResponse;
+use crate::data::oidc_flow::error_code::ErrorCode;
+use crate::data::oidc_relying_party::RelyingParty;
+use crate::time::now;
 
 use super::authentication_flow_state::save_state;
 

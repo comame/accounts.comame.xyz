@@ -5,13 +5,9 @@ use std::io::{BufReader, Result};
 fn internal_read(path: &str) -> Result<Vec<u8>> {
     dbg!(&path);
 
-    let f = File::open(path);
+    let f = File::open(path)?;
 
-    if let Err(err) = f {
-        return Err(err);
-    }
-
-    let mut reader = BufReader::new(f.unwrap());
+    let mut reader = BufReader::new(f);
     let mut buf: Vec<u8> = vec![];
 
     reader.read_to_end(&mut buf)?;

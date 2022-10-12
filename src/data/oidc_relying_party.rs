@@ -4,7 +4,7 @@ use crate::db::relying_party::{
     add_redirect_uri, find_relying_party_by_id, register_relying_party,
 };
 
-#[derive(PartialEq, Debug)]
+#[derive(Eq, PartialEq, Debug)]
 pub struct RelyingParty {
     pub client_id: String,
     pub redirect_uris: Vec<String>,

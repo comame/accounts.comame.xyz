@@ -32,10 +32,6 @@ pub fn find_latest_authentication_by_user(user_id: &str) -> Option<Authenticatio
             subject: tuple.3,
             method: tuple.4.as_str().try_into().unwrap(),
         }).unwrap();
-    let first = result.first();
-    if first.is_none() {
-        None
-    } else {
-        Some(first.unwrap().clone())
-    }
+
+    result.first().cloned()
 }

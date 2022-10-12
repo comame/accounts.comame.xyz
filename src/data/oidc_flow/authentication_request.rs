@@ -1,4 +1,5 @@
-use crate::{data::authentication::LoginPrompt, http::parse_form_urlencoded::parse};
+use crate::data::authentication::LoginPrompt;
+use crate::http::parse_form_urlencoded::parse;
 use std::panic;
 
 #[derive(Debug)]
@@ -12,16 +13,6 @@ pub struct AuthenticationRequest {
     pub prompt: Option<LoginPrompt>,
     pub max_age: Option<u64>,
     pub id_token_hint: Option<String>,
-}
-
-fn option_to_owned<T>(opt: Option<&T>) -> Option<T>
-where
-    T: Clone,
-{
-    match opt {
-        None => None,
-        Some(v) => Some(v.clone()),
-    }
 }
 
 impl AuthenticationRequest {
@@ -67,11 +58,11 @@ impl AuthenticationRequest {
             response_type: response_type.unwrap().clone(),
             client_id: client_id.unwrap().clone(),
             redirect_uri: redirect_uri.unwrap().clone(),
-            state: option_to_owned(map.get("state")),
-            nonce: option_to_owned(map.get("nonce")),
+            state: map.get("state").cloned(),
+            nonce: map.get("nonce").cloned(),
             prompt: prompt_parsed,
             max_age: max_age_parsed,
-            id_token_hint: option_to_owned(map.get("id_token_hint")),
+            id_token_hint: map.get("id_token_hint").cloned(),
         })
     }
 }

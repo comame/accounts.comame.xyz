@@ -27,13 +27,6 @@ pub enum LoginRequirement {
     Any,
 }
 
-fn option_to_owned(opt: Option<&str>) -> Option<String> {
-    match opt {
-        Some(v) => Some(v.to_string()),
-        None => None,
-    }
-}
-
 impl AuthenticationFlowState {
     pub fn new(
         relying_party_id: &str,

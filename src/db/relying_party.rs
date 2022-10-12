@@ -1,4 +1,5 @@
-use mysql::{params, prelude::*};
+use mysql::params;
+use mysql::prelude::*;
 
 use crate::data::oidc_relying_party::RelyingParty;
 
