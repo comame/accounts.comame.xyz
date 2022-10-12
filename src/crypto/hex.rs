@@ -60,7 +60,6 @@ pub fn encode_hex(bytes: Vec<u8>) -> String {
     str
 }
 
-#[allow(dead_code)]
 pub fn decode_hex(hex: &str) -> Vec<u8> {
     let hex = hex.to_ascii_uppercase();
 

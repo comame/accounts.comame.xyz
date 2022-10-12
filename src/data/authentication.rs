@@ -1,15 +1,15 @@
 use std::fmt;
 
-use crate::db::authentication::insert_authentication;
+use crate::db::authentication::{insert_authentication, find_latest_authentication_by_user};
 use crate::time::now;
 
+#[derive(Clone)]
 pub struct Authentication {
     pub authenticated_at: u64,
     pub created_at: u64,
     pub audience: String,
     pub subject: String,
     pub method: AuthenticationMethod,
-    pub prompt: LoginPrompt,
 }
 
 impl Authentication {
@@ -18,7 +18,6 @@ impl Authentication {
         audience: &str,
         subject: &str,
         method: AuthenticationMethod,
-        prompt: LoginPrompt,
     ) -> Self {
         let instance = Self {
             authenticated_at,
@@ -26,15 +25,19 @@ impl Authentication {
             audience: audience.to_string(),
             subject: subject.to_string(),
             method,
-            prompt,
         };
 
         insert_authentication(&instance);
 
         instance
     }
+
+    pub fn latest(user_id: &str) -> Option<Self> {
+        find_latest_authentication_by_user(user_id)
+    }
 }
 
+#[derive(Clone)]
 pub enum AuthenticationMethod {
     None,
     Password,
@@ -57,6 +60,19 @@ impl fmt::Display for AuthenticationMethod {
     }
 }
 
+impl From<&str> for AuthenticationMethod {
+    fn from(str: &str) -> Self {
+        match str {
+            "none" => Self::None,
+            "password" => Self::Password,
+            "google" => Self::Google,
+            "session" => Self::Session,
+            _ => panic!(),
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
 pub enum LoginPrompt {
     None,
     Login,
@@ -79,19 +95,19 @@ impl fmt::Display for LoginPrompt {
     }
 }
 
-impl From<String> for LoginPrompt {
-    fn from(str: String) -> Self {
+impl LoginPrompt {
+    pub fn parse(str: &str) -> Result<Self, ()> {
         let str = str.to_lowercase();
         if str == "none" {
-            LoginPrompt::None
+            Ok(LoginPrompt::None)
         } else if str == "login" {
-            LoginPrompt::Login
+            Ok(LoginPrompt::Login)
         } else if str == "consent" {
-            LoginPrompt::Consent
+            Ok(LoginPrompt::Consent)
         } else if str == "select_account" {
-            LoginPrompt::SelectAccount
+            Ok(LoginPrompt::SelectAccount)
         } else {
-            panic!("invalid format `{str}` for LoginPrompt");
+            Err(())
         }
     }
 }
@@ -109,7 +125,6 @@ mod tests {
             "audience.comame.dev",
             "Bob",
             AuthenticationMethod::Password,
-            LoginPrompt::Login,
         );
     }
 }

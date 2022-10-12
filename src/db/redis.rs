@@ -42,14 +42,12 @@ pub fn set(key: &str, value: &str, time_sec: u64) {
     let _r: Result<(), _> = conn.set_ex(get_prefix() + key, value, time_sec as usize);
 }
 
-#[allow(dead_code)]
 pub fn get(key: &str) -> Option<String> {
     let mut conn = get_conn().unwrap();
     conn.get::<String, Option<String>>(get_prefix() + key)
         .unwrap()
 }
 
-#[allow(dead_code)]
 pub fn list_keys() -> Vec<String> {
     let mut conn = get_conn().unwrap();
     let keys: Vec<String> = conn.keys(get_prefix() + "*").unwrap();

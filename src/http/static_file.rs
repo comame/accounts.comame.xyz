@@ -8,7 +8,6 @@ fn internal_read(path: &str) -> Result<Vec<u8>> {
     let f = File::open(path);
 
     if let Err(err) = f {
-        dbg!(&err);
         return Err(err);
     }
 

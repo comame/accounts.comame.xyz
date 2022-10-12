@@ -22,8 +22,7 @@ CREATE TABLE authentications (
     created_at TIMESTAMP NOT NULL,
     audience VARCHAR(100) NOT NULL,
     `subject` VARCHAR(100) NOT NULL,
-    method VARCHAR(16) NOT NULL,
-    prompt VARCHAR(16) NOT NULL
+    method VARCHAR(16) NOT NULL
 );
 
 CREATE TABLE authentication_failures (
@@ -32,4 +31,15 @@ CREATE TABLE authentication_failures (
     `subject` VARCHAR(100) NOT NULL,
     method VARCHAR(16) NOT NULL,
     reason VARCHAR(32) NOT NULL
+);
+
+CREATE TABLE relying_parties (
+    client_id VARCHAR(100) PRIMARY KEY
+);
+
+CREATE TABLE redirect_uris (
+    client_id VARCHAR(100) NOT NULL,
+    redirect_uri VARCHAR(100) NOT NULL,
+    UNIQUE (client_id, redirect_uri),
+    FOREIGN KEY (client_id) REFERENCES relying_parties(client_id) ON DELETE CASCADE
 );

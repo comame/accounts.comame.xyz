@@ -73,7 +73,6 @@ pub fn authenticate(
             audience,
             &user.id,
             AuthenticationMethod::Session,
-            prompt,
         );
     }
 

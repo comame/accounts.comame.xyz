@@ -1,4 +1,5 @@
 use crate::data::authentication::Authentication;
+use crate::db::mysql::mysqldate_to_unixtime;
 use crate::time::unixtime_to_datetime;
 use mysql::params;
 use mysql::prelude::Queryable;
@@ -9,35 +10,32 @@ pub fn insert_authentication(auth: &Authentication) {
     get_conn()
         .unwrap()
         .exec_batch(
-            "INSERT INTO authentications values (:auth_at, :cr_at, :aud, :sub, :met, :prom)",
+            "INSERT INTO authentications values (:auth_at, :cr_at, :aud, :sub, :met)",
             std::iter::once(params! {
                 "auth_at" => unixtime_to_datetime(auth.authenticated_at),
                 "cr_at" => unixtime_to_datetime(auth.created_at),
                 "aud" => auth.audience.clone(),
                 "sub" => auth.subject.clone(),
                 "met" => auth.method.to_string(),
-                "prom" => auth.prompt.to_string(),
             }),
         )
         .unwrap();
 }
 
-#[cfg(test)]
-mod tests {
-    use crate::data::authentication::{Authentication, AuthenticationMethod, LoginPrompt};
-    use crate::time::now;
-
-    #[test]
-    #[should_panic]
-    fn test() {
-        crate::db::_test_init::init_mysql();
-        super::insert_authentication(&Authentication::create(
-            now(),
-            "aud.comame.dev",
-            "subject",
-            AuthenticationMethod::Password,
-            LoginPrompt::Login,
-        ));
-        todo!()
+pub fn find_latest_authentication_by_user(user_id: &str) -> Option<Authentication> {
+    let result = get_conn().unwrap().query_map(
+        "SELECT * FROM authentications WHERE method NOT LIKE \"session\" ORDER BY created_at DESC LIMIT 1",
+        |tuple: (mysql::Value, mysql::Value, String, String, String, String)| Authentication {
+            authenticated_at: mysqldate_to_unixtime(tuple.0),
+            created_at: mysqldate_to_unixtime(tuple.1),
+            audience: tuple.2,
+            subject: tuple.3,
+            method: tuple.4.as_str().try_into().unwrap(),
+        }).unwrap();
+    let first = result.first();
+    if first.is_none() {
+        None
+    } else {
+        Some(first.unwrap().clone())
     }
 }

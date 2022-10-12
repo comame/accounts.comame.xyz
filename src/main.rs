@@ -11,6 +11,7 @@ mod data;
 mod db;
 mod http;
 mod time;
+mod oidc;
 
 fn create_admin_user() {
     let user_id = env::var("ADMIN_USER").unwrap();
@@ -25,6 +26,11 @@ fn create_admin_user() {
     }
     set_password(&user.id, &password);
     println!("Admin user created.");
+}
+
+fn create_default_rp() {
+    let _res = crate::data::oidc_relying_party::RelyingParty::register("id.comame.dev");
+    let _res = crate::db::relying_party::add_redirect_uri("id.comame.dev", "http://localhost:8080/callback");
 }
 
 async fn service(req: Request<Body>) -> Result<Response<Body>, Infallible> {
@@ -46,6 +52,8 @@ async fn main() {
     ));
 
     create_admin_user();
+
+    create_default_rp();
 
     let redis_host = env::var("REDIS_HOST").unwrap();
     db::redis::init(&format!("redis://{}", redis_host));

@@ -63,7 +63,6 @@ pub fn authenticate(user_id: &str, password: &str, audience: &str, prompt: Login
         audience,
         user_id,
         AuthenticationMethod::Password,
-        prompt,
     );
 
     password_ok && user_found

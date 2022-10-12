@@ -17,6 +17,8 @@ pub fn init_mysql() {
         "sessions",
         "authentications",
         "authentication_failures",
+        "relying_parties",
+        "redirect_uris",
     ];
 
     let mysql_user = env::var("MYSQL_USER").unwrap();

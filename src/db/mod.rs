@@ -6,3 +6,4 @@ pub mod redis;
 pub mod session;
 pub mod user;
 pub mod user_password;
+pub mod relying_party;
