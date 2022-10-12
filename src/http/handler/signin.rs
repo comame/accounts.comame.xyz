@@ -90,12 +90,7 @@ pub async fn sign_in_with_session(req: Request<Body>) -> Response<Body> {
         return response_bad_request();
     }
 
-    let user = session::authenticate(
-        "id.comame.dev",
-        session_token.unwrap(),
-        LoginPrompt::Login,
-        false,
-    );
+    let user = session::authenticate("id.comame.dev", session_token.unwrap(), false);
 
     if user.is_none() {
         return response_bad_request();

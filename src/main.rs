@@ -9,9 +9,10 @@ mod auth;
 mod crypto;
 mod data;
 mod db;
+mod enc;
 mod http;
-mod time;
 mod oidc;
+mod time;
 
 fn create_admin_user() {
     let user_id = env::var("ADMIN_USER").unwrap();
@@ -30,7 +31,10 @@ fn create_admin_user() {
 
 fn create_default_rp() {
     let _res = crate::data::oidc_relying_party::RelyingParty::register("id.comame.dev");
-    let _res = crate::db::relying_party::add_redirect_uri("id.comame.dev", "http://localhost:8080/callback");
+    let _res = crate::db::relying_party::add_redirect_uri(
+        "id.comame.dev",
+        "http://localhost:8080/callback",
+    );
 }
 
 async fn service(req: Request<Body>) -> Result<Response<Body>, Infallible> {

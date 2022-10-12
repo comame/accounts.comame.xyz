@@ -58,12 +58,7 @@ pub fn authenticate(user_id: &str, password: &str, audience: &str, prompt: Login
         return false;
     }
 
-    Authentication::create(
-        now(),
-        audience,
-        user_id,
-        AuthenticationMethod::Password,
-    );
+    Authentication::create(now(), audience, user_id, AuthenticationMethod::Password);
 
     password_ok && user_found
 }

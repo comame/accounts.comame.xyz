@@ -1,6 +1,6 @@
 use crate::data::oidc_flow::authentication_flow_state::AuthenticationFlowState;
 use crate::db::redis;
-use serde_json::{to_string, from_str};
+use serde_json::{from_str, to_string};
 
 const PREFIX: &str = "AUTH_FLOW_STATE:";
 const STATE_TIME: u64 = 5 * 60;

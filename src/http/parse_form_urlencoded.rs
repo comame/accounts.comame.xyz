@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::crypto::url::decode;
+use crate::enc::url::decode;
 
 pub fn parse(body: &str) -> Result<HashMap<String, String>, ()> {
     let mut map: HashMap<String, String> = HashMap::new();

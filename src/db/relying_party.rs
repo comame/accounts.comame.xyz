@@ -39,13 +39,11 @@ pub fn find_relying_party_by_id(client_id: &str) -> Option<RelyingParty> {
     Some(relying_party)
 }
 
-pub fn register_relying_party(client_id: &str) -> Result<(), ()>{
-    let result = get_conn()
-        .unwrap()
-        .exec_drop(
-            "INSERT INTO relying_parties VALUES (:id)",
-            params! { "id" => client_id },
-        );
+pub fn register_relying_party(client_id: &str) -> Result<(), ()> {
+    let result = get_conn().unwrap().exec_drop(
+        "INSERT INTO relying_parties VALUES (:id)",
+        params! { "id" => client_id },
+    );
 
     if result.is_err() {
         Err(())

@@ -20,10 +20,10 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
         }
         (&Method::POST, "/signin-continue") => {
             response = handler::signin_continue::handler(req).await;
-        },
+        }
         (&Method::GET, "/authenticate") => {
             response = handler::oidc_authentication_request::handler(req).await;
-        },
+        }
         (&Method::POST, "/authenticate") => {
             response = handler::oidc_authentication_request::handler(req).await;
         }

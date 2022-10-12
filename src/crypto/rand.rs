@@ -1,5 +1,7 @@
 use openssl::rand::rand_bytes;
 
+use crate::enc::base64;
+
 pub fn random_str(len: usize) -> String {
     let mut buf = vec![];
     let bytes_len = len * 3 / 4 + 1;
@@ -7,7 +9,7 @@ pub fn random_str(len: usize) -> String {
         buf.push(0);
     }
     rand_bytes(&mut buf).unwrap();
-    let mut answer = super::base64::encode_base64(buf);
+    let mut answer = base64::encode_base64(buf);
 
     let diff = answer.len() - len;
     if diff > 0 {

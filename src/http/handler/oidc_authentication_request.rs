@@ -1,9 +1,14 @@
-use hyper::{Body, Request, Response, Method, StatusCode};
-use url::Url;
 use crate::http::set_header::set_header;
 use crate::oidc::authentication_request::{pre_authenticate, PreAuthenticationError};
+use hyper::{Body, Method, Request, Response, StatusCode};
+use url::Url;
 
-use crate::{http::{parse_form_urlencoded::parse, parse_body::parse_body}, data::{authentication::Authentication, oidc_flow::authentication_request::AuthenticationRequest}};
+use crate::{
+    data::{
+        authentication::Authentication, oidc_flow::authentication_request::AuthenticationRequest,
+    },
+    http::{parse_body::parse_body, parse_form_urlencoded::parse},
+};
 
 fn response_bad_request() -> Response<Body> {
     let mut response = Response::new(Body::from("{}"));
@@ -24,7 +29,7 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
     let mut authentication_request: Result<AuthenticationRequest, ()> = Err(());
 
     if method == &Method::GET {
-        let url = Url::parse(&format!("http://example.com{}",&req.uri().to_string())) .unwrap();
+        let url = Url::parse(&format!("http://example.com{}", &req.uri().to_string())).unwrap();
         let query = url.query();
         if query.is_none() {
             return response_bad_request();
@@ -58,7 +63,8 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
         let mut uri = Url::parse(redirect_url).unwrap();
 
         let error_body = err.response;
-        uri.query_pairs_mut().append_pair("error", &error_body.error.to_string());
+        uri.query_pairs_mut()
+            .append_pair("error", &error_body.error.to_string());
         if let Some(state) = error_body.state {
             uri.query_pairs_mut().append_pair("state", &state);
         }

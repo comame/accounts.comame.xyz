@@ -31,7 +31,7 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
 
     let session_token = session_token.unwrap().clone();
 
-    let user = session::authenticate("id.comame.dev", &session_token, LoginPrompt::Login, true);
+    let user = session::authenticate("id.comame.dev", &session_token, true);
     if user.is_none() {
         return response_bad_request();
     }
