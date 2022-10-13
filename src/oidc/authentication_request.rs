@@ -1,29 +1,34 @@
-use super::authentication_flow_state::save_state;
-use crate::data::authentication::LoginPrompt;
+use jsonwebtoken::{encode, Header, EncodingKey};
+
+use super::authentication_flow_state::{get_state, save_state};
+use crate::data::authentication::{Authentication, AuthenticationMethod, LoginPrompt};
 use crate::data::oidc_flow::authentication_flow_state::{
     AuthenticationFlowState, LoginRequirement,
 };
 use crate::data::oidc_flow::authentication_request::AuthenticationRequest;
+use crate::data::oidc_flow::authentication_response::AuthenticationResponse;
 use crate::data::oidc_flow::authenticationi_error_response::AuthenticationErrorResponse;
 use crate::data::oidc_flow::error_code::ErrorCode;
+use crate::data::oidc_flow::id_token_claim::IdTokenClaim;
 use crate::data::oidc_relying_party::RelyingParty;
+use crate::time::now;
 
 #[derive(Debug)]
-pub struct PreAuthenticationError {
+pub struct AuthenticationError {
     pub redirect_uri: Option<String>,
     pub response: AuthenticationErrorResponse,
 }
 
 pub fn pre_authenticate(
     request: AuthenticationRequest,
-) -> Result<AuthenticationFlowState, PreAuthenticationError> {
+) -> Result<AuthenticationFlowState, AuthenticationError> {
     let relying_party = RelyingParty::find(&request.client_id);
     if relying_party.is_none() {
         let response = AuthenticationErrorResponse {
             error: ErrorCode::InvalidRequest,
             state: request.state,
         };
-        return Err(PreAuthenticationError {
+        return Err(AuthenticationError {
             redirect_uri: None,
             response,
         });
@@ -41,7 +46,7 @@ pub fn pre_authenticate(
             error: ErrorCode::InvalidRequest,
             state: request.state,
         };
-        return Err(PreAuthenticationError {
+        return Err(AuthenticationError {
             redirect_uri: None,
             response,
         });
@@ -52,7 +57,7 @@ pub fn pre_authenticate(
             error: ErrorCode::InvalidScope,
             state: request.state,
         };
-        return Err(PreAuthenticationError {
+        return Err(AuthenticationError {
             redirect_uri: Some(request.redirect_uri),
             response,
         });
@@ -64,7 +69,7 @@ pub fn pre_authenticate(
             state: request.state,
         };
         dbg!(&response);
-        return Err(PreAuthenticationError {
+        return Err(AuthenticationError {
             redirect_uri: Some(request.redirect_uri),
             response,
         });
@@ -75,7 +80,7 @@ pub fn pre_authenticate(
             error: ErrorCode::InvalidRequest,
             state: request.state,
         };
-        return Err(PreAuthenticationError {
+        return Err(AuthenticationError {
             redirect_uri: Some(request.redirect_uri),
             response,
         });
@@ -120,4 +125,87 @@ pub fn pre_authenticate(
     save_state(state.clone());
 
     Ok(state)
+}
+
+pub fn post_authentication(
+    user_id: &str,
+    state_id: &str,
+    login_type: AuthenticationMethod,
+) -> Result<AuthenticationResponse, AuthenticationError> {
+    let state = get_state(state_id);
+    if state.is_none() {
+        dbg!("no state");
+        let response = AuthenticationErrorResponse {
+            error: ErrorCode::InvalidRequest,
+            state: None,
+        };
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            response,
+        });
+    }
+    let state = state.unwrap();
+
+    let auth_level_ok = match state.login_requirement {
+        LoginRequirement::Consent => login_type != AuthenticationMethod::Session,
+        LoginRequirement::ReAuthenticate => {
+            !(login_type == AuthenticationMethod::Session
+                || login_type == AuthenticationMethod::Consent)
+        }
+
+        LoginRequirement::None => login_type == AuthenticationMethod::Session,
+        LoginRequirement::Any => true,
+        LoginRequirement::MaxAge => true,
+    };
+    if !auth_level_ok {
+        dbg!("auth level invalid");
+        let response = AuthenticationErrorResponse {
+            error: ErrorCode::InvalidRequest,
+            state: None,
+        };
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            response,
+        });
+    }
+
+    let latest_auth = Authentication::latest(user_id);
+    if latest_auth.is_none() {
+        let response = AuthenticationErrorResponse {
+            error: ErrorCode::InvalidRequest,
+            state: None,
+        };
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            response,
+        });
+    }
+    let latest_auth = latest_auth.unwrap();
+
+    if state.login_requirement == LoginRequirement::MaxAge {
+        if now() - latest_auth.authenticated_at > state.max_age.unwrap() {
+            let response = AuthenticationErrorResponse {
+                error: ErrorCode::InvalidRequest,
+                state: None,
+            };
+            return Err(AuthenticationError {
+                redirect_uri: None,
+                response,
+            });
+        }
+    }
+
+    let claim = IdTokenClaim {
+        iss: "https://id.comame.xyz".to_string(),
+        sub: user_id.to_string(),
+        aud: state.relying_party_id,
+        exp: now() + 5 * 60,
+        iat: now(),
+        auth_time: latest_auth.authenticated_at,
+        nonce: state.nonce
+    };
+
+    let jwt = encode(&Header::default(), &claim, &EncodingKey::from_secret("secret".as_ref())).unwrap();
+
+    Ok(AuthenticationResponse { id_token: jwt, state: state.state })
 }

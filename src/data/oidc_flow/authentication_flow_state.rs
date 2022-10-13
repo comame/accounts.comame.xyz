@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::crypto::rand::random_str;
+use crate::{crypto::rand::random_str, time::now};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct AuthenticationFlowState {
@@ -13,7 +13,7 @@ pub struct AuthenticationFlowState {
     pub login_requirement: LoginRequirement,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 pub enum LoginRequirement {
     // ユーザーの確認が必要
     Consent,
@@ -25,6 +25,19 @@ pub enum LoginRequirement {
     None,
     // なんでもいい
     Any,
+}
+
+impl LoginRequirement {
+    pub fn parse(str: &str) -> Result<Self, ()> {
+        match str {
+            "consent" => Ok(Self::Consent),
+            "reauthenticate" => Ok(Self::ReAuthenticate),
+            "max_age" => Ok(Self::MaxAge),
+            "none" => Ok(Self::None),
+            "any" => Ok(Self::Any),
+            _ => Err(())
+        }
+    }
 }
 
 impl AuthenticationFlowState {

@@ -3,7 +3,7 @@ use std::fmt;
 use crate::db::authentication::{find_latest_authentication_by_user, insert_authentication};
 use crate::time::now;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Authentication {
     pub authenticated_at: u64,
     pub created_at: u64,
@@ -37,12 +37,12 @@ impl Authentication {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum AuthenticationMethod {
-    None,
     Password,
     Google,
     Session,
+    Consent,
 }
 
 impl fmt::Display for AuthenticationMethod {
@@ -51,23 +51,23 @@ impl fmt::Display for AuthenticationMethod {
             f,
             "{}",
             match self {
-                Self::None => "none".to_string(),
                 Self::Password => "password".to_string(),
                 Self::Google => "google".to_string(),
                 Self::Session => "session".to_string(),
+                Self::Consent => "consent".to_string(),
             }
         )
     }
 }
 
-impl From<&str> for AuthenticationMethod {
-    fn from(str: &str) -> Self {
+impl AuthenticationMethod {
+    pub fn parse(str: &str) -> Result<Self, ()> {
         match str {
-            "none" => Self::None,
-            "password" => Self::Password,
-            "google" => Self::Google,
-            "session" => Self::Session,
-            _ => panic!(),
+            "password" => Ok(Self::Password),
+            "google" => Ok(Self::Google),
+            "session" => Ok(Self::Session),
+            "consent" => Ok(Self::Consent),
+            _ => Err(()),
         }
     }
 }

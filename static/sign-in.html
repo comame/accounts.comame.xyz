@@ -15,6 +15,8 @@
     </form>
     <form id="continue" action="/signin-continue" method="POST" enctype="application/x-www-form-urlencoded">
         <input name="csrf_token" type="hidden">
+        <input name="login_type" type="hidden">
+        <input name="state_id" type="hidden">
     </form>
     <script src="./sign-in.js"></script>
 </body>

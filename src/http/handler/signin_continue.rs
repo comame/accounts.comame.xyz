@@ -1,14 +1,25 @@
 use hyper::{Body, Request, Response, StatusCode};
+use url::Url;
 
 use crate::auth::{csrf_token, session};
 use crate::http::data::sign_in_continue_request::SignInContinueRequest;
 use crate::http::parse_body::parse_body;
 use crate::http::parse_cookie::parse_cookie;
+use crate::http::set_header::set_header;
+use crate::oidc::authentication_request::post_authentication;
 
 #[inline]
 fn response_bad_request() -> Response<Body> {
     let mut response = Response::new(Body::from(""));
     *response.status_mut() = StatusCode::BAD_REQUEST;
+    response
+}
+
+#[inline]
+fn redirect(url: &str) -> Response<Body> {
+    let mut response = Response::new(Body::empty());
+    *response.status_mut() = StatusCode::FOUND;
+    set_header(&mut response, "Location", url);
     response
 }
 
@@ -38,21 +49,46 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
 
     let request_body = parse_body(req.into_body()).await;
     if request_body.is_err() {
+        dbg!();
         return response_bad_request();
     }
 
+    dbg!(&request_body);
     let request_body = SignInContinueRequest::parse_from(&request_body.unwrap());
     if request_body.is_err() {
+        dbg!();
         return response_bad_request();
     }
+    let request_body = request_body.unwrap();
+    dbg!(&request_body);
 
-    let token_ok = csrf_token::validate_once(&request_body.unwrap().csrf_token);
+    let token_ok = csrf_token::validate_once(&request_body.csrf_token);
     if !token_ok {
+        dbg!();
         return response_bad_request();
     }
 
-    Response::new(Body::from(format!(
-        "You are signed as {}.",
-        user.unwrap().id
-    )))
+    let result = post_authentication(
+        &user.unwrap().id,
+        &request_body.state_id,
+        request_body.login_type,
+    );
+
+    if let Err(err) = result {
+        if err.redirect_uri.is_none() {
+            return response_bad_request();
+        }
+        let redirect_uri = err.redirect_uri.unwrap();
+        let error_body = err.response;
+        let mut redirect_uri = Url::parse(&redirect_uri).unwrap();
+        redirect_uri
+            .query_pairs_mut()
+            .append_pair("error", error_body.error.to_string().as_str());
+        if let Some(state) = error_body.state {
+            redirect_uri.query_pairs_mut().append_pair("state", &state);
+        }
+        return redirect(redirect_uri.as_str());
+    }
+
+    Response::new(Body::from(format!("{:?}", result.unwrap())))
 }

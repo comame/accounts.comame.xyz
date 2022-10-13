@@ -1,6 +1,7 @@
 use hyper::{Body, Method, Request, Response, StatusCode};
 use url::Url;
 
+use crate::data::oidc_flow::authentication_flow_state::LoginRequirement;
 use crate::data::oidc_flow::authentication_request::AuthenticationRequest;
 use crate::http::parse_body::parse_body;
 use crate::http::set_header::set_header;
@@ -69,6 +70,14 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
     }
 
     // 正常系
-
-    todo!()
+    let state = result.unwrap();
+    let sid = &state.id();
+    let uri = match state.login_requirement {
+        LoginRequirement::Consent => format!("/confirm?sid={sid}"),
+        LoginRequirement::ReAuthenticate => format!("/reauthenticate?sid={sid}"),
+        LoginRequirement::MaxAge => format!("/signin?sid={sid}#maxage"),
+        LoginRequirement::None => format!("/signin?sid={sid}#nointeraction"),
+        LoginRequirement::Any => format!("/signin?sid={sid}"),
+    };
+    redirect(&uri)
 }

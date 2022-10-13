@@ -13,6 +13,9 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
         (&Method::GET, "/reauthenticate") => {
             todo!();
         }
+        (&Method::GET, "/confirm") => {
+            todo!();
+        }
         (&Method::POST, "/signin-password") => {
             response = handler::signin::sign_in_with_password(req).await;
         }

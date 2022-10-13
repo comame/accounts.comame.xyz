@@ -3,3 +3,4 @@ pub mod authentication_request;
 pub mod authentication_response;
 pub mod authenticationi_error_response;
 pub mod error_code;
+pub mod id_token_claim;

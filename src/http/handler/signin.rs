@@ -3,7 +3,7 @@ use serde_json::{from_str, to_string};
 
 use crate::auth::session::{self, create_session};
 use crate::auth::{csrf_token, password};
-use crate::data::authentication::LoginPrompt;
+use crate::data::authentication::{LoginPrompt, Authentication};
 use crate::http::data::password_sign_in_request::PasswordSignInRequest;
 use crate::http::data::password_sign_in_response::PasswordSignInResponse;
 use crate::http::data::session_sign_in_request::SessionSignInRequest;
@@ -97,6 +97,11 @@ pub async fn sign_in_with_session(req: Request<Body>) -> Response<Body> {
         return response_bad_request();
     }
 
+    let user = user.unwrap();
+
+    let latest_authentication = Authentication::latest(&user.id);
+    dbg!(&latest_authentication);
+
     let body = parse_body(req.into_body()).await;
     if body.is_err() {
         return response_bad_request();
@@ -116,7 +121,8 @@ pub async fn sign_in_with_session(req: Request<Body>) -> Response<Body> {
     }
 
     let body = SessionSignInResponse {
-        user_id: user.unwrap().id,
+        user_id: user.id,
+        last_auth: latest_authentication.map(|auth| auth.authenticated_at),
     };
 
     Response::new(Body::from(to_string(&body).unwrap()))

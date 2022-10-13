@@ -4,6 +4,8 @@ use chrono::NaiveDate;
 use mysql::{Pool, PooledConn};
 use once_cell::sync::OnceCell;
 
+use crate::time::datetime_to_unixtime;
+
 static POOL: OnceCell<Mutex<Pool>> = OnceCell::new();
 
 pub fn init(mysql_url: &str) {
@@ -40,6 +42,10 @@ pub fn mysqldate_to_unixtime(value: mysql::Value) -> u64 {
                 .timestamp()
                 .try_into()
                 .unwrap()
+        }
+        mysql::Value::Bytes(bytes) => {
+            let string = String::from_utf8(bytes).unwrap();
+            datetime_to_unixtime(&string)
         }
         _ => {
             panic!();

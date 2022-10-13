@@ -6,6 +6,8 @@ const tokenEl = document.getElementById('csrf-token')
 const idEl = document.getElementById('user_id_read')
 const signoutButton = document.getElementById('signout')
 
+const stateId = new URL(location.href).searchParams.get('sid')
+
 fetch('/signin-session', {
     method: 'POST',
     credentials: 'include',
@@ -17,7 +19,7 @@ fetch('/signin-session', {
     })
 }).then(res => {
     if (res.status == 200) {
-        continueSignin()
+        continueSignin("session")
     }
 })
 
@@ -37,14 +39,18 @@ passwordForm.addEventListener("submit", e => {
         }
     }).then(res => {
         if (res.status == 200) {
-            continueSignin()
+            continueSignin("password")
         }
     })
 })
 
-function continueSignin() {
+function continueSignin(auth_method) {
+    console.log(auth_method)
     /** @type {HTMLFormElement} */
     const form = document.getElementById('continue')
     form.csrf_token.value = tokenEl.content
+    form.login_type.value = auth_method
+    form.state_id.value = stateId
+
     form.submit()
 }

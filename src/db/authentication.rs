@@ -2,7 +2,7 @@ use mysql::params;
 use mysql::prelude::Queryable;
 
 use super::mysql::get_conn;
-use crate::data::authentication::Authentication;
+use crate::data::authentication::{Authentication, AuthenticationMethod};
 use crate::db::mysql::mysqldate_to_unixtime;
 use crate::time::unixtime_to_datetime;
 
@@ -25,12 +25,12 @@ pub fn insert_authentication(auth: &Authentication) {
 pub fn find_latest_authentication_by_user(_user_id: &str) -> Option<Authentication> {
     let result = get_conn().unwrap().query_map(
         "SELECT * FROM authentications WHERE method NOT LIKE \"session\" ORDER BY created_at DESC LIMIT 1",
-        |tuple: (mysql::Value, mysql::Value, String, String, String, String)| Authentication {
+        |tuple: (mysql::Value, mysql::Value, String, String, String)| Authentication {
             authenticated_at: mysqldate_to_unixtime(tuple.0),
             created_at: mysqldate_to_unixtime(tuple.1),
             audience: tuple.2,
             subject: tuple.3,
-            method: tuple.4.as_str().try_into().unwrap(),
+            method: AuthenticationMethod::parse(tuple.4.as_str()).unwrap(),
         }).unwrap();
 
     result.first().cloned()
