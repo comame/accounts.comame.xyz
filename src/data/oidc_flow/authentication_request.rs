@@ -1,6 +1,5 @@
 use crate::data::authentication::LoginPrompt;
 use crate::http::parse_form_urlencoded::parse;
-use std::panic;
 
 #[derive(Debug)]
 pub struct AuthenticationRequest {

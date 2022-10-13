@@ -1,9 +1,8 @@
 use mysql::params;
 use mysql::prelude::*;
 
-use crate::data::oidc_relying_party::RelyingParty;
-
 use super::mysql::get_conn;
+use crate::data::oidc_relying_party::RelyingParty;
 
 pub fn find_relying_party_by_id(client_id: &str) -> Option<RelyingParty> {
     let values: Vec<(String, Option<String>)> = get_conn().unwrap().exec_map(

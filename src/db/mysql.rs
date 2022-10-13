@@ -1,7 +1,8 @@
+use std::sync::Mutex;
+
 use chrono::NaiveDate;
 use mysql::{Pool, PooledConn};
 use once_cell::sync::OnceCell;
-use std::sync::Mutex;
 
 static POOL: OnceCell<Mutex<Pool>> = OnceCell::new();
 

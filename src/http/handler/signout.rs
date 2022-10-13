@@ -1,6 +1,7 @@
+use hyper::{Body, Request, Response, StatusCode};
+
 use crate::auth::session::revoke_session_by_token;
 use crate::http::parse_cookie::parse_cookie;
-use hyper::{Body, Request, Response, StatusCode};
 
 pub async fn signout(req: Request<Body>) -> Response<Body> {
     let mut response = Response::new(Body::from("{}"));
@@ -31,10 +32,10 @@ pub async fn signout(req: Request<Body>) -> Response<Body> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use hyper::{Body, Request, StatusCode};
     use serde_json::to_string;
 
+    use super::*;
     use crate::auth::csrf_token::generate;
     use crate::auth::password::set_password;
     use crate::data::user::User;

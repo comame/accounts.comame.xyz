@@ -1,12 +1,10 @@
-use crate::http::set_header::set_header;
-use crate::oidc::authentication_request::{pre_authenticate, PreAuthenticationError};
 use hyper::{Body, Method, Request, Response, StatusCode};
 use url::Url;
 
-use crate::data::authentication::Authentication;
 use crate::data::oidc_flow::authentication_request::AuthenticationRequest;
 use crate::http::parse_body::parse_body;
-use crate::http::parse_form_urlencoded::parse;
+use crate::http::set_header::set_header;
+use crate::oidc::authentication_request::pre_authenticate;
 
 fn response_bad_request() -> Response<Body> {
     let mut response = Response::new(Body::from("{}"));

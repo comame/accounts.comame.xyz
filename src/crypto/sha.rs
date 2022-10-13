@@ -1,5 +1,6 @@
-use crate::enc::hex::encode_hex;
 use openssl::sha::sha256 as openssl_sha256;
+
+use crate::enc::hex::encode_hex;
 
 pub fn sha256(msg: &str) -> String {
     let buf = msg.as_bytes();

@@ -1,15 +1,12 @@
-use crate::data::authentication::{Authentication, LoginPrompt};
+use super::authentication_flow_state::save_state;
+use crate::data::authentication::LoginPrompt;
 use crate::data::oidc_flow::authentication_flow_state::{
     AuthenticationFlowState, LoginRequirement,
 };
 use crate::data::oidc_flow::authentication_request::AuthenticationRequest;
-use crate::data::oidc_flow::authentication_response::AuthenticationResponse;
 use crate::data::oidc_flow::authenticationi_error_response::AuthenticationErrorResponse;
 use crate::data::oidc_flow::error_code::ErrorCode;
 use crate::data::oidc_relying_party::RelyingParty;
-use crate::time::now;
-
-use super::authentication_flow_state::save_state;
 
 #[derive(Debug)]
 pub struct PreAuthenticationError {
@@ -118,7 +115,7 @@ pub fn pre_authenticate(
         request.state,
         request.nonce,
         request.max_age,
-        login_requirement.clone(),
+        login_requirement,
     );
     save_state(state.clone());
 

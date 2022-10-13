@@ -1,5 +1,6 @@
-use crate::http::{handler, static_file};
 use hyper::{Body, Method, Request, Response, StatusCode};
+
+use crate::http::{handler, static_file};
 
 pub async fn routes(req: Request<Body>) -> Response<Body> {
     let mut response = Response::new(Body::empty());
@@ -8,10 +9,10 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
     match (req.method(), req.uri().path()) {
         (&Method::GET, "/signin") => {
             response = handler::signin::page();
-        },
+        }
         (&Method::GET, "/reauthenticate") => {
             todo!();
-        },
+        }
         (&Method::POST, "/signin-password") => {
             response = handler::signin::sign_in_with_password(req).await;
         }
@@ -29,7 +30,7 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
         }
         (&Method::POST, "/authenticate") => {
             response = handler::oidc_authentication_request::handler(req).await;
-        },
+        }
         _ => {
             let file = static_file::read(req.uri().path());
 

@@ -1,8 +1,8 @@
-use crate::db::authentication_failure::insert_authentication_failure;
-use crate::time::now;
 use std::fmt;
 
 use super::authentication::AuthenticationMethod;
+use crate::db::authentication_failure::insert_authentication_failure;
+use crate::time::now;
 
 pub struct AuthenticationFailure {
     pub tried_at: u64,

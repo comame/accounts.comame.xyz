@@ -1,10 +1,10 @@
-use crate::data::session::Session;
-use crate::db::mysql::get_conn;
-use crate::time::unixtime_to_datetime;
 use mysql::params;
 use mysql::prelude::*;
 
 use super::mysql::mysqldate_to_unixtime;
+use crate::data::session::Session;
+use crate::db::mysql::get_conn;
+use crate::time::unixtime_to_datetime;
 
 pub fn insert_session(session: &Session) {
     get_conn()

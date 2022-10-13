@@ -28,7 +28,7 @@ pub fn set_password(user_id: &str, password: &str) {
     insert_password(&user_password).unwrap();
 }
 
-pub fn authenticate(user_id: &str, password: &str, audience: &str, prompt: LoginPrompt) -> bool {
+pub fn authenticate(user_id: &str, password: &str, audience: &str, _prompt: LoginPrompt) -> bool {
     let hash = calculate_password_hash(password, user_id);
     let user_password = UserPassword {
         user_id: user_id.to_string(),

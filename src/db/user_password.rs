@@ -1,7 +1,8 @@
-use super::mysql::get_conn;
-use crate::data::user_password::UserPassword;
 use mysql::prelude::*;
 use mysql::{params, Error};
+
+use super::mysql::get_conn;
+use crate::data::user_password::UserPassword;
 
 pub fn password_matched(user_password: &UserPassword) -> bool {
     let result = get_conn().unwrap().exec_map(

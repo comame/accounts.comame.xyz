@@ -1,7 +1,8 @@
-use super::mysql::get_conn;
-use crate::data::user::User;
 use mysql::prelude::*;
 use mysql::{params, Error};
+
+use super::mysql::get_conn;
+use crate::data::user::User;
 
 pub fn find_user_by_id(id: &str) -> Option<User> {
     let users = get_conn()

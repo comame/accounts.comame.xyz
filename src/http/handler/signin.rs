@@ -1,3 +1,6 @@
+use hyper::{Body, Request, Response, StatusCode};
+use serde_json::{from_str, to_string};
+
 use crate::auth::session::{self, create_session};
 use crate::auth::{csrf_token, password};
 use crate::data::authentication::LoginPrompt;
@@ -9,8 +12,6 @@ use crate::http::parse_body::parse_body;
 use crate::http::parse_cookie::parse_cookie;
 use crate::http::set_header::set_header;
 use crate::http::static_file;
-use hyper::{Body, Request, Response, StatusCode};
-use serde_json::{from_str, to_string};
 
 #[inline]
 fn response_bad_request() -> Response<Body> {

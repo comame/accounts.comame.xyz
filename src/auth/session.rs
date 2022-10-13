@@ -1,4 +1,4 @@
-use crate::data::authentication::{Authentication, AuthenticationMethod, LoginPrompt};
+use crate::data::authentication::{Authentication, AuthenticationMethod};
 use crate::data::authentication_failure::{AuthenticationFailure, Reason};
 use crate::data::session::Session;
 use crate::data::user::User;

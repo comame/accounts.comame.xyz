@@ -1,9 +1,9 @@
+use hyper::{Body, Request, Response, StatusCode};
+
 use crate::auth::{csrf_token, session};
-use crate::data::authentication::LoginPrompt;
 use crate::http::data::sign_in_continue_request::SignInContinueRequest;
 use crate::http::parse_body::parse_body;
 use crate::http::parse_cookie::parse_cookie;
-use hyper::{Body, Request, Response, StatusCode};
 
 #[inline]
 fn response_bad_request() -> Response<Body> {

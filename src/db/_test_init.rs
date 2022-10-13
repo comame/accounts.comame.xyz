@@ -1,10 +1,11 @@
-use crate::crypto::rand::random_str;
-
-use super::mysql::get_conn;
-use mysql::prelude::*;
-use mysql::Params;
 use std::env;
 use std::sync::Once;
+
+use mysql::prelude::*;
+use mysql::Params;
+
+use super::mysql::get_conn;
+use crate::crypto::rand::random_str;
 
 static INIT_MYSQL: Once = Once::new();
 static INIT_REDIS: Once = Once::new();
