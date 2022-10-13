@@ -19,7 +19,7 @@ pub struct PreAuthenticationError {
 
 pub fn pre_authenticate(
     request: AuthenticationRequest,
-) -> Result<LoginRequirement, PreAuthenticationError> {
+) -> Result<AuthenticationFlowState, PreAuthenticationError> {
     let relying_party = RelyingParty::find(&request.client_id);
     if relying_party.is_none() {
         let response = AuthenticationErrorResponse {
@@ -95,18 +95,20 @@ pub fn pre_authenticate(
     if request.prompt.is_none() {
         login_requirement = LoginRequirement::Any;
     }
-    match request.prompt.unwrap() {
-        LoginPrompt::Consent => {
-            login_requirement = LoginRequirement::Consent;
-        }
-        LoginPrompt::Login => {
-            login_requirement = LoginRequirement::ReAuthenticate;
-        }
-        LoginPrompt::None => {
-            login_requirement = LoginRequirement::None;
-        }
-        LoginPrompt::SelectAccount => {
-            login_requirement = LoginRequirement::Consent;
+    if let Some(prompt) = request.prompt {
+        match prompt {
+            LoginPrompt::Consent => {
+                login_requirement = LoginRequirement::Consent;
+            }
+            LoginPrompt::Login => {
+                login_requirement = LoginRequirement::ReAuthenticate;
+            }
+            LoginPrompt::None => {
+                login_requirement = LoginRequirement::None;
+            }
+            LoginPrompt::SelectAccount => {
+                login_requirement = LoginRequirement::Consent;
+            }
         }
     }
 
@@ -118,7 +120,7 @@ pub fn pre_authenticate(
         request.max_age,
         login_requirement.clone(),
     );
-    save_state(state);
+    save_state(state.clone());
 
-    Ok(login_requirement)
+    Ok(state)
 }

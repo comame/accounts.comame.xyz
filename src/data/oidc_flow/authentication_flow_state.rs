@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::crypto::rand::random_str;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct AuthenticationFlowState {
     id: String,
     pub relying_party_id: String,
@@ -13,7 +13,7 @@ pub struct AuthenticationFlowState {
     pub login_requirement: LoginRequirement,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub enum LoginRequirement {
     // ユーザーの確認が必要
     Consent,

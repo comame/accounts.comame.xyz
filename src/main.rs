@@ -1,6 +1,7 @@
 use crate::auth::password::set_password;
+use http::set_header::set_header;
 use hyper::service::{make_service_fn, service_fn};
-use hyper::{Body, Request, Response, Server};
+use hyper::{Body, Request, Response, Server, StatusCode};
 use std::convert::Infallible;
 use std::env;
 use std::net::SocketAddr;
@@ -37,9 +38,16 @@ fn create_default_rp() {
     );
 }
 
+fn moved_permanently(path: &str) -> Response<Body> {
+    let mut response = Response::new(Body::empty());
+    *response.status_mut() = StatusCode::MOVED_PERMANENTLY;
+    set_header(&mut response, "Location", path);
+    response
+}
+
 async fn service(req: Request<Body>) -> Result<Response<Body>, Infallible> {
     Ok(match http::uri::trim(req.uri().path()) {
-        Some(path) => http::redirect::moved_permanently(path.as_str()),
+        Some(path) => moved_permanently(path.as_str()),
         None => http::routes::routes(req).await,
     })
 }
