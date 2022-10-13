@@ -9,6 +9,12 @@ pub struct SignInContinueRequest {
     pub state_id: String,
 }
 
+#[derive(PartialEq, Eq, Debug)]
+pub struct SignInContinueNoSessionRequest {
+    pub csrf_token: String,
+    pub state_id: String,
+}
+
 impl SignInContinueRequest {
     pub fn parse_from(str: &str) -> Result<Self, ()> {
         let map = parse(str)?;
@@ -41,11 +47,33 @@ impl SignInContinueRequest {
     }
 }
 
+impl SignInContinueNoSessionRequest {
+    pub fn parse_from(str: &str) -> Result<Self, ()> {
+        let map = parse(str)?;
+
+        let token = map.get("csrf_token");
+        if token.is_none() {
+            return Err(());
+        }
+        let token = token.unwrap().clone();
+
+        let state_id = map.get("state_id");
+        if state_id.is_none() {
+            return Err(());
+        }
+
+        Ok(Self {
+            csrf_token: token,
+            state_id: state_id.unwrap().clone(),
+        })
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::SignInContinueRequest as Target;
     use crate::data::authentication::AuthenticationMethod;
-    
+
 
     #[test]
     fn test() {

@@ -75,7 +75,7 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
     let uri = match state.login_requirement {
         LoginRequirement::Consent => format!("/confirm?sid={sid}"),
         LoginRequirement::ReAuthenticate => format!("/reauthenticate?sid={sid}"),
-        LoginRequirement::MaxAge => format!("/signin?sid={sid}#maxage"),
+        LoginRequirement::MaxAge => format!("/signin?sid={sid}&age={}#maxage", state.max_age.unwrap()),
         LoginRequirement::None => format!("/signin?sid={sid}#nointeraction"),
         LoginRequirement::Any => format!("/signin?sid={sid}"),
     };

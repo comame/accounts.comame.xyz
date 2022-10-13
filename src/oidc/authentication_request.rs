@@ -113,6 +113,9 @@ pub fn pre_authenticate(
             }
         }
     }
+    if let Some(max_age) = request.max_age {
+        login_requirement = LoginRequirement::MaxAge;
+    }
 
     let state = AuthenticationFlowState::new(
         &request.client_id,
@@ -125,6 +128,29 @@ pub fn pre_authenticate(
     save_state(state.clone());
 
     Ok(state)
+}
+
+pub fn pronpt_none_fail_authentication(
+    state_id: &str
+) -> AuthenticationError {
+    let state = get_state(state_id);
+    if state.is_none() {
+        let response = AuthenticationErrorResponse {
+            error: ErrorCode::InteractionRequired,
+            state: None
+        };
+        return AuthenticationError {
+            redirect_uri: None,
+            response
+        };
+    }
+    let state = state.unwrap();
+
+    let response = AuthenticationErrorResponse {
+        error: ErrorCode::InteractionRequired,
+        state: state.state
+    };
+    AuthenticationError { redirect_uri: Some(state.redirect_url), response }
 }
 
 pub struct PostAuthenticationResponse {

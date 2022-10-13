@@ -7,6 +7,8 @@ const idEl = document.getElementById('user_id_read')
 const signoutButton = document.getElementById('signout')
 
 const stateId = new URL(location.href).searchParams.get('sid')
+const maxage = Number.parseInt(new URL(location.href).searchParams.get('age') ?? 0, 10)
+let hash = location.hash.slice(1)
 
 fetch('/signin-session', {
     method: 'POST',
@@ -19,7 +21,25 @@ fetch('/signin-session', {
     })
 }).then(res => {
     if (res.status == 200) {
-        continueSignin("session")
+        res.json().then(json => {
+            console.log(json)
+            if (hash == 'maxage') {
+                const lastAuth = json.last_auth
+                const now = Math.trunc(Date.now() / 1000)
+                if (now - lastAuth <= maxage) {
+                    continueSignin("session")
+                } else {
+                    console.log("Expire")
+                    document.body.classList.remove('hidden')
+                }
+            } else {
+                continueSignin("session")
+            }
+        })
+    } else if (hash == 'nointeraction') {
+        continueNoneFail()
+    } else {
+        document.body.classList.remove('hidden')
     }
 })
 
@@ -45,11 +65,19 @@ passwordForm.addEventListener("submit", e => {
 })
 
 function continueSignin(auth_method) {
-    console.log(auth_method)
     /** @type {HTMLFormElement} */
     const form = document.getElementById('continue')
     form.csrf_token.value = tokenEl.content
     form.login_type.value = auth_method
+    form.state_id.value = stateId
+
+    form.submit()
+}
+
+function continueNoneFail() {
+    /** @type {HTMLFormElement} */
+    const form = document.getElementById('continue-fail')
+    form.csrf_token.value = tokenEl.content
     form.state_id.value = stateId
 
     form.submit()
