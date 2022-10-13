@@ -10,8 +10,8 @@ pub fn random_str(len: usize) -> String {
     }
     rand_bytes(&mut buf).unwrap();
     let mut answer = base64::encode_base64(buf);
-    answer = answer.replace("+", "-");
-    answer = answer.replace("/", "_");
+    answer = answer.replace('+', "-");
+    answer = answer.replace('/', "_");
 
     let diff = answer.len() - len;
     if diff > 0 {

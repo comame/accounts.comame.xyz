@@ -182,17 +182,15 @@ pub fn post_authentication(
     }
     let latest_auth = latest_auth.unwrap();
 
-    if state.login_requirement == LoginRequirement::MaxAge {
-        if now() - latest_auth.authenticated_at > state.max_age.unwrap() {
-            let response = AuthenticationErrorResponse {
-                error: ErrorCode::InvalidRequest,
-                state: None,
-            };
-            return Err(AuthenticationError {
-                redirect_uri: None,
-                response,
-            });
-        }
+    if state.login_requirement == LoginRequirement::MaxAge && now() - latest_auth.authenticated_at > state.max_age.unwrap() {
+        let response = AuthenticationErrorResponse {
+            error: ErrorCode::InvalidRequest,
+            state: None,
+        };
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            response,
+        });
     }
 
     let claim = IdTokenClaim {

@@ -1,5 +1,5 @@
-use crate::data::authentication::{AuthenticationMethod, LoginPrompt};
-use crate::data::oidc_flow::authentication_flow_state::LoginRequirement;
+use crate::data::authentication::{AuthenticationMethod};
+
 use crate::http::parse_form_urlencoded::parse;
 
 #[derive(PartialEq, Eq, Debug)]
@@ -45,7 +45,7 @@ impl SignInContinueRequest {
 mod tests {
     use super::SignInContinueRequest as Target;
     use crate::data::authentication::AuthenticationMethod;
-    use crate::data::oidc_flow::authentication_flow_state::LoginRequirement;
+    
 
     #[test]
     fn test() {
