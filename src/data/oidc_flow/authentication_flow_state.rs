@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{crypto::rand::random_str, time::now};
+use crate::crypto::rand::random_str;
+use crate::time::now;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct AuthenticationFlowState {
@@ -35,7 +36,7 @@ impl LoginRequirement {
             "max_age" => Ok(Self::MaxAge),
             "none" => Ok(Self::None),
             "any" => Ok(Self::Any),
-            _ => Err(())
+            _ => Err(()),
         }
     }
 }

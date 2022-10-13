@@ -1,7 +1,6 @@
-use crate::{
-    data::{authentication::{LoginPrompt, AuthenticationMethod}, oidc_flow::authentication_flow_state::LoginRequirement},
-    http::parse_form_urlencoded::parse,
-};
+use crate::data::authentication::{AuthenticationMethod, LoginPrompt};
+use crate::data::oidc_flow::authentication_flow_state::LoginRequirement;
+use crate::http::parse_form_urlencoded::parse;
 
 #[derive(PartialEq, Eq, Debug)]
 pub struct SignInContinueRequest {
@@ -37,23 +36,26 @@ impl SignInContinueRequest {
         Ok(Self {
             csrf_token: token,
             login_type: login_type.unwrap(),
-            state_id: state_id.unwrap().clone()
+            state_id: state_id.unwrap().clone(),
         })
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::data::{oidc_flow::authentication_flow_state::LoginRequirement, authentication::AuthenticationMethod};
-
     use super::SignInContinueRequest as Target;
+    use crate::data::authentication::AuthenticationMethod;
+    use crate::data::oidc_flow::authentication_flow_state::LoginRequirement;
 
     #[test]
     fn test() {
-        assert_eq!(Target::parse_from("csrf_token=abcde&login_type=password&state_id=xyz").unwrap(), Target {
-            csrf_token: "abcde".to_string(),
-            login_type: AuthenticationMethod::Password,
-            state_id: "xyz".to_string()
-        });
+        assert_eq!(
+            Target::parse_from("csrf_token=abcde&login_type=password&state_id=xyz").unwrap(),
+            Target {
+                csrf_token: "abcde".to_string(),
+                login_type: AuthenticationMethod::Password,
+                state_id: "xyz".to_string()
+            }
+        );
     }
 }

@@ -3,7 +3,7 @@ use serde_json::{from_str, to_string};
 
 use crate::auth::session::{self, create_session};
 use crate::auth::{csrf_token, password};
-use crate::data::authentication::{LoginPrompt, Authentication};
+use crate::data::authentication::{Authentication, LoginPrompt};
 use crate::http::data::password_sign_in_request::PasswordSignInRequest;
 use crate::http::data::password_sign_in_response::PasswordSignInResponse;
 use crate::http::data::session_sign_in_request::SessionSignInRequest;

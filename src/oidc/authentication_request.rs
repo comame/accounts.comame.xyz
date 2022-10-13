@@ -1,4 +1,4 @@
-use jsonwebtoken::{encode, Header, EncodingKey};
+use jsonwebtoken::{encode, EncodingKey, Header};
 
 use super::authentication_flow_state::{get_state, save_state};
 use crate::data::authentication::{Authentication, AuthenticationMethod, LoginPrompt};
@@ -202,10 +202,18 @@ pub fn post_authentication(
         exp: now() + 5 * 60,
         iat: now(),
         auth_time: latest_auth.authenticated_at,
-        nonce: state.nonce
+        nonce: state.nonce,
     };
 
-    let jwt = encode(&Header::default(), &claim, &EncodingKey::from_secret("secret".as_ref())).unwrap();
+    let jwt = encode(
+        &Header::default(),
+        &claim,
+        &EncodingKey::from_secret("secret".as_ref()),
+    )
+    .unwrap();
 
-    Ok(AuthenticationResponse { id_token: jwt, state: state.state })
+    Ok(AuthenticationResponse {
+        id_token: jwt,
+        state: state.state,
+    })
 }
