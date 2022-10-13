@@ -90,5 +90,15 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
         return redirect(redirect_uri.as_str());
     }
 
-    Response::new(Body::from(format!("{:?}", result.unwrap())))
+    let result = result.unwrap();
+    let mut redirect_uri = Url::parse(result.redirect_uri.as_str()).unwrap();
+
+    let id_token = result.response.id_token;
+    let state = result.response.state;
+    redirect_uri.query_pairs_mut().append_pair("id_token", &id_token);
+    if let Some(state) = state {
+        redirect_uri.query_pairs_mut().append_pair("state", &state);
+    }
+
+    redirect(redirect_uri.as_str())
 }

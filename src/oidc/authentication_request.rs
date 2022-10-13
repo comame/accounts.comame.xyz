@@ -127,11 +127,16 @@ pub fn pre_authenticate(
     Ok(state)
 }
 
+pub struct PostAuthenticationResponse {
+    pub response: AuthenticationResponse,
+    pub redirect_uri: String,
+}
+
 pub fn post_authentication(
     user_id: &str,
     state_id: &str,
     login_type: AuthenticationMethod,
-) -> Result<AuthenticationResponse, AuthenticationError> {
+) -> Result<PostAuthenticationResponse, AuthenticationError> {
     let state = get_state(state_id);
     if state.is_none() {
         dbg!("no state");
@@ -182,7 +187,9 @@ pub fn post_authentication(
     }
     let latest_auth = latest_auth.unwrap();
 
-    if state.login_requirement == LoginRequirement::MaxAge && now() - latest_auth.authenticated_at > state.max_age.unwrap() {
+    if state.login_requirement == LoginRequirement::MaxAge
+        && now() - latest_auth.authenticated_at > state.max_age.unwrap()
+    {
         let response = AuthenticationErrorResponse {
             error: ErrorCode::InvalidRequest,
             state: None,
@@ -210,8 +217,11 @@ pub fn post_authentication(
     )
     .unwrap();
 
-    Ok(AuthenticationResponse {
-        id_token: jwt,
-        state: state.state,
+    Ok(PostAuthenticationResponse {
+        response: AuthenticationResponse {
+            id_token: jwt,
+            state: state.state,
+        },
+        redirect_uri: state.redirect_url
     })
 }
