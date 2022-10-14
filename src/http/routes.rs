@@ -1,8 +1,14 @@
 use hyper::{Body, Method, Request, Response, StatusCode};
 
-use crate::http::{handler, static_file};
+use crate::{
+    http::{handler, static_file},
+    time::now,
+};
 
 pub async fn routes(req: Request<Body>) -> Response<Body> {
+    let start_time = std::time::SystemTime::now();
+    let mut bench = true;
+
     let mut response = Response::new(Body::empty());
     println!("Request {}", req.uri().path());
 
@@ -41,6 +47,7 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
             response = handler::rp_callback::handler(req).await;
         }
         _ => {
+            bench = false;
             let file = static_file::read(req.uri().path());
 
             if file.is_ok() {
@@ -51,6 +58,16 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
             }
         }
     };
+
+    if bench {
+        println!(
+            "  {} ms",
+            std::time::SystemTime::now()
+                .duration_since(start_time)
+                .unwrap()
+                .as_millis()
+        );
+    }
 
     response
 }

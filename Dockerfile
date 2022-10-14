@@ -1,9 +1,4 @@
-FROM rust:latest as builder
-WORKDIR /root
-COPY ./ ./
-RUN cargo build -r
-
-
 FROM ubuntu
-COPY --from=builder /root/target/release/id /root/id
+COPY ./target/release/id /root/id
+COPY ./static ./static
 CMD "/root/id"

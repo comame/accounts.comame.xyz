@@ -1,0 +1,5 @@
+{
+    "namespace": "id",
+    "name": "id",
+    "prebuild": "cargo build -r"
+}
