@@ -113,7 +113,7 @@ pub fn pre_authenticate(
             }
         }
     }
-    if let Some(max_age) = request.max_age {
+    if let Some(_max_age) = request.max_age {
         login_requirement = LoginRequirement::MaxAge;
     }
 
