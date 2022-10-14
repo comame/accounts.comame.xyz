@@ -130,27 +130,28 @@ pub fn pre_authenticate(
     Ok(state)
 }
 
-pub fn pronpt_none_fail_authentication(
-    state_id: &str
-) -> AuthenticationError {
+pub fn pronpt_none_fail_authentication(state_id: &str) -> AuthenticationError {
     let state = get_state(state_id);
     if state.is_none() {
         let response = AuthenticationErrorResponse {
             error: ErrorCode::InteractionRequired,
-            state: None
+            state: None,
         };
         return AuthenticationError {
             redirect_uri: None,
-            response
+            response,
         };
     }
     let state = state.unwrap();
 
     let response = AuthenticationErrorResponse {
         error: ErrorCode::InteractionRequired,
-        state: state.state
+        state: state.state,
     };
-    AuthenticationError { redirect_uri: Some(state.redirect_url), response }
+    AuthenticationError {
+        redirect_uri: Some(state.redirect_url),
+        response,
+    }
 }
 
 pub struct PostAuthenticationResponse {
@@ -248,6 +249,6 @@ pub fn post_authentication(
             id_token: jwt,
             state: state.state,
         },
-        redirect_uri: state.redirect_url
+        redirect_uri: state.redirect_url,
     })
 }

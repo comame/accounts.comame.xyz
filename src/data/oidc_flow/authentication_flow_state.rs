@@ -2,7 +2,6 @@ use serde::{Deserialize, Serialize};
 
 use crate::crypto::rand::random_str;
 
-
 #[derive(Serialize, Deserialize, Clone)]
 pub struct AuthenticationFlowState {
     id: String,
