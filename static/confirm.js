@@ -22,7 +22,6 @@ fetch('/signin-session', {
     })
 }).then(res => res.json()).then(json => {
     if (json.user_id) {
-        idEl.value = json.user_id
         idReadEl.textContent = json.user_id
         document.body.classList.remove('hidden')
     } else {
@@ -36,25 +35,8 @@ document.getElementById('other-account').addEventListener('click', (e) => {
     location.href = `/signout?continue=${continueUrl}`
 })
 
-passwordForm.addEventListener("submit", e => {
-    e.preventDefault()
-    const formData = new FormData(passwordForm)
-    const body = JSON.stringify({
-        user_id: formData.get('user_id'),
-        password: formData.get('password'),
-        csrf_token: tokenEl.content,
-    })
-    fetch('/signin-password', {
-        method: 'POST',
-        body,
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    }).then(res => {
-        if (res.status == 200) {
-            continueSignin("password")
-        }
-    })
+document.getElementById('continue-button').addEventListener('click', () => {
+    continueSignin('consent')
 })
 
 function continueSignin(auth_method) {

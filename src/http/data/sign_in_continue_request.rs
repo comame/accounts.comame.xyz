@@ -1,4 +1,4 @@
-use crate::data::authentication::{AuthenticationMethod};
+use crate::data::authentication::AuthenticationMethod;
 
 use crate::http::parse_form_urlencoded::parse;
 
@@ -7,6 +7,7 @@ pub struct SignInContinueRequest {
     pub csrf_token: String,
     pub login_type: AuthenticationMethod,
     pub state_id: String,
+    pub relying_party_id: String,
 }
 
 #[derive(PartialEq, Eq, Debug)]
@@ -39,10 +40,16 @@ impl SignInContinueRequest {
             return Err(());
         }
 
+        let relying_party_id = map.get("relying_party_id");
+        if relying_party_id.is_none() {
+            return Err(());
+        }
+
         Ok(Self {
             csrf_token: token,
             login_type: login_type.unwrap(),
             state_id: state_id.unwrap().clone(),
+            relying_party_id: relying_party_id.unwrap().clone(),
         })
     }
 }
@@ -74,15 +81,18 @@ mod tests {
     use super::SignInContinueRequest as Target;
     use crate::data::authentication::AuthenticationMethod;
 
-
     #[test]
     fn test() {
         assert_eq!(
-            Target::parse_from("csrf_token=abcde&login_type=password&state_id=xyz").unwrap(),
+            Target::parse_from(
+                "csrf_token=abcde&login_type=password&state_id=xyz&relying_party_id=hoge"
+            )
+            .unwrap(),
             Target {
                 csrf_token: "abcde".to_string(),
                 login_type: AuthenticationMethod::Password,
-                state_id: "xyz".to_string()
+                state_id: "xyz".to_string(),
+                relying_party_id: "hoge".to_string(),
             }
         );
     }

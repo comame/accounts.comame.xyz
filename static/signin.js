@@ -73,6 +73,7 @@ function continueSignin(auth_method) {
     form.csrf_token.value = tokenEl.content
     form.login_type.value = auth_method
     form.state_id.value = stateId
+    form.relying_party_id.value = relyingPartyId
 
     form.submit()
 }
