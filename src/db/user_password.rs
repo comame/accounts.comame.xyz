@@ -33,25 +33,16 @@ fn password_exists(user_id: &str) -> bool {
 }
 
 pub fn insert_password(user_password: &UserPassword) -> Result<(), Error> {
-    let exists = password_exists(&user_password.user_id);
+    let user_id = user_password.user_id.clone();
+    let new_pass = user_password.hashed_password.clone();
 
-    if exists {
-        get_conn().unwrap().exec_batch(
-            "UPDATE user_passwords SET hashed_password = :new_p WHERE user_id = :id",
-            std::iter::once(params! {
-                "new_p" => user_password.hashed_password.clone(),
-                "id" => user_password.user_id.clone(),
-            }),
-        )
-    } else {
-        get_conn().unwrap().exec_batch(
-            "INSERT INTO user_passwords (user_id, hashed_password) VALUES (:id, :pass)",
-            std::iter::once(params! {
-                "id" => user_password.user_id.clone(),
-                "pass" => user_password.hashed_password.clone(),
-            }),
-        )
-    }
+    get_conn().unwrap().exec_drop(
+        "INSERT INTO user_passwords VALUES (:user, :pass) ON DUPLICATE KEY UPDATE hashed_password = :pass",
+        params! {
+            "user" => user_id,
+            "pass" => new_pass,
+        }
+    )
 }
 
 #[cfg(test)]
@@ -98,6 +89,7 @@ mod tests {
             hashed_password: "pass".to_string(),
         };
         insert_password(&pass_1).unwrap();
+        assert!(password_matched(&pass_1));
         let pass_2 = UserPassword {
             user_id: user_id.to_string(),
             hashed_password: "new".to_string(),
