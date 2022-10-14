@@ -68,7 +68,6 @@ pub fn pre_authenticate(
             error: ErrorCode::UnsupportedResponseType,
             state: request.state,
         };
-        dbg!(&response);
         return Err(AuthenticationError {
             redirect_uri: Some(request.redirect_uri),
             response,
@@ -166,7 +165,6 @@ pub fn post_authentication(
 ) -> Result<PostAuthenticationResponse, AuthenticationError> {
     let state = get_state(state_id);
     if state.is_none() {
-        dbg!("no state");
         let response = AuthenticationErrorResponse {
             error: ErrorCode::InvalidRequest,
             state: None,
@@ -190,7 +188,6 @@ pub fn post_authentication(
         LoginRequirement::MaxAge => true,
     };
     if !auth_level_ok {
-        dbg!("auth level invalid");
         let response = AuthenticationErrorResponse {
             error: ErrorCode::InvalidRequest,
             state: None,

@@ -36,7 +36,7 @@ fn create_default_rp() {
     let _res = crate::data::oidc_relying_party::RelyingParty::register("id.comame.dev");
     let _res = crate::db::relying_party::add_redirect_uri(
         "id.comame.dev",
-        "http://localhost:8080/callback",
+        "http://localhost:8080/rp/callback",
     );
 }
 

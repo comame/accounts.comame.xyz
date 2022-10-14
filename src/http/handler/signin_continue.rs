@@ -51,22 +51,17 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
 
     let request_body = parse_body(req.into_body()).await;
     if request_body.is_err() {
-        dbg!();
         return response_bad_request();
     }
 
-    dbg!(&request_body);
     let request_body = SignInContinueRequest::parse_from(&request_body.unwrap());
     if request_body.is_err() {
-        dbg!();
         return response_bad_request();
     }
     let request_body = request_body.unwrap();
-    dbg!(&request_body);
 
     let token_ok = csrf_token::validate_once(&request_body.csrf_token);
     if !token_ok {
-        dbg!();
         return response_bad_request();
     }
 
@@ -110,22 +105,17 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
 pub async fn no_interaction_fail(req: Request<Body>) -> Response<Body> {
     let request_body = parse_body(req.into_body()).await;
     if request_body.is_err() {
-        dbg!();
         return response_bad_request();
     }
 
-    dbg!(&request_body);
     let request_body = SignInContinueNoSessionRequest::parse_from(&request_body.unwrap());
     if request_body.is_err() {
-        dbg!();
         return response_bad_request();
     }
     let request_body = request_body.unwrap();
-    dbg!(&request_body);
 
     let token_ok = csrf_token::validate_once(&request_body.csrf_token);
     if !token_ok {
-        dbg!();
         return response_bad_request();
     }
 

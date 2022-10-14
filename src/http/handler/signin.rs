@@ -65,7 +65,7 @@ pub async fn sign_in_with_password(req: Request<Body>) -> Response<Body> {
 
     let session = create_session(&user_id);
 
-    let header_value = format!("Session={}; Secure; HttpOnly", session.token);
+    let header_value = format!("Session={}; Secure; HttpOnly; Path=/", session.token);
     set_header(&mut response, "Set-Cookie", &header_value);
 
     response
@@ -100,7 +100,6 @@ pub async fn sign_in_with_session(req: Request<Body>) -> Response<Body> {
     let user = user.unwrap();
 
     let latest_authentication = Authentication::latest(&user.id);
-    dbg!(&latest_authentication);
 
     let body = parse_body(req.into_body()).await;
     if body.is_err() {
@@ -233,7 +232,7 @@ mod tests {
 
         let set_cookie_value = &res.headers().get("Set-Cookie").unwrap().to_str().unwrap();
         let set_cookie_value =
-            &set_cookie_value[..(set_cookie_value.len() - "; Secure; HttpOnly".len())];
+            &set_cookie_value[..(set_cookie_value.len() - "; Secure; HttpOnly; Path=/".len())];
         let cookie = parse_cookie(set_cookie_value).unwrap();
         let session = cookie.get("Session").unwrap().clone();
 

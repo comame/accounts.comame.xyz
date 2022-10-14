@@ -43,7 +43,6 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
         authentication_request = AuthenticationRequest::parse_query(&body.unwrap());
     }
 
-    dbg!(&authentication_request);
     if authentication_request.is_err() {
         return response_bad_request();
     }
@@ -51,8 +50,6 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
     let result = pre_authenticate(authentication_request.unwrap());
 
     if let Err(err) = result {
-        dbg!(&err);
-
         if err.redirect_uri.is_none() {
             return response_bad_request();
         }

@@ -12,7 +12,7 @@
     Continue as <span id="user_id_show"></span>.
     <button id="continue-button">CONTINUE</button>
     <a id="other-account" href="#">別のアカウントでログイン</a>
-    <form id="continue" action="/signin-continue" method="POST" enctype="application/x-www-form-urlencoded" target="_self">
+    <form id="continue" action="/api/signin-continue" method="POST" enctype="application/x-www-form-urlencoded" target="_self">
         <input name="csrf_token" type="hidden">
         <input name="login_type" type="hidden">
         <input name="state_id" type="hidden">

@@ -11,7 +11,7 @@ const stateId = new URL(location.href).searchParams.get('sid')
 const relyingPartyId = decodeURIComponent(new URL(location.href).searchParams.get('cid'))
 let hash = location.hash.slice(1)
 
-fetch('/signin-session', {
+fetch('/api/signin-session', {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -44,7 +44,7 @@ passwordForm.addEventListener("submit", e => {
         password: formData.get('password'),
         csrf_token: tokenEl.content,
     })
-    fetch('/signin-password', {
+    fetch('/api/signin-password', {
         method: 'POST',
         body,
         headers: {

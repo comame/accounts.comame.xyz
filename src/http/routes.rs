@@ -16,19 +16,19 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
         (&Method::GET, "/confirm") => {
             response = handler::signin::page("confirm");
         }
-        (&Method::POST, "/signin-password") => {
-            response = handler::signin::sign_in_with_password(req).await;
-        }
-        (&Method::POST, "/signin-session") => {
-            response = handler::signin::sign_in_with_session(req).await;
-        }
         (&Method::GET, "/signout") => {
             response = handler::signout::signout(req).await;
         }
-        (&Method::POST, "/signin-continue") => {
+        (&Method::POST, "/api/signin-password") => {
+            response = handler::signin::sign_in_with_password(req).await;
+        }
+        (&Method::POST, "/api/signin-session") => {
+            response = handler::signin::sign_in_with_session(req).await;
+        }
+        (&Method::POST, "/api/signin-continue") => {
             response = handler::signin_continue::handler(req).await;
         }
-        (&Method::POST, "/signin-continue-nointeraction-fail") => {
+        (&Method::POST, "/api/signin-continue-nointeraction-fail") => {
             response = handler::signin_continue::no_interaction_fail(req).await;
         }
         (&Method::GET, "/authenticate") => {
@@ -36,6 +36,9 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
         }
         (&Method::POST, "/authenticate") => {
             response = handler::oidc_authentication_request::handler(req).await;
+        }
+        (&Method::GET, "/rp/callback") => {
+            response = handler::rp_callback::handler(req).await;
         }
         _ => {
             let file = static_file::read(req.uri().path());
