@@ -1,7 +1,10 @@
 use hyper::{Body, Request, Response, StatusCode};
+use url::Url;
 
 use crate::auth::session::revoke_session_by_token;
 use crate::http::parse_cookie::parse_cookie;
+use crate::http::parse_form_urlencoded::parse;
+use crate::http::set_header;
 
 pub async fn signout(req: Request<Body>) -> Response<Body> {
     let mut response = Response::new(Body::from("{}"));
@@ -26,6 +29,29 @@ pub async fn signout(req: Request<Body>) -> Response<Body> {
 
     let session_token = session_token.unwrap().clone();
     revoke_session_by_token(&session_token);
+
+    let uri = Url::parse(&format!("http://example.com{}", req.uri())).unwrap();
+    let query = uri.query();
+
+    if query.is_none() {
+        return response;
+    }
+
+    let query = query.unwrap();
+    let query_map = parse(query);
+
+    if query_map.is_err() {
+        return response;
+    }
+    let query_map = query_map.unwrap();
+
+    let continue_uri = query_map.get("continue");
+    if continue_uri.is_none() {
+        return response;
+    }
+
+    *response.status_mut() = StatusCode::FOUND;
+    set_header::set_header(&mut response, "Location", continue_uri.unwrap().as_str());
 
     response
 }

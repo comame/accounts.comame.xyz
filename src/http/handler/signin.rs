@@ -15,15 +15,15 @@ use crate::http::static_file;
 
 #[inline]
 fn response_bad_request() -> Response<Body> {
-    let mut response = Response::new(Body::from("{}"));
+    let mut response = Response::new(Body::from(r#"{"message": "Bad Request"}"#));
     *response.status_mut() = StatusCode::BAD_REQUEST;
     response
 }
 
-pub fn page() -> Response<Body> {
+pub fn page(name: &str) -> Response<Body> {
     let mut response = Response::new(Body::empty());
 
-    let html_file_vec = static_file::read("/sign-in.html").unwrap();
+    let html_file_vec = static_file::read(&format!("/{name}.html")).unwrap();
     let html_file = String::from_utf8(html_file_vec).unwrap();
 
     let token = csrf_token::generate();

@@ -5,10 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="x-csrf-token" content="$CSRF" id="csrf-token">
-    <link rel="stylesheet" href="./sign-in.css">
+    <link rel="stylesheet" href="./signin.css">
     <title>Sign in</title>
 </head>
 <body class="hidden">
+    <div>続行すると、あなたの ID (識別子) を <span id="client-id"></span> と共有します。</div>
     <form id="password-form" action="" target="_self">
         <label>User ID<input name="user_id" required></label>
         <label>Password<input name="password" type="password" required></label>
@@ -23,6 +24,6 @@
         <input name="csrf_token" type="hidden">
         <input name="state_id" type="hidden">
     </form>
-    <script src="./sign-in.js"></script>
+    <script src="./signin.js"></script>
 </body>
 </html>

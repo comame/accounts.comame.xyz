@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="x-csrf-token" content="$CSRF" id="csrf-token">
+    <link rel="stylesheet" href="./signin.css">
+    <title>Sign in</title>
+</head>
+<body class="hidden">
+    Confirm password. You are already signed in as <span id="user_id_show"></span>.
+    <form id="password-form" action="" target="_self">
+        <input name="user_id" required readonly id="user_id" type="hidden">
+        <label>Password<input name="password" type="password" required></label>
+        <button type="submit">SIGN IN</button>
+    </form>
+    <a id="other-account" href="#">別のアカウントでログイン</a>
+    <form id="continue" action="/signin-continue" method="POST" enctype="application/x-www-form-urlencoded" target="_self">
+        <input name="csrf_token" type="hidden">
+        <input name="login_type" type="hidden">
+        <input name="state_id" type="hidden">
+    </form>
+    <script src="./reauthenticate.js"></script>
+</body>
+</html>

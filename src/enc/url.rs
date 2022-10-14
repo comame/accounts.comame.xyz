@@ -1,5 +1,38 @@
 use super::hex;
 
+pub fn encode(str: &str) -> String {
+    let mut string = String::new();
+
+    for char in str.chars() {
+        let next = match char {
+            ':' => "%3A".to_string(),
+            '/' => "%2F".to_string(),
+            '?' => "%3F".to_string(),
+            '#' => "%23".to_string(),
+            '[' => "%5B".to_string(),
+            ']' => "%5D".to_string(),
+            '@' => "%40".to_string(),
+            '!' => "%21".to_string(),
+            '$' => "%24".to_string(),
+            '&' => "%26".to_string(),
+            '\'' => "%27".to_string(),
+            '(' => "%28".to_string(),
+            ')' => "%29".to_string(),
+            '*' => "%2A".to_string(),
+            '+' => "%2B".to_string(),
+            ',' => "%2C".to_string(),
+            ';' => "%3B".to_string(),
+            '=' => "%3D".to_string(),
+            '%' => "%25".to_string(),
+            ' ' => "%20".to_string(),
+            _ => char.to_string(),
+        };
+        string.push_str(&next);
+    }
+
+    string
+}
+
 pub fn decode(str: &str) -> String {
     let mut string = String::new();
     let mut hex_chars: [char; 2] = ['\0', '\0'];
@@ -35,6 +68,8 @@ pub fn decode(str: &str) -> String {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+
     #[test]
     fn hello_world() {
         assert_eq!("Hello, world!", super::decode("Hello,%20world!"));
@@ -48,6 +83,12 @@ mod tests {
     #[test]
     fn zero_char() {
         super::decode("%00");
+    }
+
+    #[test]
+    fn long_encode_decode() {
+        let str = r#"Special characters needing encoding are: ':', '/', '?', '#', '[', ']', '@', '!', '$', '&', "'", '(', ')', '*', '+', ',', ';', '=', as well as '%' itself. Other characters don't need to be encoded, though they could."#;
+        assert_eq!(str, decode(&encode(str)));
     }
 
     #[test]

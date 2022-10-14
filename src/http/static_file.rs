@@ -3,8 +3,6 @@ use std::io::prelude::*;
 use std::io::{BufReader, Result};
 
 fn internal_read(path: &str) -> Result<Vec<u8>> {
-    dbg!(&path);
-
     let f = File::open(path)?;
 
     let mut reader = BufReader::new(f);

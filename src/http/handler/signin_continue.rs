@@ -2,7 +2,9 @@ use hyper::{Body, Request, Response, StatusCode};
 use url::Url;
 
 use crate::auth::{csrf_token, session};
-use crate::http::data::sign_in_continue_request::{SignInContinueRequest, SignInContinueNoSessionRequest};
+use crate::http::data::sign_in_continue_request::{
+    SignInContinueNoSessionRequest, SignInContinueRequest,
+};
 use crate::http::parse_body::parse_body;
 use crate::http::parse_cookie::parse_cookie;
 use crate::http::set_header::set_header;
@@ -10,7 +12,7 @@ use crate::oidc::authentication_request::{post_authentication, pronpt_none_fail_
 
 #[inline]
 fn response_bad_request() -> Response<Body> {
-    let mut response = Response::new(Body::from(""));
+    let mut response = Response::new(Body::from(r#"{"message": "Bad Request"}"#));
     *response.status_mut() = StatusCode::BAD_REQUEST;
     response
 }
@@ -95,7 +97,9 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
 
     let id_token = result.response.id_token;
     let state = result.response.state;
-    redirect_uri.query_pairs_mut().append_pair("id_token", &id_token);
+    redirect_uri
+        .query_pairs_mut()
+        .append_pair("id_token", &id_token);
     if let Some(state) = state {
         redirect_uri.query_pairs_mut().append_pair("state", &state);
     }
@@ -132,9 +136,13 @@ pub async fn no_interaction_fail(req: Request<Body>) -> Response<Body> {
     }
 
     let mut redirect_uri = Url::parse(result.redirect_uri.unwrap().as_str()).unwrap();
-    redirect_uri.query_pairs_mut().append_pair("error", result.response.error.to_string().as_str());
+    redirect_uri
+        .query_pairs_mut()
+        .append_pair("error", result.response.error.to_string().as_str());
     if let Some(state) = result.response.state {
-        redirect_uri.query_pairs_mut().append_pair("state", state.as_str());
+        redirect_uri
+            .query_pairs_mut()
+            .append_pair("state", state.as_str());
     }
 
     redirect(redirect_uri.as_str())
