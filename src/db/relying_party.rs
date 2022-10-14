@@ -76,9 +76,9 @@ mod tests {
     fn have_redirect_uri() {
         init_mysql();
         let client_id = "db_rp_have_redirect_uri.comame.dev";
-        register_relying_party(client_id);
-        add_redirect_uri(client_id, "https://rp.comame.dev/redirect_1");
-        add_redirect_uri(client_id, "https://rp.comame.dev/redirect_2");
+        register_relying_party(client_id).unwrap();
+        add_redirect_uri(client_id, "https://rp.comame.dev/redirect_1").unwrap();
+        add_redirect_uri(client_id, "https://rp.comame.dev/redirect_2").unwrap();
         let rp = find_relying_party_by_id(client_id).unwrap();
 
         assert_eq!(

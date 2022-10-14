@@ -27,19 +27,6 @@ pub enum LoginRequirement {
     Any,
 }
 
-impl LoginRequirement {
-    pub fn parse(str: &str) -> Result<Self, ()> {
-        match str {
-            "consent" => Ok(Self::Consent),
-            "reauthenticate" => Ok(Self::ReAuthenticate),
-            "max_age" => Ok(Self::MaxAge),
-            "none" => Ok(Self::None),
-            "any" => Ok(Self::Any),
-            _ => Err(()),
-        }
-    }
-}
-
 impl AuthenticationFlowState {
     pub fn new(
         relying_party_id: &str,

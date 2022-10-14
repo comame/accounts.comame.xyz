@@ -48,14 +48,6 @@ pub fn get(key: &str) -> Option<String> {
         .unwrap()
 }
 
-pub fn list_keys() -> Vec<String> {
-    let mut conn = get_conn().unwrap();
-    let keys: Vec<String> = conn.keys(get_prefix() + "*").unwrap();
-    keys.iter()
-        .map(|key| String::from(&key[get_prefix().len()..key.len()]))
-        .collect()
-}
-
 pub fn list_keys_pattern(pattern: &str) -> Vec<String> {
     let mut conn = get_conn().unwrap();
     let keys: Vec<String> = conn.keys(get_prefix() + pattern).unwrap();
@@ -82,17 +74,6 @@ mod tests {
         set("set_and_get_1", "foo", EX_TIME);
         assert_eq!(get("set_and_get_1").unwrap(), "foo");
         assert_eq!(get("set_and_get_2"), None);
-    }
-
-    #[test]
-    fn test_list_all() {
-        init_redis();
-        set("list_foo", "foo", EX_TIME);
-        set("list_bar", "bar", EX_TIME);
-        let result = list_keys();
-        assert!(
-            result.contains(&"list_foo".to_string()) && result.contains(&"list_bar".to_string())
-        );
     }
 
     #[test]
