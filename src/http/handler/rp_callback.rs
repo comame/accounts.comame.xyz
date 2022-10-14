@@ -1,9 +1,10 @@
 use hyper::{Body, Request, Response, StatusCode};
-use jsonwebtoken::{DecodingKey, EncodingKey, Validation};
+use jsonwebtoken::{DecodingKey, Validation};
 use serde_json::to_string;
 use url::Url;
 
-use crate::{data::oidc_flow::id_token_claim::IdTokenClaim, http::parse_form_urlencoded};
+use crate::data::oidc_flow::id_token_claim::IdTokenClaim;
+use crate::http::parse_form_urlencoded;
 
 fn response_bad_request() -> Response<Body> {
     let mut response = Response::new(Body::from(r#"{"message": "Bad Request"}"#));
@@ -19,7 +20,7 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
         return response_bad_request();
     }
 
-    let query = parse_form_urlencoded::parse(&query.unwrap());
+    let query = parse_form_urlencoded::parse(query.unwrap());
     if query.is_err() {
         return response_bad_request();
     }
