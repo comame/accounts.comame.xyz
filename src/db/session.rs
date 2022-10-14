@@ -20,13 +20,14 @@ pub fn insert_session(session: &Session) {
         .unwrap();
 }
 
-pub fn select_session_by_token(token: &str) -> Option<Session> {
+pub fn select_session_by_token(token: &str, expire_min: u64) -> Option<Session> {
     let sessions: Vec<Session> = get_conn()
         .unwrap()
         .exec_map(
-            "SELECT user_id, token, created_at FROM sessions WHERE token = :token",
+            "SELECT user_id, token, created_at FROM sessions WHERE token = :token AND TIMESTAMPDIFF(MINUTE, created_at, CURRENT_TIME()) < :expire_min",
             params! {
                 "token" => token,
+                "expire_min" => expire_min
             },
             |(user_id, token, created_at): (String, String, mysql::Value)| Session {
                 user_id,
@@ -37,6 +38,15 @@ pub fn select_session_by_token(token: &str) -> Option<Session> {
         .unwrap();
     let session = sessions.get(0)?;
     Some(session.clone())
+}
+
+pub fn delete_expired(expire_min: u64) {
+    get_conn().unwrap().exec_drop(
+        "DELETE FROM sessions WHERE TIMESTAMPDIFF(MINUTE, created_at, CURRENT_TIME()) >= :expire_min",
+        params! {
+            "expire_min" => expire_min
+        }
+    ).unwrap();
 }
 
 pub fn delete_by_token(token: &str) {
