@@ -1,9 +1,7 @@
 use hyper::{Body, Method, Request, Response, StatusCode};
 
-use crate::{
-    http::{handler, static_file},
-    time::now,
-};
+use crate::http::{handler, static_file};
+
 
 pub async fn routes(req: Request<Body>) -> Response<Body> {
     let start_time = std::time::SystemTime::now();
