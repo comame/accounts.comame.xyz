@@ -29,11 +29,11 @@ fetch('/api/signin-session', {
             if (hash == 'maxage') {
                 const lastAuth = json.last_auth
                 const now = Math.trunc(Date.now() / 1000)
-                if (now - lastAuth <= maxage) {
+                if (now <= lastAuth + maxage - 3 /* Request lag */) {
                     continueSignin("session")
                 } else {
                     console.log("Expire")
-                    document.body.classList.remove('hidden')
+                    location.replace(`/reauthenticate?sid=${stateId}&cid=${encodeURIComponent(relyingPartyId)}`)
                 }
             } else {
                 continueSignin("session")

@@ -26,14 +26,14 @@ fetch('/api/signin-session', {
         idReadEl.textContent = json.user_id
         document.body.classList.remove('hidden')
     } else {
-        location.href = `/signin?sid=${stateId}&cid=${encodeURIComponent(relyingPartyId)}`
+        location.replace(`/signin?sid=${stateId}&cid=${encodeURIComponent(relyingPartyId)}`)
     }
 })
 
 document.getElementById('other-account').addEventListener('click', (e) => {
     e.preventDefault()
     const continueUrl = encodeURIComponent(`/signin?sid=${stateId}&cid=${encodeURIComponent(relyingPartyId)}`)
-    location.href = `/signout?continue=${continueUrl}`
+    location.replace(`/signout?continue=${continueUrl}`)
 })
 
 passwordForm.addEventListener("submit", e => {
