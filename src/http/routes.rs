@@ -4,10 +4,11 @@ use crate::http::{handler, static_file};
 
 pub async fn routes(req: Request<Body>) -> Response<Body> {
     let start_time = std::time::SystemTime::now();
-    let mut bench = true;
 
     let mut response = Response::new(Body::empty());
-    println!("Request {}", req.uri().path());
+
+    let uri = req.uri().clone();
+    let method = req.method().clone();
 
     match (req.method(), req.uri().path()) {
         (&Method::GET, "/signin") => {
@@ -47,7 +48,6 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
             response = handler::rp_callback::handler(req).await;
         }
         _ => {
-            bench = false;
             let file = static_file::read(req.uri().path());
 
             if file.is_ok() {
@@ -59,15 +59,12 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
         }
     };
 
-    if bench {
-        println!(
-            "  {} ms",
-            std::time::SystemTime::now()
-                .duration_since(start_time)
-                .unwrap()
-                .as_millis()
-        );
-    }
+    let time = std::time::SystemTime::now()
+        .duration_since(start_time)
+        .unwrap()
+        .as_millis();
+
+    println!("REQ {method} {} {time}", uri.path());
 
     response
 }
