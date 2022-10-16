@@ -1,8 +1,10 @@
 use std::ops::Not;
 
-use crate::{db::relying_party::{
+use crate::auth::password::calculate_password_hash;
+use crate::crypto::rand::random_str;
+use crate::db::relying_party::{
     add_redirect_uri, find_relying_party_by_id, register_relying_party,
-}, crypto::rand::random_str, auth::password::calculate_password_hash};
+};
 
 #[derive(Eq, PartialEq, Debug)]
 pub struct RelyingParty {

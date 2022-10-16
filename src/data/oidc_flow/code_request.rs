@@ -13,7 +13,7 @@ pub struct CodeRequest {
 fn get_or_result<'a>(hash_map: &'a HashMap<String, String>, key: &str) -> Result<&'a String, ()> {
     match hash_map.get(key) {
         Some(v) => Ok(v),
-        None => Err(())
+        None => Err(()),
     }
 }
 
@@ -28,7 +28,11 @@ impl CodeRequest {
         let client_secret = map.get("client_secret").cloned();
 
         Ok(Self {
-            grant_type, code, redirect_uri, client_id, client_secret
+            grant_type,
+            code,
+            redirect_uri,
+            client_id,
+            client_secret,
         })
     }
 }

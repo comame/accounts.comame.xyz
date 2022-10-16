@@ -29,7 +29,7 @@ pub fn find_relying_party_by_id(client_id: &str) -> Option<RelyingParty> {
     let mut relying_party = RelyingParty {
         client_id: first.0.clone(),
         redirect_uris: vec![],
-        hashed_client_secret: first.2.clone()
+        hashed_client_secret: first.2.clone(),
     };
 
     for value in values {

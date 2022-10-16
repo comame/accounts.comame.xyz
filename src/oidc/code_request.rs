@@ -1,13 +1,9 @@
-use crate::{
-    auth::password::calculate_password_hash,
-    data::{
-        oidc_flow::{code_request::CodeRequest, code_response::CodeResponse},
-        oidc_relying_party::RelyingParty,
-    },
-    crypto::rand::random_str,
-};
-
 use super::code_state::get_state;
+use crate::auth::password::calculate_password_hash;
+use crate::crypto::rand::random_str;
+use crate::data::oidc_flow::code_request::CodeRequest;
+use crate::data::oidc_flow::code_response::CodeResponse;
+use crate::data::oidc_relying_party::RelyingParty;
 
 pub fn code_request(req: CodeRequest) -> Result<CodeResponse, ()> {
     let relying_party = RelyingParty::find(&req.client_id);

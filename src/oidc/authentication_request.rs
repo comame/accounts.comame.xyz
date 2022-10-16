@@ -257,7 +257,12 @@ pub fn post_authentication(
     .unwrap();
 
     if let OidcFlow::Code = state.flow {
-        let code = CodeState::new(&jwt, &state.relying_party_id, &state.scopes, &state.redirect_url);
+        let code = CodeState::new(
+            &jwt,
+            &state.relying_party_id,
+            &state.scopes,
+            &state.redirect_url,
+        );
         code_state::save_state(&code);
         Ok(PostAuthenticationResponse {
             response: AuthenticationResponse::Code(CodeFlowAuthenticationResponse {

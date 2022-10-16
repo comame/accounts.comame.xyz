@@ -8,5 +8,5 @@ pub struct CodeResponse {
     /// bearer
     pub token_type: String,
     pub id_token: String,
-    pub scope: Scopes
+    pub scope: Scopes,
 }
