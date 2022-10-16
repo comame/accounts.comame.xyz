@@ -1,9 +1,10 @@
+use super::oidc_scope::Scopes;
 use crate::data::authentication::LoginPrompt;
 use crate::http::parse_form_urlencoded::parse;
 
 #[derive(Debug)]
 pub struct AuthenticationRequest {
-    pub scope: String,
+    pub scope: Scopes,
     pub response_type: String,
     pub client_id: String,
     pub redirect_uri: String,
@@ -53,7 +54,7 @@ impl AuthenticationRequest {
         }
 
         Ok(Self {
-            scope: scope.unwrap().clone(),
+            scope: Scopes::parse(scope.unwrap()),
             response_type: response_type.unwrap().clone(),
             client_id: client_id.unwrap().clone(),
             redirect_uri: redirect_uri.unwrap().clone(),

@@ -1,20 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+
 <body>
+    <h1>Implicit Flow</h1>
     <ul>
-        <li><a href="http://localhost:8080/authenticate?client_id=id.comame.dev&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Frp%2Fcallback&scope=openid&response_type=id_token&state=hoge&nonce=nonce">Authenticate</a></li>
-        <li><a href="http://localhost:8080/authenticate?client_id=id.comame.dev&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Frp%2Fcallback&scope=openid&response_type=id_token&state=hoge&nonce=nonce&prompt=none">Authenticate (prompt=none)</a></li>
-        <li><a href="http://localhost:8080/authenticate?client_id=id.comame.dev&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Frp%2Fcallback&scope=openid&response_type=id_token&state=hoge&nonce=nonce&prompt=login">Authenticate (prompt=login)</a></li>
-        <li><a href="http://localhost:8080/authenticate?client_id=id.comame.dev&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Frp%2Fcallback&scope=openid&response_type=id_token&state=hoge&nonce=nonce&prompt=consent">Authenticate (prompt=consent)</a></li>
-        <li><a href="http://localhost:8080/authenticate?client_id=id.comame.dev&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Frp%2Fcallback&scope=openid&response_type=id_token&state=hoge&nonce=nonce&prompt=select_account">Authenticate (prompt=select_account)</a></li>
-        <li><a href="http://localhost:8080/authenticate?client_id=id.comame.dev&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Frp%2Fcallback&scope=openid&response_type=id_token&state=hoge&nonce=nonce&max_age=10">Authenticate (max_age=10)</a></li>
-        <li><a href='/signout?continue=/'>Signout</a></li>
+        <li><a
+                href="http://localhost:8080/authenticate?client_id=id.comame.dev&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Frp%2Fcallback&scope=openid&response_type=id_token&state=hoge&nonce=nonce">Authenticate</a>
+        </li>
+        <li><a
+                href="http://localhost:8080/authenticate?client_id=id.comame.dev&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Frp%2Fcallback&scope=openid&response_type=id_token&state=hoge&nonce=nonce&prompt=none">Authenticate
+                (prompt=none)</a></li>
+        <li><a
+                href="http://localhost:8080/authenticate?client_id=id.comame.dev&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Frp%2Fcallback&scope=openid&response_type=id_token&state=hoge&nonce=nonce&prompt=login">Authenticate
+                (prompt=login)</a></li>
+        <li><a
+                href="http://localhost:8080/authenticate?client_id=id.comame.dev&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Frp%2Fcallback&scope=openid&response_type=id_token&state=hoge&nonce=nonce&prompt=consent">Authenticate
+                (prompt=consent)</a></li>
+        <li><a
+                href="http://localhost:8080/authenticate?client_id=id.comame.dev&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Frp%2Fcallback&scope=openid&response_type=id_token&state=hoge&nonce=nonce&prompt=select_account">Authenticate
+                (prompt=select_account)</a></li>
+        <li><a
+                href="http://localhost:8080/authenticate?client_id=id.comame.dev&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Frp%2Fcallback&scope=openid&response_type=id_token&state=hoge&nonce=nonce&max_age=10">Authenticate
+                (max_age=10)</a></li>
     </ul>
+    <h1>Code Flow</h1>
+    <ul>
+        <li><a
+                href="http://localhost:8080/authenticate?client_id=id.comame.dev&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Frp%2Fcallback&scope=openid+code&response_type=code&state=hoge&nonce=nonce">Authenticate</a>
+        </li>
+        <li><a
+                href="http://localhost:8080/authenticate?client_id=id.comame.dev&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Frp%2Fcallback&scope=openid+code&response_type=code&state=hoge&nonce=nonce&prompt=none">Authenticate
+                (prompt=none)</a></li>
+        <li><a
+                href="http://localhost:8080/authenticate?client_id=id.comame.dev&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Frp%2Fcallback&scope=openid+code&response_type=code&state=hoge&nonce=nonce&prompt=login">Authenticate
+                (prompt=login)</a></li>
+        <li><a
+                href="http://localhost:8080/authenticate?client_id=id.comame.dev&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Frp%2Fcallback&scope=openid+code&response_type=code&state=hoge&nonce=nonce&prompt=consent">Authenticate
+                (prompt=consent)</a></li>
+        <li><a
+                href="http://localhost:8080/authenticate?client_id=id.comame.dev&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Frp%2Fcallback&scope=openid+code&response_type=code&state=hoge&nonce=nonce&prompt=select_account">Authenticate
+                (prompt=select_account)</a></li>
+        <li><a
+                href="http://localhost:8080/authenticate?client_id=id.comame.dev&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Frp%2Fcallback&scope=openid+code&response_type=code&state=hoge&nonce=nonce&max_age=10">Authenticate
+                (max_age=10)</a></li>
+    </ul>
+    <h1>Signout</h1>
+    <li><a href='/signout?continue=/'>Signout</a></li>
 </body>
+
 </html>

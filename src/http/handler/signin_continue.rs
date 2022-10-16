@@ -2,6 +2,7 @@ use hyper::{Body, Request, Response, StatusCode};
 use url::Url;
 
 use crate::auth::{csrf_token, session};
+use crate::data::oidc_flow::authentication_response::AuthenticationResponse;
 use crate::http::data::sign_in_continue_request::{
     SignInContinueNoSessionRequest, SignInContinueRequest,
 };
@@ -90,13 +91,23 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
     let result = result.unwrap();
     let mut redirect_uri = Url::parse(result.redirect_uri.as_str()).unwrap();
 
-    let id_token = result.response.id_token;
-    let state = result.response.state;
-    redirect_uri
-        .query_pairs_mut()
-        .append_pair("id_token", &id_token);
-    if let Some(state) = state {
-        redirect_uri.query_pairs_mut().append_pair("state", &state);
+    match result.response {
+        AuthenticationResponse::Code(res) => {
+            redirect_uri
+                .query_pairs_mut()
+                .append_pair("code", &res.code);
+            if let Some(ref state) = res.state {
+                redirect_uri.query_pairs_mut().append_pair("state", state);
+            }
+        }
+        AuthenticationResponse::Implicit(res) => {
+            redirect_uri
+                .query_pairs_mut()
+                .append_pair("id_token", &res.id_token);
+            if let Some(ref state) = res.state {
+                redirect_uri.query_pairs_mut().append_pair("state", state);
+            }
+        }
     }
 
     redirect(redirect_uri.as_str())

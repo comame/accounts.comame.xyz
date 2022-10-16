@@ -33,6 +33,7 @@ pub fn encode(str: &str) -> String {
     string
 }
 
+// TODO: Result にする
 pub fn decode(str: &str) -> String {
     let mut string = String::new();
     let mut hex_chars: [char; 2] = ['\0', '\0'];
@@ -41,6 +42,8 @@ pub fn decode(str: &str) -> String {
         if char == '%' {
             i += 1;
             continue;
+        } else if char == '+' {
+            string.push(' ');
         } else if 0 < i && i <= 2 {
             if !char.is_ascii_hexdigit() {
                 panic!();
@@ -73,6 +76,11 @@ mod tests {
     #[test]
     fn hello_world() {
         assert_eq!("Hello, world!", super::decode("Hello,%20world!"));
+    }
+
+    #[test]
+    fn plus_space() {
+        assert_eq!("a b", super::decode("a+b"));
     }
 
     #[test]
