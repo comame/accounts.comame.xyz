@@ -40,6 +40,9 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
         (&Method::POST, "/authenticate") => {
             response = handler::oidc_authentication_request::handler(req).await;
         }
+        (&Method::POST, "/code") => {
+            response = handler::oidc_code_request::handle(req).await;
+        }
         (&Method::GET, "/rp/callback") => {
             response = handler::rp_callback::handler(req).await;
         }

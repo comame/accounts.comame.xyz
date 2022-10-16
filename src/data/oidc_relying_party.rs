@@ -1,13 +1,14 @@
 use std::ops::Not;
 
-use crate::db::relying_party::{
+use crate::{db::relying_party::{
     add_redirect_uri, find_relying_party_by_id, register_relying_party,
-};
+}, crypto::rand::random_str, auth::password::calculate_password_hash};
 
 #[derive(Eq, PartialEq, Debug)]
 pub struct RelyingParty {
     pub client_id: String,
     pub redirect_uris: Vec<String>,
+    pub hashed_client_secret: String,
 }
 
 impl RelyingParty {
@@ -15,12 +16,12 @@ impl RelyingParty {
         find_relying_party_by_id(client_id)
     }
 
-    pub fn register(client_id: &str) -> Result<Self, ()> {
-        register_relying_party(client_id)?;
-        Ok(Self {
-            client_id: client_id.to_string(),
-            redirect_uris: vec![],
-        })
+    /// Returns raw client_secret
+    pub fn register(client_id: &str) -> Result<String, ()> {
+        let client_secret = random_str(32);
+        let hashed = calculate_password_hash(&client_secret, client_id);
+        register_relying_party(client_id, &hashed)?;
+        Ok(client_secret)
     }
 
     pub fn add_redirect_uri(&self, redirect_uri: &str) -> Result<(), ()> {

@@ -57,7 +57,7 @@ impl OidcFlow {
     }
 }
 
-#[warn(clippy::too_many_arguments)]
+#[allow(clippy::too_many_arguments)]
 impl AuthenticationFlowState {
     pub fn new(
         relying_party_id: &str,

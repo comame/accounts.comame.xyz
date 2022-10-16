@@ -5,6 +5,8 @@ use std::net::SocketAddr;
 use http::set_header::set_header;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request, Response, Server, StatusCode};
+use mysql::params;
+use mysql::prelude::*;
 
 use crate::auth::password::set_password;
 
@@ -33,11 +35,21 @@ fn create_admin_user() {
 }
 
 fn create_default_rp() {
-    let _res = crate::data::oidc_relying_party::RelyingParty::register("id.comame.dev");
+    crate::db::mysql::get_conn()
+        .unwrap()
+        .exec_drop(
+            "DELETE FROM relying_parties WHERE client_id = :id",
+            params! { "id" => "id.comame.dev"},
+        )
+        .unwrap();
+    let secret = crate::data::oidc_relying_party::RelyingParty::register("id.comame.dev");
     let _res = crate::db::relying_party::add_redirect_uri(
         "id.comame.dev",
         "http://localhost:8080/rp/callback",
     );
+    if let Ok(secret) = secret {
+        dbg!(secret);
+    }
 }
 
 fn moved_permanently(path: &str) -> Response<Body> {

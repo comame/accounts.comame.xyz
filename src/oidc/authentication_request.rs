@@ -242,7 +242,7 @@ pub fn post_authentication(
     let claim = IdTokenClaim {
         iss: "https://id.comame.xyz".to_string(),
         sub: user_id.to_string(),
-        aud: state.relying_party_id,
+        aud: state.relying_party_id.clone(),
         exp: now() + 5 * 60,
         iat: now(),
         auth_time: latest_auth.authenticated_at,
@@ -257,7 +257,7 @@ pub fn post_authentication(
     .unwrap();
 
     if let OidcFlow::Code = state.flow {
-        let code = CodeState::new(&jwt, &state.scopes);
+        let code = CodeState::new(&jwt, &state.relying_party_id, &state.scopes, &state.redirect_url);
         code_state::save_state(&code);
         Ok(PostAuthenticationResponse {
             response: AuthenticationResponse::Code(CodeFlowAuthenticationResponse {

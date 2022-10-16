@@ -7,8 +7,9 @@ const PREFIX: &str = "CODE_STATE:";
 const STATE_TIME: u64 = 5 * 60;
 
 pub fn save_state(state: &CodeState) {
+    let key = format!("{PREFIX}{}", state.code);
     redis::set(
-        &format!("{PREFIX}{}", state.code),
+        &key,
         &to_string(&state).unwrap(),
         STATE_TIME,
     );
@@ -16,7 +17,7 @@ pub fn save_state(state: &CodeState) {
 
 pub fn get_state(code: &str) -> Option<CodeState> {
     let key = format!("{PREFIX}{code}");
-    let result = redis::get(code)?;
+    let result = redis::get(&key)?;
     redis::del(&key);
     Some(from_str(&result).unwrap())
 }

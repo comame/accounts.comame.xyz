@@ -34,7 +34,8 @@ CREATE TABLE authentication_failures (
 );
 
 CREATE TABLE relying_parties (
-    client_id VARCHAR(100) PRIMARY KEY
+    client_id VARCHAR(100) PRIMARY KEY,
+    hashed_client_secret TEXT NOT NULL
 );
 
 CREATE TABLE redirect_uris (
