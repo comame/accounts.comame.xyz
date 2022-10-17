@@ -1,6 +1,5 @@
 use crate::crypto::sha::sha256;
 use crate::data::authentication::{Authentication, AuthenticationMethod, LoginPrompt};
-use crate::data::authentication_failure::{AuthenticationFailure, Reason};
 use crate::data::user_password::UserPassword;
 use crate::db::user;
 use crate::db::user_password::{insert_password, password_matched};
@@ -39,22 +38,10 @@ pub fn authenticate(user_id: &str, password: &str, audience: &str, _prompt: Logi
     let user_found = user::find_user_by_id(user_id).is_some();
 
     if !password_ok {
-        AuthenticationFailure::create(
-            audience,
-            user_id,
-            AuthenticationMethod::Password,
-            Reason::InvalidPassword,
-        );
         return false;
     }
 
     if !user_found {
-        AuthenticationFailure::create(
-            audience,
-            user_id,
-            AuthenticationMethod::Password,
-            Reason::UserNotFound,
-        );
         return false;
     }
 

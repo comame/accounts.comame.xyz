@@ -1,5 +1,4 @@
 use crate::data::authentication::{Authentication, AuthenticationMethod};
-use crate::data::authentication_failure::{AuthenticationFailure, Reason};
 use crate::data::session::Session;
 use crate::data::user::User;
 use crate::db::session::{
@@ -27,24 +26,12 @@ pub fn authenticate(audience: &str, token: &str, is_continue: bool) -> Option<Us
     delete_expired(SESSION_EXPIRE_MIN);
 
     if token.is_empty() {
-        AuthenticationFailure::create(
-            audience,
-            "",
-            AuthenticationMethod::Session,
-            Reason::EmptySessionCookie,
-        );
         return None;
     }
 
     let session = select_session_by_token(token, SESSION_EXPIRE_MIN);
 
     if session.is_none() {
-        AuthenticationFailure::create(
-            audience,
-            "",
-            AuthenticationMethod::Session,
-            Reason::InvalidSessionCookie,
-        );
         return None;
     }
 
@@ -55,12 +42,6 @@ pub fn authenticate(audience: &str, token: &str, is_continue: bool) -> Option<Us
     let user = find_user_by_id(&user_id);
 
     if user.is_none() {
-        AuthenticationFailure::create(
-            audience,
-            "",
-            AuthenticationMethod::Session,
-            Reason::UserNotFound,
-        );
         return None;
     }
 
