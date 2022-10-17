@@ -7,3 +7,4 @@ pub mod relying_party;
 pub mod session;
 pub mod user;
 pub mod user_password;
+pub mod rsa_keypair;

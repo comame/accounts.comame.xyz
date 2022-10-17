@@ -44,3 +44,9 @@ CREATE TABLE redirect_uris (
     UNIQUE (client_id, redirect_uri),
     FOREIGN KEY (client_id) REFERENCES relying_parties(client_id) ON DELETE CASCADE
 );
+
+CREATE TABLE rsa_keypair (
+    id ENUM('1') UNIQUE NOT NULL DEFAULT '1',
+    public TEXT NOT NULL,
+    `private` TEXT NOT NULL
+);

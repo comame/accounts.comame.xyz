@@ -9,6 +9,8 @@ use mysql::params;
 use mysql::prelude::*;
 
 use crate::auth::password::set_password;
+use crate::data::rsa_keypair::RsaKeypair;
+use crate::db::rsa_keypair::insert_ignore;
 
 mod auth;
 mod crypto;
@@ -80,6 +82,9 @@ async fn main() {
     create_admin_user();
 
     create_default_rp();
+
+    insert_ignore(&RsaKeypair::new());
+    dbg!(RsaKeypair::get().public);
 
     let redis_host = env::var("REDIS_HOST").unwrap();
     db::redis::init(&format!("redis://{}", redis_host));

@@ -1,4 +1,4 @@
-use jsonwebtoken::{encode, EncodingKey, Header};
+use jsonwebtoken::{encode, EncodingKey, Header, Algorithm};
 
 use super::{authentication_flow_state, code_state};
 use crate::data::authentication::{Authentication, AuthenticationMethod, LoginPrompt};
@@ -14,6 +14,7 @@ use crate::data::oidc_flow::code_state::CodeState;
 use crate::data::oidc_flow::error_code::ErrorCode;
 use crate::data::oidc_flow::id_token_claim::IdTokenClaim;
 use crate::data::oidc_relying_party::RelyingParty;
+use crate::data::rsa_keypair::RsaKeypair;
 use crate::time::now;
 
 #[derive(Debug)]
@@ -249,10 +250,12 @@ pub fn post_authentication(
         nonce: state.nonce,
     };
 
+    let mut jwt_header = Header::default();
+    jwt_header.alg = Algorithm::RS256;
     let jwt = encode(
-        &Header::default(),
+        &jwt_header,
         &claim,
-        &EncodingKey::from_secret("secret".as_ref()),
+        &EncodingKey::from_rsa_pem(&RsaKeypair::get().private.as_bytes()).unwrap(),
     )
     .unwrap();
 
