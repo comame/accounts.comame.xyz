@@ -51,3 +51,12 @@ CREATE TABLE rsa_keypair (
     `private` TEXT NOT NULL,
     kid VARCHAR(8) NOT NULL
 );
+
+CREATE TABLE external_sessions (
+    client_id VARCHAR(100) NOT NULL,
+    user_id VARCHAR(100) NOT NULL,
+    token TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    FOREIGN KEY (client_id) REFERENCES relying_parties(client_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);

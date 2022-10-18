@@ -50,6 +50,15 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
         (&Method::GET, "/certs") => {
             response = handler::discovery::handle_certs(req).await;
         }
+        (&Method::POST, "/tools/id-token") => {
+            response = handler::tools_id_token::handle(req).await;
+        }
+        (&Method::POST, "/tools/session") => {
+            response = handler::tools_session_inspect::handle(req).await;
+        }
+        (&Method::POST, "/tools/session-revoke") => {
+            todo!()
+        }
         (&Method::GET, "/rp/callback") => {
             response = handler::rp_callback::handler(req).await;
         }

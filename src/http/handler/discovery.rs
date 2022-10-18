@@ -11,7 +11,7 @@ pub async fn handle_config(_req: Request<Body>) -> Response<Body> {
 
     let host = env::var("HOST").unwrap();
 
-    let replaced = file.replace("$HOST", &host);
+    let replaced = file.replace("$HOST", &format!("https://{host}"));
 
     Response::new(Body::from(replaced))
 }
