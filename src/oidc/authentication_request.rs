@@ -255,7 +255,7 @@ pub fn post_authentication(
     let jwt = encode(
         &jwt_header,
         &claim,
-        &EncodingKey::from_rsa_pem(&RsaKeypair::get().private.as_bytes()).unwrap(),
+        &EncodingKey::from_rsa_pem(RsaKeypair::get().private.as_bytes()).unwrap(),
     )
     .unwrap();
 

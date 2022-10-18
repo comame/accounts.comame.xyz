@@ -31,9 +31,7 @@ pub fn authenticate(audience: &str, token: &str, is_continue: bool) -> Option<Us
 
     let session = select_session_by_token(token, SESSION_EXPIRE_MIN);
 
-    if session.is_none() {
-        return None;
-    }
+    session.as_ref()?;
 
     let session = session.unwrap();
     let user_id = session.user_id;
@@ -41,9 +39,7 @@ pub fn authenticate(audience: &str, token: &str, is_continue: bool) -> Option<Us
 
     let user = find_user_by_id(&user_id);
 
-    if user.is_none() {
-        return None;
-    }
+    user.as_ref()?;
 
     let user = user.unwrap();
 
