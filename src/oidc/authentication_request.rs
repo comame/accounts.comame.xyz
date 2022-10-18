@@ -253,8 +253,10 @@ pub fn post_authentication(
         nonce: state.nonce,
     };
 
-    let mut jwt_header = Header::default();
-    jwt_header.alg = Algorithm::RS256;
+    let jwt_header = Header {
+        alg: Algorithm::RS256,
+        ..Default::default()
+    };
     let jwt = encode(
         &jwt_header,
         &claim,
