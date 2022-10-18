@@ -1,4 +1,4 @@
-use jsonwebtoken::{encode, EncodingKey, Header, Algorithm};
+use jsonwebtoken::{encode, Algorithm, EncodingKey, Header};
 
 use super::{authentication_flow_state, code_state};
 use crate::data::authentication::{Authentication, AuthenticationMethod, LoginPrompt};

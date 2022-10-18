@@ -48,5 +48,6 @@ CREATE TABLE redirect_uris (
 CREATE TABLE rsa_keypair (
     id ENUM('1') UNIQUE NOT NULL DEFAULT '1',
     public TEXT NOT NULL,
-    `private` TEXT NOT NULL
+    `private` TEXT NOT NULL,
+    kid VARCHAR(8) NOT NULL
 );

@@ -9,9 +9,7 @@ pub fn random_str(len: usize) -> String {
         buf.push(0);
     }
     rand_bytes(&mut buf).unwrap();
-    let mut answer = base64::encode_base64(buf);
-    answer = answer.replace('+', "-");
-    answer = answer.replace('/', "_");
+    let mut answer = base64::encode_base64_url(&buf);
 
     let diff = answer.len() - len;
     if diff > 0 {

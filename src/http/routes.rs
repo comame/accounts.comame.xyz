@@ -44,6 +44,12 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
         (&Method::POST, "/code") => {
             response = handler::oidc_code_request::handle(req).await;
         }
+        (&Method::GET, "/.well-known/openid-configuration") => {
+            response = handler::discovery::handle_config(req).await;
+        }
+        (&Method::GET, "/certs") => {
+            response = handler::discovery::handle_certs(req).await;
+        }
         (&Method::GET, "/rp/callback") => {
             response = handler::rp_callback::handler(req).await;
         }
