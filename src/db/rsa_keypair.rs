@@ -1,8 +1,8 @@
-use mysql::{params, prelude::*};
-
-use crate::data::rsa_keypair::RsaKeypair;
+use mysql::params;
+use mysql::prelude::*;
 
 use super::mysql::get_conn;
+use crate::data::rsa_keypair::RsaKeypair;
 
 pub fn insert_ignore(keypair: &RsaKeypair) {
     get_conn().unwrap().exec_drop(

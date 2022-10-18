@@ -1,6 +1,8 @@
 use openssl::rsa::Rsa;
 
-use crate::{crypto::rand::random_str, db::rsa_keypair::get, enc::base64};
+use crate::crypto::rand::random_str;
+use crate::db::rsa_keypair::get;
+use crate::enc::base64;
 
 #[derive(Clone)]
 pub struct RsaKeypair {
@@ -39,12 +41,9 @@ impl RsaKeypair {
 
 #[cfg(test)]
 mod tests {
-    use crate::db::{
-        _test_init::init_mysql,
-        rsa_keypair::{insert_force, insert_ignore},
-    };
-
     use super::RsaKeypair;
+    use crate::db::_test_init::init_mysql;
+    use crate::db::rsa_keypair::{insert_force, insert_ignore};
 
     #[test]
     fn test() {
