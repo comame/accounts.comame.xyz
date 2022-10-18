@@ -1,3 +1,5 @@
+use std::env;
+
 use jsonwebtoken::{encode, Algorithm, EncodingKey, Header};
 
 use super::{authentication_flow_state, code_state};
@@ -240,8 +242,9 @@ pub fn post_authentication(
         });
     }
 
+    let issuer = env::var("HOST").unwrap();
     let claim = IdTokenClaim {
-        iss: "https://id.comame.xyz".to_string(),
+        iss: format!("https://{issuer}"),
         sub: user_id.to_string(),
         aud: state.relying_party_id.clone(),
         exp: now() + 5 * 60,

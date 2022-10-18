@@ -6,7 +6,7 @@ use crate::data::rsa_keypair::RsaKeypair;
 
 pub fn insert_ignore(keypair: &RsaKeypair) {
     get_conn().unwrap().exec_drop(
-        "INSERT IGNORE INTO rsa_keypair (public, private, kid) VALUES (:pub, :priv, :kid) ON DUPLICATE KEY UPDATE public=:pub, private=:priv",
+        "INSERT IGNORE INTO rsa_keypair (public, private, kid) VALUES (:pub, :priv, :kid)",
         params! { "pub" => keypair.public.clone(), "priv" => keypair.private.clone(), "kid" => keypair.kid.clone() }
     ).unwrap();
 }

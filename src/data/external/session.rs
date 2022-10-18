@@ -1,6 +1,6 @@
 use crate::crypto::rand::random_str;
 use crate::data::user::{self, User};
-use crate::db::external_session::get_session;
+use crate::db::external_session::{get_session, insert_session};
 use crate::time::now;
 
 #[derive(Clone)]
@@ -18,12 +18,14 @@ impl ExternalSession {
         if user.is_none() {
             return Err(());
         }
-        Ok(Self {
+        let session = Self {
             client_id: client_id.to_string(),
             token,
             user_id: user_id.to_string(),
             created_at: now(),
-        })
+        };
+        insert_session(&session);
+        Ok(session)
     }
 
     pub fn get(client_id: &str, token: &str) -> Option<Self> {

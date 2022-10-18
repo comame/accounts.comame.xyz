@@ -26,7 +26,7 @@ pub async fn handle(req: Request<Body>) -> Response<Body> {
     }
     let body = body.unwrap();
 
-    let result = inspect_token(&body.client_id, &body.token);
+    let result = inspect_token(&body.client_id, &body.client_secret, &body.token);
     if result.is_none() {
         return response_bad_request();
     }

@@ -15,14 +15,12 @@ pub async fn handle(req: Request<Body>) -> Response<Body> {
     let body = parse_body(req.into_body()).await.unwrap();
     let body = CodeRequest::parse(&body);
     if body.is_err() {
-        dbg!();
         return response_bad_request();
     }
     let body = body.unwrap();
 
     let result = code_request(body);
     if result.is_err() {
-        dbg!();
         return response_bad_request();
     }
     let result = result.unwrap();

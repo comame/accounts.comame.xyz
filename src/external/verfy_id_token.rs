@@ -37,7 +37,7 @@ pub fn verify_id_token(
         return Err(());
     }
 
-    if claim.exp > now() {
+    if claim.exp < now() {
         return Err(());
     }
 

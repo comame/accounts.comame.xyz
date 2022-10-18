@@ -10,12 +10,12 @@ pub fn insert_session(session: &ExternalSession) {
     get_conn()
         .unwrap()
         .exec_drop(
-            "INSERT INTO external_sessions VALUES (:cid, :uid, :token, :cat",
+            "INSERT INTO external_sessions VALUES (:cid, :uid, :token, :cat)",
             params! {
                 "cid" => session.client_id.clone(),
                 "uid" => session.user_id.clone(),
                 "token" => session.token.clone(),
-                "created_at" => unixtime_to_datetime(session.created_at),
+                "cat" => unixtime_to_datetime(session.created_at),
             },
         )
         .unwrap();
