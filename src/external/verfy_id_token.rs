@@ -4,7 +4,7 @@ use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 
 use super::authenticate_client::authenticate_client;
 use crate::data::oidc_flow::id_token_claim::IdTokenClaim;
-use crate::data::oidc_relying_party::RelyingParty;
+
 use crate::data::rsa_keypair::RsaKeypair;
 use crate::time::now;
 
@@ -14,7 +14,7 @@ pub fn verify_id_token(
     id_token: &str,
     nonce: Option<String>,
 ) -> Result<IdTokenClaim, ()> {
-    let _result = authenticate_client(client_id, client_secret)?;
+    authenticate_client(client_id, client_secret)?;
 
     let pubkey = RsaKeypair::get().public;
 

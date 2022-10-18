@@ -8,7 +8,7 @@ pub fn authenticate_client(client_id: &str, client_secret: &str) -> Result<(), (
     }
     let rp = rp.unwrap();
 
-    if calculate_password_hash(&client_secret, client_id) != rp.hashed_client_secret {
+    if calculate_password_hash(client_secret, client_id) != rp.hashed_client_secret {
         return Err(());
     }
 

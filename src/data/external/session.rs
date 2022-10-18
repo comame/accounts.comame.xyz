@@ -1,5 +1,5 @@
 use crate::crypto::rand::random_str;
-use crate::data::user::{self, User};
+use crate::data::user::{User};
 use crate::db::external_session::{get_session, insert_session};
 use crate::time::now;
 
