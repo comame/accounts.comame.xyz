@@ -1,2 +1,4 @@
-/target
-.env.docker
+target/
+.env.prod
+node_modules
+static/front
