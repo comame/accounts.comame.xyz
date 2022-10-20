@@ -1,15 +1,19 @@
 const path = require('path')
 
 module.exports = {
-    entry: './src/app.tsx',
+    entry: {
+        'signin': './src/signin.tsx',
+        'reauthenticate': './src/reauthenticate.tsx',
+        'confirm': './src/confirm.tsx',
+    },
     mode: 'development',
     devtool: 'source-map',
     output: {
         path: path.resolve(__dirname, '../static/front/'),
-        filename: 'bundle.js'
+        filename: '[name].js'
     },
     resolve: {
-        extensions: [ '.js', '.ts', 'tsx', '.json' ]
+        extensions: [ '.js', '.ts', '.tsx', '.json' ]
     },
     module: {
         rules: [{

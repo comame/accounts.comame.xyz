@@ -5,26 +5,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="x-csrf-token" content="$CSRF" id="csrf-token">
-    <link rel="stylesheet" href="./signin.css">
     <title>Sign in</title>
 </head>
-<body class="hidden">
-    <div>続行すると、あなたの ID (識別子) を <span id="client-id"></span> と共有します。</div>
-    <form id="password-form" action="" target="_self">
-        <label>User ID<input name="user_id" required></label>
-        <label>Password<input name="password" type="password" required></label>
-        <button type="submit">SIGN IN</button>
-    </form>
-    <form id="continue" action="/api/signin-continue" method="POST" enctype="application/x-www-form-urlencoded" target="_self">
-        <input name="csrf_token" type="hidden">
-        <input name="login_type" type="hidden">
-        <input name="state_id" type="hidden">
-        <input name="relying_party_id" type="hidden">
-    </form>
-    <form id="continue-fail" action="/api/signin-continue-nointeraction-fail" method="POST" enctype="application/x-www-form-urlencoded" target="_self">
-        <input name="csrf_token" type="hidden">
-        <input name="state_id" type="hidden">
-    </form>
-    <script src="./signin.js"></script>
+<body>
+    <div id="app"></div>
+    <script src="/front/signin.js"></script>
 </body>
 </html>
