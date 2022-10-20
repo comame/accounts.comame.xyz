@@ -1,25 +1,58 @@
 import React, { useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 
-import styled from 'styled-components'
+import styled, { createGlobalStyle } from 'styled-components'
 
 import { Button } from '@charcoal-ui/react'
 import { theme, Themed } from './theme'
 import { useContinueForm } from './useContinueForm'
 import { useQueryParams } from './useQueryParams'
 
-const Container = styled.div`
+const Global = createGlobalStyle`
+    html {
+        ${theme(o => [
+            o.bg.surface3,
+        ])}
+        font-family: sans-serif;
+    }
+`
+
+const TextContainer = styled.div`
+    line-height: 2;
+
+    ${theme(o => [
+        o.margin.top(24),
+        o.font.text1,
+    ])}
+`
+
+const Bold = styled.span`
+    font-weight: bold;
+`
+
+const FormContainer = styled.form`
+    max-width: 500px;
+
+    ${theme(o => [
+        o.bg.background1,
+        o.margin.horizontal('auto'),
+        o.margin.top(24),
+        o.padding.top(16),
+        o.padding.bottom(40),
+        o.padding.horizontal(24),
+        o.borderRadius(24),
+    ])}
+`
+
+const ButtonsContainer = styled.div`
     display: grid;
     gap: ${ ({ theme }) => theme.spacing[24] }px;
 
-    max-width: 600px;
-
     ${theme(o => [
-        o.margin.vertical(24),
-        o.margin.horizontal('auto'),
-        o.padding.horizontal(8),
+        o.margin.top(40),
     ])}
 `
+
 
 const App = () => {
     const { stateId, relyingPartyId, csrfToken } = useQueryParams()
@@ -55,7 +88,8 @@ const App = () => {
 
     const [ id, setId ] = useState('')
 
-    const onSubmit = async () => {
+    const onSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
         next()
     }
 
@@ -66,13 +100,22 @@ const App = () => {
 
     return <Themed>
         {
-            !hidden && <Container>
-                <div>{id} さん</div>
-                <Button variant='Primary' fixed onClick={ onSubmit }>続ける</Button>
-                <Button fixed onClick={ chooseOtherAccount }>アカウントを切り替える</Button>
-            </Container>
+            !hidden && <FormContainer>
+                <TextContainer>
+                    <div><Bold>{ relyingPartyId }</Bold> にログインする</div>
+                </TextContainer>
+                <TextContainer>
+                    <div>{id} さん</div>
+                    <div>続行しますか？</div>
+                </TextContainer>
+                <ButtonsContainer>
+                    <Button variant='Primary' fixed onClick={ onSubmit } autoFocus>続ける</Button>
+                    <Button fixed onClick={ chooseOtherAccount }>アカウントを切り替える</Button>
+                </ButtonsContainer>
+            </FormContainer>
         }
         <ContinueForm />
+        <Global />
     </Themed>
 }
 

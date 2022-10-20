@@ -1,23 +1,64 @@
 import React, { useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 
-import styled from 'styled-components'
+import styled, { createGlobalStyle } from 'styled-components'
 
 import { Button, TextField } from '@charcoal-ui/react'
 import { theme, Themed } from './theme'
 import { useContinueForm } from './useContinueForm'
 import { useQueryParams } from './useQueryParams'
 
-const Container = styled.div`
+const Global = createGlobalStyle`
+    html {
+        ${theme(o => [
+            o.bg.surface3,
+        ])}
+        font-family: sans-serif;
+    }
+`
+
+const TextContainer = styled.div`
+    line-height: 2;
+
+    ${theme(o => [
+        o.margin.top(24),
+        o.font.text1,
+    ])}
+`
+
+const Bold = styled.span`
+    font-weight: bold;
+`
+
+const FormContainer = styled.form`
+    max-width: 500px;
+
+    ${theme(o => [
+        o.bg.background1,
+        o.margin.horizontal('auto'),
+        o.margin.top(24),
+        o.padding.top(16),
+        o.padding.bottom(40),
+        o.padding.horizontal(24),
+        o.borderRadius(24),
+    ])}
+`
+
+const InputContainer = styled.div`
     display: grid;
     gap: ${ ({ theme }) => theme.spacing[24] }px;
 
-    max-width: 600px;
+    ${theme(o => [
+        o.margin.top(40),
+    ])}
+`
+
+const ButtonsContainer = styled.div`
+    display: grid;
+    gap: ${ ({ theme }) => theme.spacing[24] }px;
 
     ${theme(o => [
-        o.margin.vertical(24),
-        o.margin.horizontal('auto'),
-        o.padding.horizontal(8),
+        o.margin.top(64),
     ])}
 `
 
@@ -57,7 +98,9 @@ const App = () => {
     const [ id, setId ] = useState('')
     const [ password, setPassword ] = useState('')
 
-    const onSubmitPassword = async () => {
+    const onSubmitPassword = async (e: React.FormEvent) => {
+        e.preventDefault()
+
         const body = JSON.stringify({
             user_id: id,
             password,
@@ -85,16 +128,26 @@ const App = () => {
 
     return <Themed>
         {
-            !hidden && <Container>
-                <div>{ id } さん</div>
-                <div>続けるには、パスワードを入力してください</div>
-                <input type='hidden' onChange={ e => setId(e.target.value) }></input>
-                <TextField label='パスワード' placeholder='パスワード' type='password' required onChange={ e => setPassword(e) }></TextField>
-                <Button variant='Primary' fixed onClick={ onSubmitPassword }>続ける</Button>
-                <Button fixed onClick={ chooseOtherAccount }>アカウントを切り替える</Button>
-            </Container>
+            !hidden && <FormContainer>
+                <TextContainer>
+                    <div><Bold>{ relyingPartyId }</Bold> にログインする</div>
+                </TextContainer>
+                <TextContainer>
+                    <div>{ id } さん</div>
+                    <div>続けるには、パスワードを入力してください</div>
+                </TextContainer>
+                <InputContainer>
+                    <input type='hidden' onChange={ e => setId(e.target.value) }></input>
+                    <TextField label='パスワード' placeholder='パスワード' type='password' required onChange={ e => setPassword(e) }></TextField>
+                </InputContainer>
+                <ButtonsContainer>
+                    <Button variant='Primary' fixed onClick={ onSubmitPassword } autoFocus>続ける</Button>
+                    <Button fixed onClick={ chooseOtherAccount }>アカウントを切り替える</Button>
+                </ButtonsContainer>
+            </FormContainer>
         }
         <ContinueForm />
+        <Global />
     </Themed>
 }
 

@@ -48,8 +48,9 @@ fn create_default_rp() {
     let secret = crate::data::oidc_relying_party::RelyingParty::register("id.comame.dev");
     let _res = crate::db::relying_party::add_redirect_uri(
         "id.comame.dev",
-        "http://localhost:8080/rp/callback",
+        &format!("{}/rp/callback", env::var("HOST").unwrap()),
     );
+    dbg!(format!("{}/rp/callback", env::var("HOST").unwrap()));
     if let Ok(secret) = secret {
         dbg!(secret);
     }

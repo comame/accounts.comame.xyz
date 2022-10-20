@@ -114,4 +114,9 @@ mod tests {
         })
         .unwrap();
     }
+
+    #[test]
+    fn test_calculate() {
+        dbg!(calculate_password_hash("password", "test"));
+    }
 }

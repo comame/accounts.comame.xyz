@@ -9,9 +9,7 @@ pub async fn handle_config(_req: Request<Body>) -> Response<Body> {
     let file = static_file::read("/openid-config.json").unwrap();
     let file = String::from_utf8(file).unwrap();
 
-    let host = env::var("HOST").unwrap();
-
-    let replaced = file.replace("$HOST", &format!("https://{host}"));
+    let replaced = file.replace("$HOST", &env::var("HOST").unwrap());
 
     Response::new(Body::from(replaced))
 }

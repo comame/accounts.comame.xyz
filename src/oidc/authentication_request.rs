@@ -242,9 +242,8 @@ pub fn post_authentication(
         });
     }
 
-    let issuer = env::var("HOST").unwrap();
     let claim = IdTokenClaim {
-        iss: format!("https://{issuer}"),
+        iss: env::var("HOST").unwrap(),
         sub: user_id.to_string(),
         aud: state.relying_party_id.clone(),
         exp: now() + 5 * 60,

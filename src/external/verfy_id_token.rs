@@ -32,7 +32,7 @@ pub fn verify_id_token(
         return Err(());
     }
 
-    let issuer = format!("https://{}", env::var("HOST").unwrap());
+    let issuer = env::var("HOST").unwrap();
     if issuer != claim.iss {
         return Err(());
     }
