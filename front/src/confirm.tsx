@@ -93,8 +93,9 @@ const App = () => {
         next()
     }
 
-    const chooseOtherAccount = () => {
-        const continueUrl = encodeURIComponent(`/signin?sid=${stateId}&cid=${encodeURIComponent(relyingPartyId)}`)
+    const chooseOtherAccount = (e: React.FormEvent) => {
+        e.preventDefault()
+        const continueUrl = encodeURIComponent(`${location.origin}/signin?sid=${stateId}&cid=${encodeURIComponent(relyingPartyId)}`)
         location.replace(`/signout?continue=${continueUrl}`)
     }
 
