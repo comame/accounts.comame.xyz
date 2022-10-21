@@ -2,9 +2,9 @@ const path = require('path')
 
 module.exports = {
     entry: {
-        'signin': './src/signin.tsx',
-        'reauthenticate': './src/reauthenticate.tsx',
-        'confirm': './src/confirm.tsx',
+        'signin': './src/signin/signin.tsx',
+        'reauthenticate': './src/signin/reauthenticate.tsx',
+        'confirm': './src/signin/confirm.tsx',
     },
     mode: 'development',
     devtool: 'source-map',
