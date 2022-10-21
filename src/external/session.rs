@@ -1,8 +1,6 @@
 use super::authenticate_client::authenticate_client;
 
-
 use crate::data::external::session::ExternalSession;
-
 
 pub fn create_session(client_id: &str, client_secret: &str, user_id: &str) -> Result<String, ()> {
     authenticate_client(client_id, client_secret)?;

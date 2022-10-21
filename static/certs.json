@@ -6,7 +6,8 @@
         "alg": "RS256",
         "kid": "$KID",
         "e": "$E",
-        "use": "sig"
+        "use": "sig",
+        "x-pubkey": "$PUBKEY"
       }
     ]
   }

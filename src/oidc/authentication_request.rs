@@ -88,7 +88,7 @@ pub fn pre_authenticate(
         });
     }
 
-    if request.nonce.is_none() {
+    if matches!(flow, OidcFlow::Implicit) && request.nonce.is_none() {
         let response = AuthenticationErrorResponse {
             error: ErrorCode::InvalidRequest,
             state: request.state,

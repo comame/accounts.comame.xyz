@@ -10,7 +10,7 @@
 
 <body>
     <h1>Token Request Tester</h1>
-    <input placeholder="client_secret" id="client_secret">
+    <input placeholder="client_secret" id="client_secret" value="client_secret">
     <button id="initiate_code_request">CONTINUE</button>
     <button id="inspect-session">SESSION</button>
     <textarea readonly id="output" rows="20" cols="100"></textarea>
@@ -43,7 +43,7 @@
             fetch('/code', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `code=${code}&client_id=id.comame.dev&client_secret=${clientSecretInput.value}&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Frp%2Fcallback&grant_type=authorization_code`
+                body: `code=${code}&client_id=accounts.comame.xyz&client_secret=${clientSecretInput.value}&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Frp%2Fcallback&grant_type=authorization_code`
             }).then(res => res.json()).then(json => {
                 session(json.id_token)
             })
@@ -55,7 +55,7 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    client_id: 'id.comame.dev',
+                    client_id: 'accounts.comame.xyz',
                     client_secret: clientSecretInput.value,
                     id_token: idToken,
                     nonce: "nonce"
@@ -71,7 +71,7 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    client_id: 'id.comame.dev',
+                    client_id: 'accounts.comame.xyz',
                     client_secret: clientSecretInput.value,
                     token
                 })

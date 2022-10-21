@@ -2,14 +2,14 @@ use std::convert::Infallible;
 use std::env;
 use std::net::SocketAddr;
 
+use auth::password::calculate_password_hash;
 use http::set_header::set_header;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request, Response, Server, StatusCode};
-use mysql::params;
-use mysql::prelude::*;
 
 use crate::auth::password::set_password;
 use crate::data::rsa_keypair::RsaKeypair;
+use crate::db::relying_party::register_relying_party;
 use crate::db::rsa_keypair::insert_ignore;
 
 mod auth;
@@ -28,8 +28,7 @@ fn create_admin_user() {
 
     let user = data::user::User { id: user_id };
     let create_user = db::user::insert_user(&user);
-    if let Err(err) = create_user {
-        println!("{}", err);
+    if create_user.is_err() {
         println!("Skipped creating admin user.");
         return;
     }
@@ -38,21 +37,18 @@ fn create_admin_user() {
 }
 
 fn create_default_rp() {
-    crate::db::mysql::get_conn()
-        .unwrap()
-        .exec_drop(
-            "DELETE FROM relying_parties WHERE client_id = :id",
-            params! { "id" => "id.comame.dev"},
-        )
-        .unwrap();
-    let secret = crate::data::oidc_relying_party::RelyingParty::register("id.comame.dev");
-    let _res = crate::db::relying_party::add_redirect_uri(
-        "id.comame.dev",
+    let client_secret = env::var("CLIENT_SECRET").unwrap();
+    let client_secret = calculate_password_hash(&client_secret, "accounts.comame.xyz");
+    let result = register_relying_party("accounts.comame.xyz", &client_secret);
+    if result.is_err() {
+        dbg!("Skipped create default RP.");
+    }
+    let result = crate::db::relying_party::add_redirect_uri(
+        "accounts.comame.xyz",
         &format!("{}/rp/callback", env::var("HOST").unwrap()),
     );
-    dbg!(format!("{}/rp/callback", env::var("HOST").unwrap()));
-    if let Ok(secret) = secret {
-        dbg!(secret);
+    if result.is_err() {
+        dbg!("Default RP redirect_uri is already set.");
     }
 }
 
@@ -86,7 +82,6 @@ async fn main() {
     create_default_rp();
 
     insert_ignore(&RsaKeypair::new());
-    dbg!(RsaKeypair::get().public);
 
     let redis_host = env::var("REDIS_HOST").unwrap();
     db::redis::init(&format!("redis://{}", redis_host));
