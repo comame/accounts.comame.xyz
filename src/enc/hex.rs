@@ -138,7 +138,7 @@ mod tests {
             .unwrap()
             .as_millis() as f64
             / 1000.0;
-        dbg!(time_ms);
+        println!("{}", time_ms);
     }
 
     #[test]
@@ -155,6 +155,6 @@ mod tests {
             .unwrap()
             .as_millis() as f64
             / 1000.0;
-        dbg!(time_ms);
+        println!("{}", time_ms);
     }
 }

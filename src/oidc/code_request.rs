@@ -33,7 +33,6 @@ pub fn code_request(req: CodeRequest) -> Result<CodeResponse, ()> {
     }
 
     if req.redirect_uri != saved_state.redirect_uri {
-        dbg!(req.redirect_uri, saved_state.redirect_uri);
         return Err(());
     }
 

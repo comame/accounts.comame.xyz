@@ -193,6 +193,6 @@ mod tests {
     #[test]
     fn output_only_list_all() {
         init_mysql();
-        dbg!(list_all_relying_party());
+        println!("{:?}", list_all_relying_party());
     }
 }

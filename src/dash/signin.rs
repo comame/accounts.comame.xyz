@@ -64,7 +64,6 @@ pub async fn callback(state: &str, code: &str) -> Result<String, ()> {
 
     let code_response = code_response.unwrap();
     let code_response = parse_body(code_response.into_body()).await.unwrap();
-    dbg!(&code_response);
     let code_response = from_str::<CodeResponse>(&code_response);
     if code_response.is_err() {
         return Err(());
