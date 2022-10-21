@@ -20,6 +20,7 @@ mod enc;
 mod external;
 mod http;
 mod oidc;
+mod dash;
 mod time;
 
 fn create_admin_user() {

@@ -62,6 +62,21 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
         (&Method::GET, "/rp/callback") => {
             response = handler::rp_callback::handler(req).await;
         }
+        (&Method::POST, "/dash/rp/list") => {
+            response = handler::dash_relying_party::list_rp(req).await;
+        }
+        (&Method::POST, "/dash/rp/create") => {
+            todo!()
+        }
+        (&Method::POST, "/dash/rp/delete") => {
+            todo!()
+        }
+        (&Method::POST, "/dash/rp/redirect_uri/add") => {
+            todo!()
+        }
+        (&Method::POST, "/dash/rp/redirect_uri/remove") => {
+            todo!()
+        }
         _ => {
             let file = static_file::read(req.uri().path());
 
