@@ -131,10 +131,10 @@ const App = () => {
         {
             !hidden && <FormContainer>
                 <TextContainer>
-                    <div><Bold>{ relyingPartyId }</Bold> にログインする</div>
+                    <div><Bold>{ relyingPartyId }</Bold> にログイン</div>
                 </TextContainer>
                 <TextContainer>
-                    <div>{ id } さん</div>
+                    <div><Bold>{ id }</Bold> さん</div>
                     <div>続けるには、パスワードを入力してください</div>
                 </TextContainer>
                 <InputContainer>

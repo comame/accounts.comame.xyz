@@ -62,6 +62,15 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
         (&Method::GET, "/rp/callback") => {
             response = handler::rp_callback::handler(req).await;
         }
+        (&Method::GET, "/dash") => {
+            response = handler::dash::index(req).await;
+        }
+        (&Method::GET, "/dash/signin") => {
+            response = handler::dash::signin(req).await;
+        }
+        (&Method::GET, "/dash/callback") => {
+            response = handler::dash::callback(req).await;
+        }
         (&Method::POST, "/dash/rp/list") => {
             response = handler::dash_relying_party::list_rp(req).await;
         }

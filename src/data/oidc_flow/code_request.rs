@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use serde::Serialize;
+
 use crate::http::parse_form_urlencoded::parse;
 
 pub struct CodeRequest {

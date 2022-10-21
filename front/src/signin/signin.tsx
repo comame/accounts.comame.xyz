@@ -156,7 +156,7 @@ const App = () => {
         {
             !hidden && <FormContainer>
                 <TextContainer>
-                    <div><Bold>{ relyingPartyId }</Bold> にログインする</div>
+                    <div><Bold>{ relyingPartyId }</Bold> にログイン</div>
                 </TextContainer>
                 <InputContainer>
                     <TextField showLabel label='ID' required onChange={ e => setId(e) }></TextField>

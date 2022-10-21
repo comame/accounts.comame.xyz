@@ -14,13 +14,13 @@ use crate::db::rsa_keypair::insert_ignore;
 
 mod auth;
 mod crypto;
+mod dash;
 mod data;
 mod db;
 mod enc;
 mod external;
 mod http;
 mod oidc;
-mod dash;
 mod time;
 
 fn create_admin_user() {
@@ -47,6 +47,13 @@ fn create_default_rp() {
     let result = crate::db::relying_party::add_redirect_uri(
         "accounts.comame.xyz",
         &format!("{}/rp/callback", env::var("HOST").unwrap()),
+    );
+    if result.is_err() {
+        dbg!("Default RP redirect_uri is already set.");
+    }
+    let result = crate::db::relying_party::add_redirect_uri(
+        "accounts.comame.xyz",
+        &format!("{}/dash/callback", env::var("HOST").unwrap()),
     );
     if result.is_err() {
         dbg!("Default RP redirect_uri is already set.");

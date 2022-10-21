@@ -133,13 +133,16 @@ pub fn add_redirect_uri(client_id: &str, redirect_uri: &str) -> Result<(), ()> {
 }
 
 pub fn remove_redirect_uri(client_id: &str, redirect_uri: &str) {
-    get_conn().unwrap().exec_drop(
-        "DELETE FROM redirect_uris WHERE client_id=:id AND redirect_uri=:uri",
-        params! {
-            "id" => client_id.to_string(),
-            "uri" => redirect_uri.to_string(),
-        }
-    ).unwrap();
+    get_conn()
+        .unwrap()
+        .exec_drop(
+            "DELETE FROM redirect_uris WHERE client_id=:id AND redirect_uri=:uri",
+            params! {
+                "id" => client_id.to_string(),
+                "uri" => redirect_uri.to_string(),
+            },
+        )
+        .unwrap();
 }
 
 #[cfg(test)]

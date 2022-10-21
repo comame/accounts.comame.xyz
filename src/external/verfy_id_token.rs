@@ -4,7 +4,6 @@ use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 
 use super::authenticate_client::authenticate_client;
 use crate::data::oidc_flow::id_token_claim::IdTokenClaim;
-
 use crate::data::rsa_keypair::RsaKeypair;
 use crate::time::now;
 
@@ -12,7 +11,6 @@ pub fn verify_id_token(
     client_id: &str,
     client_secret: &str,
     id_token: &str,
-    nonce: Option<String>,
 ) -> Result<IdTokenClaim, ()> {
     authenticate_client(client_id, client_secret)?;
 
@@ -37,16 +35,12 @@ pub fn verify_id_token(
         return Err(());
     }
 
-    if claim.exp < now() {
+    if claim.iat > now() {
         return Err(());
     }
 
-    if let Some(nonce) = nonce {
-        if let Some(ref nonce_claim) = claim.nonce {
-            if nonce.as_str() != nonce_claim {
-                return Err(());
-            }
-        }
+    if claim.exp < now() {
+        return Err(());
     }
 
     Ok(claim)

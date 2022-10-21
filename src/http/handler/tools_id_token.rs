@@ -25,12 +25,7 @@ pub async fn handle(req: Request<Body>) -> Response<Body> {
     }
     let body = body.unwrap();
 
-    let claim = verify_id_token(
-        &body.client_id,
-        &body.client_secret,
-        &body.id_token,
-        body.nonce,
-    );
+    let claim = verify_id_token(&body.client_id, &body.client_secret, &body.id_token);
     if claim.is_err() {
         return response_bad_request();
     }

@@ -5,7 +5,8 @@ use serde::Serialize;
 use crate::auth::password::calculate_password_hash;
 use crate::crypto::rand::random_str;
 use crate::db::relying_party::{
-    add_redirect_uri, find_relying_party_by_id, register_relying_party, list_all_relying_party, delete_relying_party, remove_redirect_uri,
+    add_redirect_uri, delete_relying_party, find_relying_party_by_id, list_all_relying_party,
+    register_relying_party, remove_redirect_uri,
 };
 
 #[derive(Eq, PartialEq, Debug, Serialize)]

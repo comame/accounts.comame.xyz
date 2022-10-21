@@ -1,7 +1,6 @@
 use serde::Deserialize;
 
 #[derive(Deserialize)]
-pub struct RelyingPartyClientIdRequest {
+pub struct StandardRequest {
     pub token: String,
-    pub client_id: String,
 }

@@ -1,11 +1,14 @@
 use crate::data::oidc_relying_party::RelyingParty;
 
 pub fn list() -> Vec<RelyingParty> {
-    RelyingParty::list_all().into_iter().map(|rp| RelyingParty {
-        client_id: rp.client_id,
-        redirect_uris: rp.redirect_uris,
-        hashed_client_secret: "".to_string(),
-    }).collect()
+    RelyingParty::list_all()
+        .into_iter()
+        .map(|rp| RelyingParty {
+            client_id: rp.client_id,
+            redirect_uris: rp.redirect_uris,
+            hashed_client_secret: "".to_string(),
+        })
+        .collect()
 }
 
 pub struct RelyingPartyRawSecret {

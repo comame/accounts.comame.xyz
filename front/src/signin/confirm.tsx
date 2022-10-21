@@ -103,10 +103,10 @@ const App = () => {
         {
             !hidden && <FormContainer>
                 <TextContainer>
-                    <div><Bold>{ relyingPartyId }</Bold> にログインする</div>
+                    <div><Bold>{ relyingPartyId }</Bold> にログイン</div>
                 </TextContainer>
                 <TextContainer>
-                    <div>{id} さん</div>
+                    <div><Bold>{id}</Bold> さん</div>
                     <div>続行しますか？</div>
                 </TextContainer>
                 <ButtonsContainer>

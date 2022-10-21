@@ -23,7 +23,6 @@ pub fn code_request(req: CodeRequest) -> Result<CodeResponse, ()> {
     }
 
     let saved_state = get_state(&req.code);
-    dbg!(&saved_state, &req.code);
     if saved_state.is_none() {
         return Err(());
     }
@@ -34,6 +33,7 @@ pub fn code_request(req: CodeRequest) -> Result<CodeResponse, ()> {
     }
 
     if req.redirect_uri != saved_state.redirect_uri {
+        dbg!(req.redirect_uri, saved_state.redirect_uri);
         return Err(());
     }
 

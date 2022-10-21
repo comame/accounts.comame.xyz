@@ -10,5 +10,5 @@ pub struct RelyingPartyRawSecretResponse {
 
 #[derive(Serialize)]
 pub struct RelyingPartiesResponse {
-    pub values: Vec<RelyingParty>
+    pub values: Vec<RelyingParty>,
 }
