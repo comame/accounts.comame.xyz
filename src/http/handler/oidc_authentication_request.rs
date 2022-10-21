@@ -30,6 +30,7 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
         let url = Url::parse(&format!("http://example.com{}", &req.uri().to_string())).unwrap();
         let query = url.query();
         if query.is_none() {
+            dbg!("invalid");
             return response_bad_request();
         }
 
@@ -37,6 +38,7 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
     } else if method == Method::POST {
         let body = parse_body(req.into_body()).await;
         if body.is_err() {
+            dbg!("invalid");
             return response_bad_request();
         }
 
@@ -44,6 +46,7 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
     }
 
     if authentication_request.is_err() {
+        dbg!("invalid");
         return response_bad_request();
     }
 
@@ -51,6 +54,7 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
 
     if let Err(err) = result {
         if err.redirect_uri.is_none() {
+            dbg!("invalid");
             return response_bad_request();
         }
 

@@ -1,6 +1,7 @@
 use std::env;
 
 use hyper::{Body, Client, Method, Request};
+use hyper_tls::HttpsConnector;
 use serde_json::{from_str, to_string};
 
 use crate::crypto::rand::random_str;
@@ -28,6 +29,8 @@ pub fn signin() -> String {
 
 /// Returns token
 pub async fn callback(state: &str, code: &str) -> Result<String, ()> {
+    let client = Client::builder().build::<_, hyper::Body>(HttpsConnector::new());
+
     let origin = env::var("HOST").unwrap();
     let redirect_uri = format!("{origin}/dash/callback");
 
@@ -57,8 +60,9 @@ pub async fn callback(state: &str, code: &str) -> Result<String, ()> {
         .body(Body::from(code_request_str))
         .unwrap();
 
-    let code_response = Client::new().request(code_request).await;
+    let code_response = client.request(code_request).await;
     if code_response.is_err() {
+        dbg!("invalid");
         return Err(());
     }
 
@@ -66,6 +70,7 @@ pub async fn callback(state: &str, code: &str) -> Result<String, ()> {
     let code_response = parse_body(code_response.into_body()).await.unwrap();
     let code_response = from_str::<CodeResponse>(&code_response);
     if code_response.is_err() {
+        dbg!("invalid");
         return Err(());
     }
 
@@ -81,18 +86,21 @@ pub async fn callback(state: &str, code: &str) -> Result<String, ()> {
         .uri(format!("{origin}/tools/id-token"))
         .body(Body::from(to_string(&session_request).unwrap()))
         .unwrap();
-    let session_response = Client::new().request(session_request).await;
+    let session_response = client.request(session_request).await;
     if session_response.is_err() {
+        dbg!("invalid");
         return Err(());
     }
     let session_response = session_response.unwrap();
     let session_response = parse_body(session_response.into_body()).await;
     if session_response.is_err() {
+        dbg!("invalid");
         return Err(());
     }
     let session_response = session_response.unwrap();
     let session_response = from_str::<IdTokenResponse>(&session_response);
     if session_response.is_err() {
+        dbg!("invalid");
         return Err(());
     }
     let session_response = session_response.unwrap();
@@ -101,20 +109,24 @@ pub async fn callback(state: &str, code: &str) -> Result<String, ()> {
     let token = session_response.session;
 
     if claim.nonce.is_none() {
+        dbg!("invalid");
         return Err(());
     }
 
     let redis_key = format!("{PREFIX}:{state}:{}", claim.nonce.unwrap());
     let redis_value = redis::get(&redis_key);
     if redis_value.is_none() {
+        dbg!("invalid");
         return Err(());
     }
 
     if claim.aud != "accounts.comame.xyz" {
+        dbg!("invalid");
         return Err(());
     }
 
     if claim.sub != "admin" {
+        dbg!("invalid");
         return Err(());
     }
 

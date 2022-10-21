@@ -36,6 +36,7 @@ pub fn pre_authenticate(
             error: ErrorCode::InvalidRequest,
             state: request.state,
         };
+        dbg!("invalid");
         return Err(AuthenticationError {
             redirect_uri: None,
             response,
@@ -54,6 +55,7 @@ pub fn pre_authenticate(
             error: ErrorCode::InvalidRequest,
             state: request.state,
         };
+        dbg!("invalid");
         return Err(AuthenticationError {
             redirect_uri: None,
             response,
@@ -69,6 +71,7 @@ pub fn pre_authenticate(
             error: ErrorCode::InvalidScope,
             state: request.state,
         };
+        dbg!("invalid");
         return Err(AuthenticationError {
             redirect_uri: Some(request.redirect_uri),
             response,
@@ -82,6 +85,7 @@ pub fn pre_authenticate(
             error: ErrorCode::UnsupportedResponseType,
             state: request.state,
         };
+        dbg!("invalid");
         return Err(AuthenticationError {
             redirect_uri: Some(request.redirect_uri),
             response,
@@ -93,6 +97,7 @@ pub fn pre_authenticate(
             error: ErrorCode::InvalidRequest,
             state: request.state,
         };
+        dbg!("invalid");
         return Err(AuthenticationError {
             redirect_uri: Some(request.redirect_uri),
             response,
@@ -187,6 +192,7 @@ pub fn post_authentication(
             error: ErrorCode::InvalidRequest,
             state: None,
         };
+        dbg!("invalid");
         return Err(AuthenticationError {
             redirect_uri: None,
             response,
@@ -210,6 +216,7 @@ pub fn post_authentication(
             error: ErrorCode::InvalidRequest,
             state: None,
         };
+        dbg!("invalid");
         return Err(AuthenticationError {
             redirect_uri: None,
             response,
@@ -222,6 +229,7 @@ pub fn post_authentication(
             error: ErrorCode::InvalidRequest,
             state: None,
         };
+        dbg!("invalid");
         return Err(AuthenticationError {
             redirect_uri: None,
             response,
@@ -236,6 +244,7 @@ pub fn post_authentication(
             error: ErrorCode::InvalidRequest,
             state: None,
         };
+        dbg!("invalid");
         return Err(AuthenticationError {
             redirect_uri: None,
             response,

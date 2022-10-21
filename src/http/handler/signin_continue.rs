@@ -29,17 +29,20 @@ fn redirect(url: &str) -> Response<Body> {
 pub async fn handler(req: Request<Body>) -> Response<Body> {
     let cookie = req.headers().get("Cookie");
     if cookie.is_none() {
+        dbg!("invalid");
         return response_bad_request();
     }
 
     let cookie = parse_cookie(cookie.unwrap().to_str().unwrap());
     if cookie.is_err() {
+        dbg!("invalid");
         return response_bad_request();
     }
 
     let cookie = cookie.unwrap();
     let session_token = cookie.get("Session");
     if session_token.is_none() {
+        dbg!("invalid");
         return response_bad_request();
     }
 
@@ -47,22 +50,26 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
 
     let user = session::authenticate("id.comame.dev", &session_token, true);
     if user.is_none() {
+        dbg!("invalid");
         return response_bad_request();
     }
 
     let request_body = parse_body(req.into_body()).await;
     if request_body.is_err() {
+        dbg!("invalid");
         return response_bad_request();
     }
 
     let request_body = SignInContinueRequest::parse_from(&request_body.unwrap());
     if request_body.is_err() {
+        dbg!("invalid");
         return response_bad_request();
     }
     let request_body = request_body.unwrap();
 
     let token_ok = csrf_token::validate_once(&request_body.csrf_token);
     if !token_ok {
+        dbg!("invalid");
         return response_bad_request();
     }
 
@@ -74,6 +81,7 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
 
     if let Err(err) = result {
         if err.redirect_uri.is_none() {
+            dbg!("invalid");
             return response_bad_request();
         }
         let redirect_uri = err.redirect_uri.unwrap();

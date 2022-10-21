@@ -31,22 +31,26 @@ pub async fn callback(req: Request<Body>) -> Response<Body> {
     let uri = Url::parse(&format!("http://examle.com{}", req.uri().to_string())).unwrap();
     let query = uri.query();
     if query.is_none() {
+        dbg!("invalid");
         return response_bad_request();
     }
     let query = parse(query.unwrap()).unwrap();
 
     let state = query.get("state");
     if state.is_none() {
+        dbg!("invalid");
         return response_bad_request();
     }
 
     let code = query.get("code");
     if code.is_none() {
+        dbg!("invalid");
         return response_bad_request();
     }
 
     let token = signin::callback(state.unwrap(), code.unwrap()).await;
     if token.is_err() {
+        dbg!("invalid");
         return response_bad_request();
     }
 
