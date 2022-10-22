@@ -75,13 +75,13 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
             response = handler::dash_relying_party::list_rp(req).await;
         }
         (&Method::POST, "/dash/rp/create") => {
-            todo!()
+            response = handler::dash_relying_party::create_rp(req).await;
         }
         (&Method::POST, "/dash/rp/delete") => {
-            todo!()
+            response = handler::dash_relying_party::delete_rp(req).await;
         }
         (&Method::POST, "/dash/rp/redirect_uri/add") => {
-            todo!()
+            response = handler::dash_relying_party::add_redirect_uri(req).await;
         }
         (&Method::POST, "/dash/rp/redirect_uri/remove") => {
             todo!()

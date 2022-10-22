@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@charcoal-ui/react": "^2.0.0-alpha.15",
+    "@charcoal-ui/react-sandbox": "^2.0.0-alpha.4",
     "@charcoal-ui/styled": "^2.0.0-alpha.5",
     "@charcoal-ui/theme": "^2.0.0-alpha.7",
     "@charcoal-ui/utils": "^1.1.0-alpha.2",

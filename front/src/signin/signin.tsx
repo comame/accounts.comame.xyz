@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client'
 import styled, { createGlobalStyle } from 'styled-components'
 
 import { Button, TextField } from '@charcoal-ui/react'
-import { theme, Themed } from './theme'
+import { theme, Themed } from '../../theme'
 import { useContinueForm } from './useContinueForm'
 import { useQueryParams } from './useQueryParams'
 

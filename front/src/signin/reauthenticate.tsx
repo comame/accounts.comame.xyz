@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client'
 import styled, { createGlobalStyle } from 'styled-components'
 
 import { Button, TextField } from '@charcoal-ui/react'
-import { theme, Themed } from './theme'
+import { theme, Themed } from '../../theme'
 import { useContinueForm } from './useContinueForm'
 import { useQueryParams } from './useQueryParams'
 
@@ -142,7 +142,7 @@ const App = () => {
                     <TextField label='パスワード' placeholder='パスワード' type='password' required onChange={ e => setPassword(e) }></TextField>
                 </InputContainer>
                 <ButtonsContainer>
-                    <Button variant='Primary' fixed onClick={ onSubmitPassword } autoFocus>続ける</Button>
+                    <Button variant='Primary' fixed onClick={ onSubmitPassword }>続ける</Button>
                     <Button fixed onClick={ chooseOtherAccount }>アカウントを切り替える</Button>
                 </ButtonsContainer>
             </FormContainer>
