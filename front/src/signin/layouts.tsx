@@ -1,5 +1,5 @@
 import styled, { createGlobalStyle } from "styled-components"
-import { theme } from "../../theme"
+import { theme } from "../theme"
 
 export const Global = createGlobalStyle`
     html {
@@ -14,7 +14,7 @@ export const TextContainer = styled.div`
     line-height: 2;
 
     ${theme(o => [
-        o.margin.bottom(64),
+        o.margin.bottom(40),
         o.font.text1,
     ])}
 `
@@ -28,7 +28,7 @@ export const InputContainer = styled.div`
     gap: ${ ({ theme }) => theme.spacing[24] }px;
 
     ${theme(o => [
-        o.margin.bottom(64),
+        o.margin.bottom(40),
     ])}
 `
 
@@ -37,6 +37,6 @@ export const ButtonsContainer = styled.div`
     gap: ${ ({ theme }) => theme.spacing[24] }px;
 
     ${theme(o => [
-        o.margin.bottom(64),
+        o.margin.bottom(40),
     ])}
 `

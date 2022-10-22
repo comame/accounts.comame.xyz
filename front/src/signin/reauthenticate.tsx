@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 
 import { Button, TextField } from '@charcoal-ui/react'
 import { Layout, LayoutItem, LayoutItemHeader, LayoutItemBody } from '@charcoal-ui/react-sandbox'
-import { Themed } from '../../theme'
+import { Themed } from '../theme'
 import { useContinueForm } from './useContinueForm'
 import { useQueryParams } from './useQueryParams'
 import { Bold, TextContainer, InputContainer, ButtonsContainer, Global } from './layouts'

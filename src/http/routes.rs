@@ -1,6 +1,6 @@
 use hyper::{Body, Method, Request, Response, StatusCode};
 
-use crate::http::{handler, static_file};
+use crate::http::{handler, static_file, mime_types::{extract_extension, get_mime_types}, set_header::set_header};
 
 pub async fn routes(req: Request<Body>) -> Response<Body> {
     let start_time = std::time::SystemTime::now();
@@ -88,6 +88,14 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
         }
         _ => {
             let file = static_file::read(req.uri().path());
+
+            let uri = req.uri().to_string();
+            let extension = extract_extension(&uri);
+            let content_type = get_mime_types(&extension);
+
+            if let Some(content_type) = content_type {
+                set_header(&mut response, "Content-Type", &content_type);
+            }
 
             if file.is_ok() {
                 *response.body_mut() = Body::from(file.unwrap());

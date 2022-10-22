@@ -52,7 +52,6 @@
         }
 
         function session(idToken) {
-            console.log(idToken)
             fetch('/tools/id-token', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

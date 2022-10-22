@@ -11,7 +11,8 @@ module.exports = {
     devtool: 'source-map',
     output: {
         path: path.resolve(__dirname, '../static/front/'),
-        filename: '[name].js'
+        filename: '[name].js',
+        assetModuleFilename: '[name][ext]'
     },
     resolve: {
         extensions: [ '.js', '.ts', '.tsx', '.json' ]
@@ -21,37 +22,8 @@ module.exports = {
             test: /\.(tsx|ts)$/,
             use: 'ts-loader'
         }, {
-            test: /\.html$/,
-            use: [{
-                loader: 'file-loader',
-                options: {
-                    name: '[name].html'
-                }
-            }]
-        }, {
-            test: /\.scss$/,
-            use: [{
-                loader: 'style-loader'
-            }, {
-                loader: 'css-loader',
-                options: {
-                    sourceMap: true,
-                    url: false
-                }
-            }, {
-                loader: 'sass-loader',
-                options: {
-                    sourceMap: true
-                }
-            }]
-        }, {
-            test: /assets\//,
-            use: [{
-                loader: 'file-loader',
-                options: {
-                    name: '[name].[ext]'
-                }
-            }]
+            test: /\.svg$/u,
+            type: 'asset/resource',
         }]
     }
 }

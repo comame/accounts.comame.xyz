@@ -21,7 +21,6 @@ export function useContinueForm(
 
     useEffect(() => {
         if (next) {
-            console.log(element)
             ref.current?.submit()
         }
     }, [next])

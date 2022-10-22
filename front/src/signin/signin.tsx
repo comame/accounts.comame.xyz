@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 
 import { Button, TextField } from '@charcoal-ui/react'
-import { Themed } from '../../theme'
+import { Themed } from '../theme'
 import { useContinueForm } from './useContinueForm'
 import { useQueryParams } from './useQueryParams'
 import { Layout, LayoutItem, LayoutItemBody, LayoutItemHeader } from '@charcoal-ui/react-sandbox'
@@ -47,7 +47,6 @@ const App = () => {
             return res.json()
         }).catch(reason => {
             if (reason === 'nointeraction-fail') {
-                console.log(failRef.current)
                 failRef.current?.submit()
             } else if (reason === 'no-session') {
                 setHidden(false)

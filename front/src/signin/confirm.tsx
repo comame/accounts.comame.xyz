@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 
 import { Button } from '@charcoal-ui/react'
-import {  Themed } from '../../theme'
+import {  Themed } from '../theme'
 import { useContinueForm } from './useContinueForm'
 import { useQueryParams } from './useQueryParams'
 import { Layout, LayoutItem, LayoutItemBody, LayoutItemHeader } from '@charcoal-ui/react-sandbox'
