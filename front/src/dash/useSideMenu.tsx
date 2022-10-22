@@ -10,7 +10,7 @@ function isPage(arg: any): arg is pages {
     return pages.includes(arg)
 }
 
-export const useSideMenu: () => [Menu: () => JSX.Element, page: pages] = () => {
+export const useSideMenu: () => [Menu: JSX.Element, page: pages] = () => {
     const [ currentPage, setCurrentPage ] = useState<pages>('relying-party')
 
     useEffect(() => {
@@ -35,7 +35,7 @@ export const useSideMenu: () => [Menu: () => JSX.Element, page: pages] = () => {
         to: '#' + page
     }))
 
-    const element = () => <LeftMenu links={ links } active={ currentPage }></LeftMenu>
+    const element = <LeftMenu links={ links } active={ currentPage }></LeftMenu>
 
     return [ element, currentPage ]
 }

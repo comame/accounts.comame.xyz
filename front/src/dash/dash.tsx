@@ -1,3 +1,4 @@
+import { Layout, LayoutItem, LayoutItemBody } from '@charcoal-ui/react-sandbox'
 import React, { useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Themed } from '../../theme'
@@ -26,17 +27,28 @@ const App = () => {
         }
     })
 
+    const toNormalRepresentation = (msg: string) => {
+        return msg.split('-').map(word => {
+            return word[0].toUpperCase() + word.slice(1)
+        }).join(' ')
+    }
+
     const [Menu, currentPage] = useSideMenu()
+    const Header = <div>{ toNormalRepresentation(currentPage) }</div>
 
     return <Themed>
-        { currentPage }
-        <Menu />
-        <ul>{
-            relyingParties.map(p => {
-                return <li key={ p.client_id }>{ JSON.stringify(p) }</li>
-            })
-        }</ul>
-        <button onClick={ () => { reloadRpList() } }>reloadRpList</button>
+        <Layout menu={ Menu } header={ Header } wide>
+            <LayoutItem span={ 3 }>
+                <LayoutItemBody>
+                    <ul>{
+                        relyingParties.map(p => {
+                            return <li key={ p.client_id }>{ JSON.stringify(p) }</li>
+                        })
+                    }</ul>
+                    <button onClick={ () => { reloadRpList() } }>reloadRpList</button>
+                </LayoutItemBody>
+            </LayoutItem>
+        </Layout>
     </Themed>
 }
 

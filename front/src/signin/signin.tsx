@@ -1,66 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 
-import styled, { createGlobalStyle } from 'styled-components'
-
 import { Button, TextField } from '@charcoal-ui/react'
-import { theme, Themed } from '../../theme'
+import { Themed } from '../../theme'
 import { useContinueForm } from './useContinueForm'
 import { useQueryParams } from './useQueryParams'
-
-const Global = createGlobalStyle`
-    html {
-        ${theme(o => [
-            o.bg.surface3,
-        ])}
-        font-family: sans-serif;
-    }
-`
-
-const TextContainer = styled.div`
-    line-height: 2;
-
-    ${theme(o => [
-        o.margin.top(24),
-        o.font.text1,
-    ])}
-`
-
-const Bold = styled.span`
-    font-weight: bold;
-`
-
-const FormContainer = styled.form`
-    max-width: 500px;
-
-    ${theme(o => [
-        o.bg.background1,
-        o.margin.horizontal('auto'),
-        o.margin.top(24),
-        o.padding.top(16),
-        o.padding.bottom(40),
-        o.padding.horizontal(24),
-        o.borderRadius(24),
-    ])}
-`
-
-const InputContainer = styled.div`
-    display: grid;
-    gap: ${ ({ theme }) => theme.spacing[24] }px;
-
-    ${theme(o => [
-        o.margin.top(40),
-    ])}
-`
-
-const ButtonsContainer = styled.div`
-    display: grid;
-    gap: ${ ({ theme }) => theme.spacing[24] }px;
-
-    ${theme(o => [
-        o.margin.top(64),
-    ])}
-`
+import { Layout, LayoutItem, LayoutItemBody, LayoutItemHeader } from '@charcoal-ui/react-sandbox'
+import { Bold, ButtonsContainer, Global, InputContainer } from './layouts'
 
 const App = () => {
     const { stateId, relyingPartyId, csrfToken } = useQueryParams()
@@ -154,18 +100,22 @@ const App = () => {
 
     return <Themed>
         {
-            !hidden && <FormContainer>
-                <TextContainer>
-                    <div><Bold>{ relyingPartyId }</Bold> にログイン</div>
-                </TextContainer>
-                <InputContainer>
-                    <TextField showLabel label='ID' required onChange={ e => setId(e) }></TextField>
-                    <TextField showLabel label='パスワード' type='password' required onChange={ e => setPassword(e) }></TextField>
-                </InputContainer>
-                <ButtonsContainer>
-                    <Button variant='Primary' fixed onClick={ onSubmitPassword } type='submit'>ログイン</Button>
-                </ButtonsContainer>
-            </FormContainer>
+            !hidden && <Layout center wide>
+                <LayoutItem span={ 3 }>
+                    <LayoutItemHeader>
+                        <div><Bold>{ relyingPartyId }</Bold> にログイン</div>
+                    </LayoutItemHeader>
+                    <LayoutItemBody>
+                        <InputContainer>
+                            <TextField showLabel label='ID' required onChange={ e => setId(e) }></TextField>
+                            <TextField showLabel label='パスワード' type='password' required onChange={ e => setPassword(e) }></TextField>
+                        </InputContainer>
+                        <ButtonsContainer>
+                            <Button variant='Primary' fixed onClick={ onSubmitPassword } type='submit'>ログイン</Button>
+                        </ButtonsContainer>
+                    </LayoutItemBody>
+                </LayoutItem>
+            </Layout>
         }
         <ContinueForm />
         <form

@@ -1,66 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 
-import styled, { createGlobalStyle } from 'styled-components'
-
 import { Button, TextField } from '@charcoal-ui/react'
-import { theme, Themed } from '../../theme'
+import { Layout, LayoutItem, LayoutItemHeader, LayoutItemBody } from '@charcoal-ui/react-sandbox'
+import { Themed } from '../../theme'
 import { useContinueForm } from './useContinueForm'
 import { useQueryParams } from './useQueryParams'
-
-const Global = createGlobalStyle`
-    html {
-        ${theme(o => [
-            o.bg.surface3,
-        ])}
-        font-family: sans-serif;
-    }
-`
-
-const TextContainer = styled.div`
-    line-height: 2;
-
-    ${theme(o => [
-        o.margin.top(24),
-        o.font.text1,
-    ])}
-`
-
-const Bold = styled.span`
-    font-weight: bold;
-`
-
-const FormContainer = styled.form`
-    max-width: 500px;
-
-    ${theme(o => [
-        o.bg.background1,
-        o.margin.horizontal('auto'),
-        o.margin.top(24),
-        o.padding.top(16),
-        o.padding.bottom(40),
-        o.padding.horizontal(24),
-        o.borderRadius(24),
-    ])}
-`
-
-const InputContainer = styled.div`
-    display: grid;
-    gap: ${ ({ theme }) => theme.spacing[24] }px;
-
-    ${theme(o => [
-        o.margin.top(40),
-    ])}
-`
-
-const ButtonsContainer = styled.div`
-    display: grid;
-    gap: ${ ({ theme }) => theme.spacing[24] }px;
-
-    ${theme(o => [
-        o.margin.top(64),
-    ])}
-`
+import { Bold, TextContainer, InputContainer, ButtonsContainer, Global } from './layouts'
 
 const App = () => {
     const { stateId, relyingPartyId, csrfToken } = useQueryParams()
@@ -129,23 +75,27 @@ const App = () => {
 
     return <Themed>
         {
-            !hidden && <FormContainer>
-                <TextContainer>
-                    <div><Bold>{ relyingPartyId }</Bold> にログイン</div>
-                </TextContainer>
-                <TextContainer>
-                    <div><Bold>{ id }</Bold> さん</div>
-                    <div>続けるには、パスワードを入力してください</div>
-                </TextContainer>
-                <InputContainer>
-                    <input type='hidden' onChange={ e => setId(e.target.value) }></input>
-                    <TextField label='パスワード' placeholder='パスワード' type='password' required onChange={ e => setPassword(e) }></TextField>
-                </InputContainer>
-                <ButtonsContainer>
-                    <Button variant='Primary' fixed onClick={ onSubmitPassword }>続ける</Button>
-                    <Button fixed onClick={ chooseOtherAccount }>アカウントを切り替える</Button>
-                </ButtonsContainer>
-            </FormContainer>
+            !hidden && <Layout center wide >
+                <LayoutItem span={ 3 }>
+                    <LayoutItemHeader>
+                        <div><Bold>{ relyingPartyId }</Bold> にログイン</div>
+                    </LayoutItemHeader>
+                    <LayoutItemBody>
+                        <TextContainer>
+                            <div><Bold>{ id }</Bold> さん</div>
+                            <div>続けるには、パスワードを入力してください</div>
+                        </TextContainer>
+                        <InputContainer>
+                            <input type='hidden' onChange={ e => setId(e.target.value) }></input>
+                            <TextField label='パスワード' placeholder='パスワード' type='password' required onChange={ e => setPassword(e) }></TextField>
+                        </InputContainer>
+                        <ButtonsContainer>
+                            <Button variant='Primary' fixed onClick={ onSubmitPassword }>続ける</Button>
+                            <Button fixed onClick={ chooseOtherAccount }>アカウントを切り替える</Button>
+                        </ButtonsContainer>
+                    </LayoutItemBody>
+                </LayoutItem>
+            </Layout>
         }
         <ContinueForm />
         <Global />
