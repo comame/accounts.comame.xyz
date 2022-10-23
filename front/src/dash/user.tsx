@@ -77,8 +77,8 @@ const UserListItem = ({
 
     return (
         <div key={user.user_id} className="p-8 mb-16 bg-surface3">
-            <h2 className="font-bold text-base mb-16">{user.user_id}</h2>
-            <div className="mb-16">
+            <h2 className="font-bold text-base mb-8">{user.user_id}</h2>
+            <div className="mb-8">
                 パスワード {user.has_password ? "設定済み" : "未設定"}
             </div>
             <div>

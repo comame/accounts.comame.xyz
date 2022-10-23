@@ -14,9 +14,6 @@ export function RelyingParty({ token }: { token: string }) {
         listRpApi()
     }, [token])
 
-    const [createRelyingPartyApi] = useApi(token, "/dash/rp/create", () => {
-        listRpApi()
-    })
     const createModalOpen = useState(false)
 
     return (
@@ -24,7 +21,8 @@ export function RelyingParty({ token }: { token: string }) {
             <div>
                 <CreateRPModal
                     open={createModalOpen}
-                    createApi={createRelyingPartyApi}
+                    token={token}
+                    updateView={listRpApi}
                 ></CreateRPModal>
                 <div className="p-8 inline-block">
                     <Button
@@ -122,14 +120,14 @@ const RelyingPartyListItem = ({
 
 type createRPModalProps = {
     open: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
-    createApi: (body: any) => void
+    token: string
+    updateView: () => void
 }
-const CreateRPModal = ({ open, createApi }: createRPModalProps) => {
+const CreateRPModal = ({ open, token, updateView }: createRPModalProps) => {
     const [id, setId] = useState("")
     const onSubmit = () => {
         if (id) {
             createApi({ client_id: id })
-            open[1](false)
         }
     }
     const [disabled, setDisabled] = useState(true)
@@ -142,25 +140,58 @@ const CreateRPModal = ({ open, createApi }: createRPModalProps) => {
         }
     }
 
+    const [clientSecret, setClientSecret] = useState("")
+
+    const [createApi] = useApi(
+        token,
+        "/dash/rp/create",
+        ({ client_secret }) => {
+            setClientSecret(client_secret)
+        }
+    )
+
+    const onCloseClick = () => {
+        setClientSecret("")
+        updateView()
+        open[1](false)
+    }
+
     return (
-        <Modal open={open} isDissmissable={false}>
+        <Modal open={open} isDissmissable={false} onClose={onCloseClick}>
             <ModalHeader>Relying Party の作成</ModalHeader>
             <ModalBody>
-                <TextField
-                    label="client_id"
-                    showLabel
-                    required
-                    className="mb-24"
-                    onChange={onChange}
-                ></TextField>
-                <Button
-                    variant="Primary"
-                    fixed
-                    onClick={onSubmit}
-                    disabled={disabled}
-                >
-                    作成する
-                </Button>
+                {!clientSecret && (
+                    <>
+                        <TextField
+                            label="client_id"
+                            showLabel
+                            required
+                            className="mb-24"
+                            onChange={onChange}
+                        ></TextField>
+                        <Button
+                            variant="Primary"
+                            fixed
+                            onClick={onSubmit}
+                            disabled={disabled}
+                        >
+                            作成する
+                        </Button>
+                    </>
+                )}
+                {clientSecret && (
+                    <>
+                        <TextField
+                            label="client_secret"
+                            showLabel
+                            className="mb-24"
+                            value={clientSecret}
+                        ></TextField>
+                        <Button variant="Primary" fixed onClick={onCloseClick}>
+                            閉じる
+                        </Button>
+                    </>
+                )}
             </ModalBody>
         </Modal>
     )

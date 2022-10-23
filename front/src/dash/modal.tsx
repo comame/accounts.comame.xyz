@@ -7,9 +7,15 @@ type props = {
     open: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
     children: ReactNode
     isDissmissable?: boolean
+    onClose?: () => void
 }
 
-export function Modal({ open, children, isDissmissable = true }: props) {
+export function Modal({
+    open,
+    children,
+    isDissmissable = true,
+    onClose,
+}: props) {
     const onBackgroundClick = (e: React.MouseEvent) => {
         e.stopPropagation()
         e.preventDefault()
@@ -35,7 +41,12 @@ export function Modal({ open, children, isDissmissable = true }: props) {
                 >
                     {children}
                     <div className="absolute top-16 right-16 z-20">
-                        <Button onClick={() => open[1](false)}>
+                        <Button
+                            onClick={() => {
+                                open[1](false)
+                                onClose?.()
+                            }}
+                        >
                             <svg width={24} height={24}>
                                 <use xlinkHref="/front/Close.svg#Close"></use>
                             </svg>
