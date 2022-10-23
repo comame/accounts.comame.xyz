@@ -26,7 +26,7 @@ pub async fn signin(_req: Request<Body>) -> Response<Body> {
 }
 
 pub async fn callback(req: Request<Body>) -> Response<Body> {
-    let uri = Url::parse(&format!("http://examle.com{}", req.uri().to_string())).unwrap();
+    let uri = Url::parse(&format!("http://examle.com{}", req.uri())).unwrap();
     let query = uri.query();
     if query.is_none() {
         dbg!("invalid");

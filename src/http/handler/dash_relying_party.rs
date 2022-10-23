@@ -136,13 +136,11 @@ pub async fn add_redirect_uri(req: Request<Body>) -> Response<Body> {
         return response_unauthorized();
     }
 
-    let result = relying_party::add_redirect_uri(&body.client_id, &body.redirect_uri);
+    let _result = relying_party::add_redirect_uri(&body.client_id, &body.redirect_uri);
 
-    let response = Response::new(Body::from("{}"));
+    
 
-    match result {
-        _ => response,
-    }
+    Response::new(Body::from("{}"))
 }
 
 pub async fn delete_redirect_uri(req: Request<Body>) -> Response<Body> {

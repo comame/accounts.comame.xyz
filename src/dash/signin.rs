@@ -36,7 +36,7 @@ pub async fn callback(state: &str, code: &str) -> Result<String, ()> {
     let redirect_uri = format!("{origin}/dash/callback");
 
     let client_id = "accounts.comame.xyz";
-    let ref client_secret = env::var("CLIENT_SECRET").unwrap();
+    let client_secret = &env::var("CLIENT_SECRET").unwrap();
 
     let code_request = CodeRequest {
         grant_type: "authorization_code".to_string(),

@@ -20,7 +20,7 @@ pub async fn handle_certs(_req: Request<Body>) -> Response<Body> {
 
     let keypair = RsaKeypair::get();
 
-    let pubkey = keypair.public.replace("\n", "\\n");
+    let pubkey = keypair.public.replace('\n', "\\n");
 
     let json = file
         .replace("$N", &keypair.n())

@@ -73,10 +73,8 @@ pub async fn create_user(req: Request<Body>) -> Response<Body> {
         return response_unauthorized();
     }
 
-    let result = user::create(&body.user_id);
-    match result {
-        _ => (),
-    };
+    let _result = user::create(&body.user_id);
+    ();;
 
     Response::new(Body::from("{}"))
 }
@@ -102,10 +100,8 @@ pub async fn delete_user(req: Request<Body>) -> Response<Body> {
         return response_unauthorized();
     }
 
-    let result = user::delete(&body.user_id);
-    match result {
-        _ => (),
-    };
+    let _result = user::delete(&body.user_id);
+    ();;
 
     Response::new(Body::from("{}"))
 }
@@ -131,10 +127,8 @@ pub async fn insert_password(req: Request<Body>) -> Response<Body> {
         return response_unauthorized();
     }
 
-    let result = user::insert_password(&body.user_id, &body.password);
-    match result {
-        _ => (),
-    };
+    let _result = user::insert_password(&body.user_id, &body.password);
+    ();;
 
     Response::new(Body::from("{}"))
 }
@@ -160,10 +154,8 @@ pub async fn remove_password(req: Request<Body>) -> Response<Body> {
         return response_unauthorized();
     }
 
-    let result = user::remove_password(&body.user_id);
-    match result {
-        _ => (),
-    };
+    user::remove_password(&body.user_id);
+    ();;
 
     Response::new(Body::from("{}"))
 }

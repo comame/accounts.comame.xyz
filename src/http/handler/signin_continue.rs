@@ -194,7 +194,7 @@ pub async fn no_interaction_fail(req: Request<Body>) -> Response<Body> {
         OidcFlow::Implicit => {
             let redirect_uri = result.redirect_uri.unwrap();
             let mut hash = String::new();
-            hash.push_str(&format!("error={}", result.response.error.to_string()));
+            hash.push_str(&format!("error={}", result.response.error));
             if let Some(state) = result.response.state {
                 hash.push_str(&format!("&state={state}"));
             }
