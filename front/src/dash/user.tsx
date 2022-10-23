@@ -247,6 +247,10 @@ const SetPasswordModal = ({
         <Modal open={open}>
             <ModalHeader>パスワードの設定</ModalHeader>
             <ModalBody>
+                <div className="mb-24">
+                    <span className="font-bold">{userId}</span>{" "}
+                    のパスワードを変更
+                </div>
                 <TextField
                     label="パスワード"
                     placeholder="パスワード"
