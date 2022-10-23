@@ -11,6 +11,7 @@ use crate::db::redis;
 use crate::enc::url::encode;
 use crate::http::data::tools_id_token::{IdTokenRequest, IdTokenResponse};
 use crate::http::parse_body::parse_body;
+use crate::time::now;
 
 const PREFIX: &str = "DASH-SIGN";
 
@@ -24,7 +25,7 @@ pub fn signin() -> String {
     redis::set(&redis_key, "_", 60);
 
     let redirect_uri = format!("{origin}/dash/callback");
-    format!("{origin}/authenticate?client_id=accounts.comame.xyz&redirect_uri={redirect_uri}&scope=openid+code&response_type=code&state={state}&nonce={nonce}")
+    format!("{origin}/authenticate?client_id=accounts.comame.xyz&redirect_uri={redirect_uri}&scope=openid+code&response_type=code&state={state}&nonce={nonce}&prompt=login")
 }
 
 /// Returns token
@@ -127,6 +128,11 @@ pub async fn callback(state: &str, code: &str) -> Result<String, ()> {
     }
 
     if claim.sub != "admin" {
+        dbg!("invalid");
+        return Err(());
+    }
+
+    if now() - claim.auth_time > 60 {
         dbg!("invalid");
         return Err(());
     }
