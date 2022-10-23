@@ -1,6 +1,7 @@
 use serde::Serialize;
 
-use crate::{auth::password::set_password, data::user::User};
+use crate::auth::password::set_password;
+use crate::data::user::User;
 
 #[derive(Serialize)]
 pub struct UserWithPassword {

@@ -1,11 +1,10 @@
+use super::session::revoke_session_by_user_id;
 use crate::crypto::sha::sha256;
 use crate::data::authentication::{Authentication, AuthenticationMethod, LoginPrompt};
 use crate::data::user_password::UserPassword;
 use crate::db::user;
 use crate::db::user_password::{insert_password, password_matched};
 use crate::time::now;
-
-use super::session::revoke_session_by_user_id;
 
 pub fn calculate_password_hash(password: &str, salt: &str) -> String {
     let with_salt = password.to_string() + salt;

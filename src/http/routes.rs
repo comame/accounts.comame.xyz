@@ -1,11 +1,8 @@
 use hyper::{Body, Method, Request, Response, StatusCode};
 
-use crate::http::{
-    handler,
-    mime_types::{extract_extension, get_mime_types},
-    set_header::set_header,
-    static_file,
-};
+use crate::http::mime_types::{extract_extension, get_mime_types};
+use crate::http::set_header::set_header;
+use crate::http::{handler, static_file};
 
 pub async fn routes(req: Request<Body>) -> Response<Body> {
     let start_time = std::time::SystemTime::now();

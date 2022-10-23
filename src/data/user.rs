@@ -1,10 +1,6 @@
-use crate::{
-    auth::session::revoke_session_by_user_id,
-    db::{
-        user::{delete_user, find_user_by_id, insert_user, list_user},
-        user_password::{password_exists, remove_password},
-    },
-};
+use crate::auth::session::revoke_session_by_user_id;
+use crate::db::user::{delete_user, find_user_by_id, insert_user, list_user};
+use crate::db::user_password::{password_exists, remove_password};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct User {
