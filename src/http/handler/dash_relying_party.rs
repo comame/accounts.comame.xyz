@@ -43,7 +43,7 @@ pub async fn list_rp(req: Request<Body>) -> Response<Body> {
         &env::var("CLIENT_SECRET").unwrap(),
         &body.token,
     );
-    if user.is_none() {
+    if user.is_none() || user.unwrap() != "admin" {
         return response_unauthorized();
     }
 
@@ -71,7 +71,7 @@ pub async fn create_rp(req: Request<Body>) -> Response<Body> {
         &env::var("CLIENT_SECRET").unwrap(),
         &body.token,
     );
-    if user.is_none() {
+    if user.is_none() || user.unwrap() != "admin" {
         return response_unauthorized();
     }
 
@@ -106,7 +106,7 @@ pub async fn delete_rp(req: Request<Body>) -> Response<Body> {
         &env::var("CLIENT_SECRET").unwrap(),
         &body.token,
     );
-    if user.is_none() {
+    if user.is_none() || user.unwrap() != "admin" {
         return response_unauthorized();
     }
 
@@ -132,7 +132,7 @@ pub async fn add_redirect_uri(req: Request<Body>) -> Response<Body> {
         &env::var("CLIENT_SECRET").unwrap(),
         &body.token,
     );
-    if user.is_none() {
+    if user.is_none() || user.unwrap() != "admin" {
         return response_unauthorized();
     }
 
@@ -162,7 +162,7 @@ pub async fn delete_redirect_uri(req: Request<Body>) -> Response<Body> {
         &env::var("CLIENT_SECRET").unwrap(),
         &body.token,
     );
-    if user.is_none() {
+    if user.is_none() || user.unwrap() != "admin" {
         return response_unauthorized();
     }
 
