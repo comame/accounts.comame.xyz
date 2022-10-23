@@ -119,6 +119,7 @@ pub async fn callback(state: &str, code: &str) -> Result<String, ()> {
         dbg!("invalid");
         return Err(());
     }
+    redis::del(&redis_key);
 
     if claim.aud != "accounts.comame.xyz" {
         dbg!("invalid");

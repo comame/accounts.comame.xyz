@@ -17,7 +17,7 @@ pub fn password_matched(user_password: &UserPassword) -> bool {
     !result.is_empty()
 }
 
-fn password_exists(user_id: &str) -> bool {
+pub fn password_exists(user_id: &str) -> bool {
     let result = get_conn()
         .unwrap()
         .exec_map(
@@ -43,6 +43,16 @@ pub fn insert_password(user_password: &UserPassword) -> Result<(), Error> {
             "pass" => new_pass,
         }
     )
+}
+
+pub fn remove_password(user_id: &str) {
+    get_conn()
+        .unwrap()
+        .exec_drop(
+            "DELETE IGNORE from user_passwords WHERE user_id=:id",
+            params! { "id" => user_id.to_string() },
+        )
+        .unwrap();
 }
 
 #[cfg(test)]

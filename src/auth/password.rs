@@ -20,6 +20,10 @@ pub fn set_password(user_id: &str, password: &str) {
         return;
     }
 
+    if password.is_empty() {
+        return;
+    }
+
     let user_password = UserPassword {
         user_id: user_id.to_string(),
         hashed_password: calculate_password_hash(password, user_id),

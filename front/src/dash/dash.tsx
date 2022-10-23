@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react"
 import { createRoot } from "react-dom/client"
 import { Themed } from "../theme"
 import { RelyingParty } from "./relyingParty"
+import { User } from "./user"
 import { useSideMenu } from "./useSideMenu"
 
 const App = () => {
@@ -40,6 +41,7 @@ const App = () => {
                             {currentPage == "relying-party" && (
                                 <RelyingParty token={token} />
                             )}
+                            {currentPage == "user" && <User token={token} />}
                         </LayoutItemBody>
                     </LayoutItem>
                 </Layout>

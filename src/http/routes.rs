@@ -91,6 +91,30 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
         (&Method::POST, "/dash/rp/redirect_uri/remove") => {
             response = handler::dash_relying_party::delete_redirect_uri(req).await;
         }
+        (&Method::POST, "/dash/user/list") => {
+            response = handler::dash_user::list_user(req).await;
+        }
+        (&Method::POST, "/dash/user/create") => {
+            response = handler::dash_user::create_user(req).await;
+        }
+        (&Method::POST, "/dash/user/delete") => {
+            response = handler::dash_user::delete_user(req).await;
+        }
+        (&Method::POST, "/dash/user/password/change") => {
+            response = handler::dash_user::insert_password(req).await;
+        }
+        (&Method::POST, "/dash/user/password/remove") => {
+            response = handler::dash_user::remove_password(req).await;
+        }
+        (&Method::POST, "/dash/user/session/list") => {
+            todo!()
+        }
+        (&Method::POST, "/dash/user/session/revoke") => {
+            todo!()
+        }
+        (&Method::POST, "/dash/user/authentication/list") => {
+            todo!()
+        }
         _ => {
             let file = static_file::read(req.uri().path());
 

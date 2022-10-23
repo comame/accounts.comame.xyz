@@ -28,6 +28,26 @@ pub fn insert_user(user: &User) -> Result<(), Error> {
     )
 }
 
+pub fn list_user() -> Vec<User> {
+    get_conn()
+        .unwrap()
+        .query_map("SELECT * FROM users", |(id,)| User { id })
+        .unwrap()
+}
+
+pub fn delete_user(user_id: &str) -> Result<(), ()> {
+    let result = get_conn().unwrap().exec_drop(
+        "DELETE FROM users WHERE id=:id",
+        params! { "id" => user_id.to_string() },
+    );
+
+    if result.is_err() {
+        Err(())
+    } else {
+        Ok(())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::super::_test_init::init_mysql;
