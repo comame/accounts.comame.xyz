@@ -3,6 +3,7 @@ use url::Url;
 
 use crate::auth::{csrf_token, session};
 use crate::data::oidc_flow::authentication_response::AuthenticationResponse;
+use crate::enc::url::encode;
 use crate::http::data::sign_in_continue_request::{
     SignInContinueNoSessionRequest, SignInContinueRequest,
 };
@@ -97,28 +98,31 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
     }
 
     let result = result.unwrap();
-    let mut redirect_uri = Url::parse(result.redirect_uri.as_str()).unwrap();
 
     match result.response {
         AuthenticationResponse::Code(res) => {
+            let mut redirect_uri = Url::parse(result.redirect_uri.as_str()).unwrap();
+
             redirect_uri
                 .query_pairs_mut()
                 .append_pair("code", &res.code);
             if let Some(ref state) = res.state {
                 redirect_uri.query_pairs_mut().append_pair("state", state);
             }
+            redirect(redirect_uri.as_str())
         }
         AuthenticationResponse::Implicit(res) => {
-            redirect_uri
-                .query_pairs_mut()
-                .append_pair("id_token", &res.id_token);
+            let mut hash = String::new();
+
+            hash.push_str(&format!("id_token={}", encode(&res.id_token)));
             if let Some(ref state) = res.state {
-                redirect_uri.query_pairs_mut().append_pair("state", state);
+                hash.push_str(&format!("state={}", encode(state)));
             }
+
+            let redirect_uri = format!("{}#{}", result.redirect_uri, hash);
+            redirect(redirect_uri.as_str())
         }
     }
-
-    redirect(redirect_uri.as_str())
 }
 
 pub async fn no_interaction_fail(req: Request<Body>) -> Response<Body> {
