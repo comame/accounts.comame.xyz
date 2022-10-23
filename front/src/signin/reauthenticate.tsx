@@ -105,39 +105,42 @@ const App = () => {
                             </div>
                         </LayoutItemHeader>
                         <LayoutItemBody>
-                            <TextContainer>
-                                <div>
-                                    <Bold>{id}</Bold> さん
-                                </div>
-                                <div>
-                                    続けるには、パスワードを入力してください
-                                </div>
-                            </TextContainer>
-                            <InputContainer>
-                                <input
-                                    type="hidden"
-                                    onChange={(e) => setId(e.target.value)}
-                                ></input>
-                                <TextField
-                                    label="パスワード"
-                                    placeholder="パスワード"
-                                    type="password"
-                                    required
-                                    onChange={(e) => setPassword(e)}
-                                ></TextField>
-                            </InputContainer>
-                            <ButtonsContainer>
-                                <Button
-                                    variant="Primary"
-                                    fixed
-                                    onClick={onSubmitPassword}
-                                >
-                                    続ける
-                                </Button>
-                                <Button fixed onClick={chooseOtherAccount}>
-                                    アカウントを切り替える
-                                </Button>
-                            </ButtonsContainer>
+                            <form>
+                                <TextContainer>
+                                    <div>
+                                        <Bold>{id}</Bold> さん
+                                    </div>
+                                    <div>
+                                        続けるには、パスワードを入力してください
+                                    </div>
+                                </TextContainer>
+                                <InputContainer>
+                                    <input
+                                        type="hidden"
+                                        onChange={(e) => setId(e.target.value)}
+                                    ></input>
+                                    <TextField
+                                        label="パスワード"
+                                        placeholder="パスワード"
+                                        type="password"
+                                        required
+                                        onChange={(e) => setPassword(e)}
+                                    ></TextField>
+                                </InputContainer>
+                                <ButtonsContainer>
+                                    <Button
+                                        variant="Primary"
+                                        fixed
+                                        onClick={onSubmitPassword}
+                                        type="submit"
+                                    >
+                                        続ける
+                                    </Button>
+                                    <Button fixed onClick={chooseOtherAccount}>
+                                        アカウントを切り替える
+                                    </Button>
+                                </ButtonsContainer>
+                            </form>
                         </LayoutItemBody>
                     </LayoutItem>
                 </Layout>

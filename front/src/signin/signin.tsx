@@ -125,31 +125,33 @@ const App = () => {
                             </div>
                         </LayoutItemHeader>
                         <LayoutItemBody>
-                            <InputContainer>
-                                <TextField
-                                    showLabel
-                                    label="ID"
-                                    required
-                                    onChange={(e) => setId(e)}
-                                ></TextField>
-                                <TextField
-                                    showLabel
-                                    label="パスワード"
-                                    type="password"
-                                    required
-                                    onChange={(e) => setPassword(e)}
-                                ></TextField>
-                            </InputContainer>
-                            <ButtonsContainer>
-                                <Button
-                                    variant="Primary"
-                                    fixed
-                                    onClick={onSubmitPassword}
-                                    type="submit"
-                                >
-                                    ログイン
-                                </Button>
-                            </ButtonsContainer>
+                            <form>
+                                <InputContainer>
+                                    <TextField
+                                        showLabel
+                                        label="ID"
+                                        required
+                                        onChange={(e) => setId(e)}
+                                    ></TextField>
+                                    <TextField
+                                        showLabel
+                                        label="パスワード"
+                                        type="password"
+                                        required
+                                        onChange={(e) => setPassword(e)}
+                                    ></TextField>
+                                </InputContainer>
+                                <ButtonsContainer>
+                                    <Button
+                                        variant="Primary"
+                                        fixed
+                                        onClick={onSubmitPassword}
+                                        type="submit"
+                                    >
+                                        ログイン
+                                    </Button>
+                                </ButtonsContainer>
+                            </form>
                         </LayoutItemBody>
                     </LayoutItem>
                 </Layout>

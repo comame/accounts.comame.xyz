@@ -95,25 +95,28 @@ const App = () => {
                             </div>
                         </LayoutItemHeader>
                         <LayoutItemBody>
-                            <TextContainer>
-                                <div>
-                                    <Bold>{id}</Bold> さん
-                                </div>
-                                <div>続行しますか？</div>
-                            </TextContainer>
-                            <ButtonsContainer>
-                                <Button
-                                    variant="Primary"
-                                    fixed
-                                    onClick={onSubmit}
-                                    disabled={disabled}
-                                >
-                                    続ける
-                                </Button>
-                                <Button fixed onClick={chooseOtherAccount}>
-                                    アカウントを切り替える
-                                </Button>
-                            </ButtonsContainer>
+                            <form>
+                                <TextContainer>
+                                    <div>
+                                        <Bold>{id}</Bold> さん
+                                    </div>
+                                    <div>続行しますか？</div>
+                                </TextContainer>
+                                <ButtonsContainer>
+                                    <Button
+                                        variant="Primary"
+                                        fixed
+                                        onClick={onSubmit}
+                                        disabled={disabled}
+                                        type="submit"
+                                    >
+                                        続ける
+                                    </Button>
+                                    <Button fixed onClick={chooseOtherAccount}>
+                                        アカウントを切り替える
+                                    </Button>
+                                </ButtonsContainer>
+                            </form>
                         </LayoutItemBody>
                     </LayoutItem>
                 </Layout>
