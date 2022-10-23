@@ -5,6 +5,8 @@ use crate::db::user;
 use crate::db::user_password::{insert_password, password_matched};
 use crate::time::now;
 
+use super::session::revoke_session_by_user_id;
+
 pub fn calculate_password_hash(password: &str, salt: &str) -> String {
     let with_salt = password.to_string() + salt;
     let mut hash = String::new();
@@ -19,6 +21,8 @@ pub fn set_password(user_id: &str, password: &str) {
     if !user_exists {
         return;
     }
+
+    revoke_session_by_user_id(user_id);
 
     if password.is_empty() {
         return;

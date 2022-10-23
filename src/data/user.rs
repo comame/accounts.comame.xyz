@@ -1,6 +1,9 @@
-use crate::db::{
-    user::{delete_user, find_user_by_id, insert_user, list_user},
-    user_password::{password_exists, remove_password},
+use crate::{
+    auth::session::revoke_session_by_user_id,
+    db::{
+        user::{delete_user, find_user_by_id, insert_user, list_user},
+        user_password::{password_exists, remove_password},
+    },
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -39,6 +42,7 @@ impl User {
     }
 
     pub fn remove_password(&self) {
-        remove_password(&self.id)
+        remove_password(&self.id);
+        revoke_session_by_user_id(&self.id);
     }
 }
