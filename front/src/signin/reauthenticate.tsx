@@ -1,20 +1,31 @@
-import React, { useEffect, useState } from 'react'
-import { createRoot } from 'react-dom/client'
+import React, { useEffect, useState } from "react"
+import { createRoot } from "react-dom/client"
 
-import { Button, TextField } from '@charcoal-ui/react'
-import { Layout, LayoutItem, LayoutItemHeader, LayoutItemBody } from '@charcoal-ui/react-sandbox'
-import { Themed } from '../theme'
-import { useContinueForm } from './useContinueForm'
-import { useQueryParams } from './useQueryParams'
-import { Bold, TextContainer, InputContainer, ButtonsContainer, Global } from './layouts'
+import { Button, TextField } from "@charcoal-ui/react"
+import {
+    Layout,
+    LayoutItem,
+    LayoutItemHeader,
+    LayoutItemBody,
+} from "@charcoal-ui/react-sandbox"
+import { Themed } from "../theme"
+import { useContinueForm } from "./useContinueForm"
+import { useQueryParams } from "./useQueryParams"
+import {
+    Bold,
+    TextContainer,
+    InputContainer,
+    ButtonsContainer,
+    Global,
+} from "./layouts"
 
 const App = () => {
     const { stateId, relyingPartyId, csrfToken } = useQueryParams()
 
-    const [loginType, setLoginType] = useState('')
+    const [loginType, setLoginType] = useState("")
     const [hidden, setHidden] = useState(true)
 
-    const [ ContinueForm, _ref, next ] = useContinueForm(
+    const [ContinueForm, _ref, next] = useContinueForm(
         csrfToken,
         loginType,
         stateId ?? undefined,
@@ -22,27 +33,33 @@ const App = () => {
     )
 
     useEffect(() => {
-        fetch('/api/signin-session', {
-            method: 'POST',
-            credentials: 'include',
+        fetch("/api/signin-session", {
+            method: "POST",
+            credentials: "include",
             headers: {
-                'Content-Type': 'application/json'
+                "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                csrf_token: csrfToken
-            })
-        }).then(res => res.json()).then(json => {
-            if (json['user_id']) {
-                setId(json['user_id'])
-                setHidden(false)
-            } else {
-                location.replace(`/signin?sid=${stateId}&cid=${encodeURIComponent(relyingPartyId)}`)
-            }
+                csrf_token: csrfToken,
+            }),
         })
+            .then((res) => res.json())
+            .then((json) => {
+                if (json["user_id"]) {
+                    setId(json["user_id"])
+                    setHidden(false)
+                } else {
+                    location.replace(
+                        `/signin?sid=${stateId}&cid=${encodeURIComponent(
+                            relyingPartyId
+                        )}`
+                    )
+                }
+            })
     }, [])
 
-    const [ id, setId ] = useState('')
-    const [ password, setPassword ] = useState('')
+    const [id, setId] = useState("")
+    const [password, setPassword] = useState("")
 
     const onSubmitPassword = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -50,56 +67,85 @@ const App = () => {
         const body = JSON.stringify({
             user_id: id,
             password,
-            csrf_token: csrfToken
+            csrf_token: csrfToken,
         })
-        const res = await fetch('/api/signin-password', {
-            method: 'POST',
+        const res = await fetch("/api/signin-password", {
+            method: "POST",
             body,
             headers: {
-                'Content-Type': 'application/json'
-            }
+                "Content-Type": "application/json",
+            },
         })
         if (res.status !== 200) {
             return
         }
 
-        setLoginType('password')
+        setLoginType("password")
         next()
     }
 
     const chooseOtherAccount = (e: React.FormEvent) => {
         e.preventDefault()
-        const continueUrl = encodeURIComponent(`${location.origin}/signin?sid=${stateId}&cid=${encodeURIComponent(relyingPartyId)}`)
+        const continueUrl = encodeURIComponent(
+            `${location.origin}/signin?sid=${stateId}&cid=${encodeURIComponent(
+                relyingPartyId
+            )}`
+        )
         location.replace(`/signout?continue=${continueUrl}`)
     }
 
-    return <Themed>
-        {
-            !hidden && <Layout center wide >
-                <LayoutItem span={ 3 }>
-                    <LayoutItemHeader>
-                        <div><Bold>{ relyingPartyId }</Bold> にログイン</div>
-                    </LayoutItemHeader>
-                    <LayoutItemBody>
-                        <TextContainer>
-                            <div><Bold>{ id }</Bold> さん</div>
-                            <div>続けるには、パスワードを入力してください</div>
-                        </TextContainer>
-                        <InputContainer>
-                            <input type='hidden' onChange={ e => setId(e.target.value) }></input>
-                            <TextField label='パスワード' placeholder='パスワード' type='password' required onChange={ e => setPassword(e) }></TextField>
-                        </InputContainer>
-                        <ButtonsContainer>
-                            <Button variant='Primary' fixed onClick={ onSubmitPassword }>続ける</Button>
-                            <Button fixed onClick={ chooseOtherAccount }>アカウントを切り替える</Button>
-                        </ButtonsContainer>
-                    </LayoutItemBody>
-                </LayoutItem>
-            </Layout>
-        }
-        <ContinueForm />
-        <Global />
-    </Themed>
+    return (
+        <Themed>
+            {!hidden && (
+                <Layout center wide>
+                    <LayoutItem span={3}>
+                        <LayoutItemHeader>
+                            <div>
+                                <Bold>{relyingPartyId}</Bold> にログイン
+                            </div>
+                        </LayoutItemHeader>
+                        <LayoutItemBody>
+                            <TextContainer>
+                                <div>
+                                    <Bold>{id}</Bold> さん
+                                </div>
+                                <div>
+                                    続けるには、パスワードを入力してください
+                                </div>
+                            </TextContainer>
+                            <InputContainer>
+                                <input
+                                    type="hidden"
+                                    onChange={(e) => setId(e.target.value)}
+                                ></input>
+                                <TextField
+                                    label="パスワード"
+                                    placeholder="パスワード"
+                                    type="password"
+                                    required
+                                    onChange={(e) => setPassword(e)}
+                                ></TextField>
+                            </InputContainer>
+                            <ButtonsContainer>
+                                <Button
+                                    variant="Primary"
+                                    fixed
+                                    onClick={onSubmitPassword}
+                                >
+                                    続ける
+                                </Button>
+                                <Button fixed onClick={chooseOtherAccount}>
+                                    アカウントを切り替える
+                                </Button>
+                            </ButtonsContainer>
+                        </LayoutItemBody>
+                    </LayoutItem>
+                </Layout>
+            )}
+            <ContinueForm />
+            <Global />
+        </Themed>
+    )
 }
 
-createRoot(document.getElementById('app')!).render(<App />)
+createRoot(document.getElementById("app")!).render(<App />)

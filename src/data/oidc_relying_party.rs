@@ -38,7 +38,9 @@ impl RelyingParty {
     }
 
     pub fn add_redirect_uri(&self, redirect_uri: &str) -> Result<(), ()> {
-        if redirect_uri.starts_with("https://").not() {
+        if redirect_uri.starts_with("https://").not()
+            && redirect_uri.starts_with("http://localhost:8080").not()
+        {
             return Err(());
         }
         add_redirect_uri(&self.client_id, redirect_uri)

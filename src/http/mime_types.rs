@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 pub fn extract_extension(path: &str) -> String {
     let dot_index = path.find('.');
     if dot_index.is_none() {
@@ -20,6 +18,6 @@ pub fn get_mime_types(extension: &str) -> Option<String> {
     match extension {
         "html" => Some("text/html".to_string()),
         "svg" => Some("image/svg+xml".to_string()),
-        _ => None
+        _ => None,
     }
 }

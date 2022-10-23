@@ -1,27 +1,24 @@
-import { LeftMenu } from '@charcoal-ui/react-sandbox'
-import React, { useEffect, useState } from 'react'
+import { LeftMenu } from "@charcoal-ui/react-sandbox"
+import React, { useEffect, useState } from "react"
 
-type pages = 'relying-party' | 'user'
-const pages: pages[] = [
-    'relying-party',
-    'user',
-]
+type pages = "relying-party" | "user"
+const pages: pages[] = ["relying-party", "user"]
 function isPage(arg: any): arg is pages {
     return pages.includes(arg)
 }
 
 export const useSideMenu: () => [Menu: JSX.Element, page: pages] = () => {
-    const [ currentPage, setCurrentPage ] = useState<pages>('relying-party')
+    const [currentPage, setCurrentPage] = useState<pages>("relying-party")
 
     useEffect(() => {
         const page = location.hash.slice(1)
         if (isPage(page)) {
             setCurrentPage(page)
         }
-    }, [ location.hash ])
+    }, [location.hash])
 
     useEffect(() => {
-        window.addEventListener('hashchange', () => {
+        window.addEventListener("hashchange", () => {
             const page = location.hash.slice(1)
             if (isPage(page)) {
                 setCurrentPage(page)
@@ -29,13 +26,13 @@ export const useSideMenu: () => [Menu: JSX.Element, page: pages] = () => {
         })
     }, [])
 
-    const links = pages.map(page => ({
+    const links = pages.map((page) => ({
         id: page,
         text: page,
-        to: '#' + page
+        to: "#" + page,
     }))
 
-    const element = <LeftMenu links={ links } active={ currentPage }></LeftMenu>
+    const element = <LeftMenu links={links} active={currentPage}></LeftMenu>
 
-    return [ element, currentPage ]
+    return [element, currentPage]
 }

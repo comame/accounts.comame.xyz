@@ -1,6 +1,11 @@
 use hyper::{Body, Method, Request, Response, StatusCode};
 
-use crate::http::{handler, static_file, mime_types::{extract_extension, get_mime_types}, set_header::set_header};
+use crate::http::{
+    handler,
+    mime_types::{extract_extension, get_mime_types},
+    set_header::set_header,
+    static_file,
+};
 
 pub async fn routes(req: Request<Body>) -> Response<Body> {
     let start_time = std::time::SystemTime::now();
@@ -84,7 +89,7 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
             response = handler::dash_relying_party::add_redirect_uri(req).await;
         }
         (&Method::POST, "/dash/rp/redirect_uri/remove") => {
-            todo!()
+            response = handler::dash_relying_party::delete_redirect_uri(req).await;
         }
         _ => {
             let file = static_file::read(req.uri().path());

@@ -47,16 +47,6 @@ impl Display for OidcFlow {
     }
 }
 
-impl OidcFlow {
-    fn parse(str: &str) -> Result<Self, ()> {
-        match str {
-            "implicit" => Ok(Self::Implicit),
-            "code" => Ok(Self::Code),
-            _ => Err(()),
-        }
-    }
-}
-
 #[allow(clippy::too_many_arguments)]
 impl AuthenticationFlowState {
     pub fn new(

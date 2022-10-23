@@ -144,3 +144,29 @@ pub async fn add_redirect_uri(req: Request<Body>) -> Response<Body> {
         _ => response,
     }
 }
+
+pub async fn delete_redirect_uri(req: Request<Body>) -> Response<Body> {
+    let body = parse_body(req.into_body()).await;
+    if body.is_err() {
+        return response_bad_request();
+    }
+    let body = body.unwrap();
+    let body = from_str::<RelyingPartyAddRedirectUriRequest>(&body);
+    if body.is_err() {
+        return response_bad_request();
+    }
+    let body = body.unwrap();
+
+    let user = inspect_token(
+        "accounts.comame.xyz",
+        &env::var("CLIENT_SECRET").unwrap(),
+        &body.token,
+    );
+    if user.is_none() {
+        return response_unauthorized();
+    }
+
+    relying_party::remove_redirect_uri(&body.client_id, &body.redirect_uri);
+
+    Response::new(Body::from("{}"))
+}

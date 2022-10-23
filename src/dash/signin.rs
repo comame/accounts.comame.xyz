@@ -6,7 +6,7 @@ use serde_json::{from_str, to_string};
 
 use crate::crypto::rand::random_str;
 use crate::data::oidc_flow::code_request::CodeRequest;
-use crate::data::oidc_flow::code_response::{self, CodeResponse};
+use crate::data::oidc_flow::code_response::CodeResponse;
 use crate::db::redis;
 use crate::enc::url::encode;
 use crate::http::data::tools_id_token::{IdTokenRequest, IdTokenResponse};

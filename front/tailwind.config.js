@@ -1,10 +1,10 @@
-const { config } = require('@charcoal-ui/tailwind-config')
+const { config } = require("@charcoal-ui/tailwind-config")
 
 const opt = {
     darkMode: false,
-    content: [ './src/**/*.tsx'],
+    content: ["./src/**/*.tsx"],
     presets: [config],
-    mode: 'jit',
+    mode: "jit",
 }
 
 module.exports = opt

@@ -1,6 +1,4 @@
-use std::env;
-
-use hyper::{Body, Request, Response, StatusCode, Uri};
+use hyper::{Body, Request, Response, StatusCode};
 use url::Url;
 
 use crate::dash::signin;
@@ -56,7 +54,11 @@ pub async fn callback(req: Request<Body>) -> Response<Body> {
 
     let mut response = Response::new(Body::empty());
     *response.status_mut() = StatusCode::FOUND;
-    set_header::set_header(&mut response, "location", &format!("/dash#{}", token.unwrap()));
+    set_header::set_header(
+        &mut response,
+        "location",
+        &format!("/dash#{}", token.unwrap()),
+    );
 
     response
 }
