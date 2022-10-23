@@ -74,7 +74,6 @@ pub async fn create_user(req: Request<Body>) -> Response<Body> {
     }
 
     let _result = user::create(&body.user_id);
-    ();;
 
     Response::new(Body::from("{}"))
 }
@@ -101,7 +100,6 @@ pub async fn delete_user(req: Request<Body>) -> Response<Body> {
     }
 
     let _result = user::delete(&body.user_id);
-    ();;
 
     Response::new(Body::from("{}"))
 }
@@ -128,7 +126,6 @@ pub async fn insert_password(req: Request<Body>) -> Response<Body> {
     }
 
     let _result = user::insert_password(&body.user_id, &body.password);
-    ();;
 
     Response::new(Body::from("{}"))
 }
@@ -155,7 +152,6 @@ pub async fn remove_password(req: Request<Body>) -> Response<Body> {
     }
 
     user::remove_password(&body.user_id);
-    ();;
 
     Response::new(Body::from("{}"))
 }
