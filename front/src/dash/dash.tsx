@@ -37,7 +37,9 @@ const App = () => {
                 <Layout menu={Menu} header={Header}>
                     <LayoutItem span={3}>
                         <LayoutItemBody>
-                            <RelyingParty token={token} />
+                            {currentPage == "relying-party" && (
+                                <RelyingParty token={token} />
+                            )}
                         </LayoutItemBody>
                     </LayoutItem>
                 </Layout>

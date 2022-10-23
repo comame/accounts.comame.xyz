@@ -233,7 +233,6 @@ const EditModal = ({ open, rp, updateView, token }: editModalProps) => {
                     addUri({ client_id: rp.client_id, redirect_uri: uri })
                 ),
         ]
-        console.log(promises)
         Promise.allSettled(promises).then(() => {
             updateView()
             open[1](false)
@@ -250,6 +249,7 @@ const EditModal = ({ open, rp, updateView, token }: editModalProps) => {
                 <TextField
                     multiline
                     label="redirect_uris"
+                    placeholder="redirect_uris"
                     value={uris.join("\n")}
                     onChange={onChange}
                     className="mb-24"
