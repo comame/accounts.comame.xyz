@@ -17,7 +17,34 @@ export function useContinueForm(
 
     useEffect(() => {
         if (next) {
-            ref.current?.submit()
+            const csrfToken = ref.current?.csrf_token.value
+            const loginType = ref.current?.login_type.value
+            const stateId = ref.current?.state_id.value
+
+            const body = `csrf_token=${encodeURIComponent(
+                csrfToken
+            )}&login_type=${encodeURIComponent(
+                loginType
+            )}&state_id=${encodeURIComponent(
+                stateId
+            )}&relying_party_id=${encodeURIComponent(relyingPartyId!)}`
+
+            console.log("fetch")
+
+            fetch("/api/signin-continue", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body,
+                credentials: "include",
+            })
+                .then((res) => res.json())
+                .then((json) => {
+                    if (json.location) {
+                        location.replace(json.location)
+                    }
+                })
         }
     }, [next])
 

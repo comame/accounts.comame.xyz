@@ -2,75 +2,63 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
 </head>
 
 <body>
-    <h1>Implicit Flow</h1>
-    <ul>
-        <li><a
-                href="/authenticate?client_id=accounts.comame.xyz&redirect_uri=$HOST%2Frp%2Fcallback&scope=openid&response_type=id_token&state=hoge&nonce=nonce">Authenticate</a>
-        </li>
-        <li><a
-                href="/authenticate?client_id=accounts.comame.xyz&redirect_uri=$HOST%2Frp%2Fcallback&scope=openid&response_type=id_token&state=hoge&nonce=nonce&prompt=none">Authenticate
-                (prompt=none)</a></li>
-        <li><a
-                href="/authenticate?client_id=accounts.comame.xyz&redirect_uri=$HOST%2Frp%2Fcallback&scope=openid&response_type=id_token&state=hoge&nonce=nonce&prompt=login">Authenticate
-                (prompt=login)</a></li>
-        <li><a
-                href="/authenticate?client_id=accounts.comame.xyz&redirect_uri=$HOST%2Frp%2Fcallback&scope=openid&response_type=id_token&state=hoge&nonce=nonce&prompt=consent">Authenticate
-                (prompt=consent)</a></li>
-        <li><a
-                href="/authenticate?client_id=accounts.comame.xyz&redirect_uri=$HOST%2Frp%2Fcallback&scope=openid&response_type=id_token&state=hoge&nonce=nonce&prompt=select_account">Authenticate
-                (prompt=select_account)</a></li>
-        <li><a
-                href="/authenticate?client_id=accounts.comame.xyz&redirect_uri=$HOST%2Frp%2Fcallback&scope=openid&response_type=id_token&state=hoge&nonce=nonce&max_age=10">Authenticate
-                (max_age=10)</a></li>
-    </ul>
-    <h1>Code Flow</h1>
-    <ul>
-        <li><a
-                href="/authenticate?client_id=accounts.comame.xyz&redirect_uri=$HOST%2Frp%2Fcallback&scope=openid+code&response_type=code&state=hoge&nonce=nonce">Authenticate</a>
-        </li>
-        <li><a
-                href="/authenticate?client_id=accounts.comame.xyz&redirect_uri=$HOST%2Frp%2Fcallback&scope=openid+code&response_type=code&state=hoge&nonce=nonce&prompt=none">Authenticate
-                (prompt=none)</a></li>
-        <li><a
-                href="/authenticate?client_id=accounts.comame.xyz&redirect_uri=$HOST%2Frp%2Fcallback&scope=openid+code&response_type=code&state=hoge&nonce=nonce&prompt=login">Authenticate
-                (prompt=login)</a></li>
-        <li><a
-                href="/authenticate?client_id=accounts.comame.xyz&redirect_uri=$HOST%2Frp%2Fcallback&scope=openid+code&response_type=code&state=hoge&nonce=nonce&prompt=consent">Authenticate
-                (prompt=consent)</a></li>
-        <li><a
-                href="/authenticate?client_id=accounts.comame.xyz&redirect_uri=$HOST%2Frp%2Fcallback&scope=openid+code&response_type=code&state=hoge&nonce=nonce&prompt=select_account">Authenticate
-                (prompt=select_account)</a></li>
-        <li><a
-                href="/authenticate?client_id=accounts.comame.xyz&redirect_uri=$HOST%2Frp%2Fcallback&scope=openid+code&response_type=code&state=hoge&nonce=nonce&max_age=10">Authenticate
-                (max_age=10)</a></li>
-    </ul>
-    <h1>Signout</h1>
-    <ul>
-        <li><a href='/signout?continue=/dev/console.html'>Signout</a></li>
+        <h1>Implicit Flow</h1>
+        <ul>
+                <li><a href="/authenticate?client_id=accounts.comame.xyz&redirect_uri=$HOST%2Frp%2Fcallback&scope=openid&response_type=id_token&state=hoge&nonce=nonce">Authenticate</a>
+                </li>
+                <li><a href="/authenticate?client_id=accounts.comame.xyz&redirect_uri=$HOST%2Frp%2Fcallback&scope=openid&response_type=id_token&state=hoge&nonce=nonce&prompt=none">Authenticate
+                                (prompt=none)</a></li>
+                <li><a href="/authenticate?client_id=accounts.comame.xyz&redirect_uri=$HOST%2Frp%2Fcallback&scope=openid&response_type=id_token&state=hoge&nonce=nonce&prompt=login">Authenticate
+                                (prompt=login)</a></li>
+                <li><a href="/authenticate?client_id=accounts.comame.xyz&redirect_uri=$HOST%2Frp%2Fcallback&scope=openid&response_type=id_token&state=hoge&nonce=nonce&prompt=consent">Authenticate
+                                (prompt=consent)</a></li>
+                <li><a href="/authenticate?client_id=accounts.comame.xyz&redirect_uri=$HOST%2Frp%2Fcallback&scope=openid&response_type=id_token&state=hoge&nonce=nonce&prompt=select_account">Authenticate
+                                (prompt=select_account)</a></li>
+                <li><a href="/authenticate?client_id=accounts.comame.xyz&redirect_uri=$HOST%2Frp%2Fcallback&scope=openid&response_type=id_token&state=hoge&nonce=nonce&max_age=10">Authenticate
+                                (max_age=10)</a></li>
         </ul>
-    <h1>Discovery</h1>
-    <ul>
-        <li><a href="/.well-known/openid-configuration">/.well-known/openid-configuration</a></li>
-        <li><a href="/certs">/certs</a></li>
-    </ul>
-    <h1>Dashboard</h1>
-    <ul>
-        <li><a href='/dash'>/dash</a></li>
-    </ul>
+        <h1>Code Flow</h1>
+        <ul>
+                <li><a href="/authenticate?client_id=accounts.comame.xyz&redirect_uri=$HOST%2Frp%2Fcallback&scope=openid+code&response_type=code&state=hoge&nonce=nonce">Authenticate</a>
+                </li>
+                <li><a href="/authenticate?client_id=accounts.comame.xyz&redirect_uri=$HOST%2Frp%2Fcallback&scope=openid+code&response_type=code&state=hoge&nonce=nonce&prompt=none">Authenticate
+                                (prompt=none)</a></li>
+                <li><a href="/authenticate?client_id=accounts.comame.xyz&redirect_uri=$HOST%2Frp%2Fcallback&scope=openid+code&response_type=code&state=hoge&nonce=nonce&prompt=login">Authenticate
+                                (prompt=login)</a></li>
+                <li><a href="/authenticate?client_id=accounts.comame.xyz&redirect_uri=$HOST%2Frp%2Fcallback&scope=openid+code&response_type=code&state=hoge&nonce=nonce&prompt=consent">Authenticate
+                                (prompt=consent)</a></li>
+                <li><a href="/authenticate?client_id=accounts.comame.xyz&redirect_uri=$HOST%2Frp%2Fcallback&scope=openid+code&response_type=code&state=hoge&nonce=nonce&prompt=select_account">Authenticate
+                                (prompt=select_account)</a></li>
+                <li><a href="/authenticate?client_id=accounts.comame.xyz&redirect_uri=$HOST%2Frp%2Fcallback&scope=openid+code&response_type=code&state=hoge&nonce=nonce&max_age=10">Authenticate
+                                (max_age=10)</a></li>
+        </ul>
+        <h1>Signout</h1>
+        <ul>
+                <li><a href='/signout?continue=/dev/console.html'>Signout</a></li>
+        </ul>
+        <h1>Discovery</h1>
+        <ul>
+                <li><a href="/.well-known/openid-configuration">/.well-known/openid-configuration</a></li>
+                <li><a href="/certs">/certs</a></li>
+        </ul>
+        <h1>Dashboard</h1>
+        <ul>
+                <li><a href='/dash'>/dash</a></li>
+        </ul>
 
-    <script>
-        const elements = document.querySelectorAll('a[href]')
-        for (const element of elements) {
-                element.href = element.href.replace('$HOST', encodeURIComponent(location.origin))
-        }
-    </script>
+        <script>
+                const elements = document.querySelectorAll('a[href]')
+                for (const element of elements) {
+                        element.href = element.href.replace('$HOST', encodeURIComponent(location.origin))
+                }
+        </script>
 </body>
 
 </html>

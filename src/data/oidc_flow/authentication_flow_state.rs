@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::crypto::rand::random_str;
 use crate::data::oidc_flow::oidc_scope::Scopes;
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct AuthenticationFlowState {
     id: String,
     pub relying_party_id: String,
@@ -32,7 +32,7 @@ pub enum LoginRequirement {
     Any,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub enum OidcFlow {
     Implicit,
     Code,

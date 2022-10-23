@@ -22,6 +22,7 @@ use crate::time::now;
 #[derive(Debug)]
 pub struct AuthenticationError {
     pub redirect_uri: Option<String>,
+    pub flow: Option<OidcFlow>,
     pub response: AuthenticationErrorResponse,
 }
 
@@ -39,6 +40,7 @@ pub fn pre_authenticate(
         dbg!("invalid");
         return Err(AuthenticationError {
             redirect_uri: None,
+            flow: None,
             response,
         });
     }
@@ -58,6 +60,7 @@ pub fn pre_authenticate(
         dbg!("invalid");
         return Err(AuthenticationError {
             redirect_uri: None,
+            flow: None,
             response,
         });
     }
@@ -74,6 +77,7 @@ pub fn pre_authenticate(
         dbg!("invalid");
         return Err(AuthenticationError {
             redirect_uri: Some(request.redirect_uri),
+            flow: Some(OidcFlow::Code), // フローは未確定だが、クエリパラメータで返すのでこれでよい
             response,
         });
     };
@@ -88,6 +92,7 @@ pub fn pre_authenticate(
         dbg!("invalid");
         return Err(AuthenticationError {
             redirect_uri: Some(request.redirect_uri),
+            flow: Some(flow),
             response,
         });
     }
@@ -100,6 +105,7 @@ pub fn pre_authenticate(
         dbg!("invalid");
         return Err(AuthenticationError {
             redirect_uri: Some(request.redirect_uri),
+            flow: Some(flow),
             response,
         });
     }
@@ -160,6 +166,7 @@ pub fn pronpt_none_fail_authentication(state_id: &str) -> AuthenticationError {
         };
         return AuthenticationError {
             redirect_uri: None,
+            flow: None,
             response,
         };
     }
@@ -169,8 +176,10 @@ pub fn pronpt_none_fail_authentication(state_id: &str) -> AuthenticationError {
         error: ErrorCode::InteractionRequired,
         state: state.state,
     };
+
     AuthenticationError {
         redirect_uri: Some(state.redirect_url),
+        flow: Some(state.flow),
         response,
     }
 }
@@ -195,6 +204,7 @@ pub fn post_authentication(
         dbg!("invalid");
         return Err(AuthenticationError {
             redirect_uri: None,
+            flow: None,
             response,
         });
     }
@@ -219,6 +229,7 @@ pub fn post_authentication(
         dbg!("invalid");
         return Err(AuthenticationError {
             redirect_uri: None,
+            flow: None,
             response,
         });
     }
@@ -232,6 +243,7 @@ pub fn post_authentication(
         dbg!("invalid");
         return Err(AuthenticationError {
             redirect_uri: None,
+            flow: None,
             response,
         });
     }
@@ -247,6 +259,7 @@ pub fn post_authentication(
         dbg!("invalid");
         return Err(AuthenticationError {
             redirect_uri: None,
+            flow: None,
             response,
         });
     }
