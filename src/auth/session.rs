@@ -8,10 +8,14 @@ use crate::db::user::find_user_by_id;
 
 const SESSION_EXPIRE_MIN: u64 = 24 * 60;
 
-pub fn create_session(user_id: &str) -> Session {
+pub fn create_session(user_id: &str) -> Option<Session> {
+    let user = User::find(user_id);
+    if user.is_none() {
+        return None;
+    }
     let session = Session::new(user_id);
     insert_session(&session);
-    session
+    Some(session)
 }
 
 pub fn revoke_session_by_user_id(user_id: &str) {
@@ -73,7 +77,7 @@ mod tests {
         .unwrap();
 
         let session = create_session(user_id);
-        let user = authenticate("aud.comame.dev", &session.token, false);
+        let user = authenticate("aud.comame.dev", &session.unwrap().token, false);
 
         assert_eq!(user_id, user.unwrap().id);
     }
@@ -109,7 +113,7 @@ mod tests {
         let session = create_session(user_id);
         revoke_session_by_user_id(user_id);
 
-        let user = authenticate("aud.comame.dev", &session.token, false);
+        let user = authenticate("aud.comame.dev", &session.unwrap().token, false);
 
         assert!(user.is_none());
     }
@@ -125,7 +129,7 @@ mod tests {
         })
         .unwrap();
 
-        let session = create_session(user_id);
+        let session = create_session(user_id).unwrap();
         revoke_session_by_token(&session.token);
 
         let user = authenticate("aud.comame.dev", &session.token, false);
@@ -147,8 +151,8 @@ mod tests {
         let session_1 = create_session(user_id);
         let session_2 = create_session(user_id);
 
-        let user_1 = authenticate("aud.comame.dev", &session_1.token, false);
-        let user_2 = authenticate("aud.comame.dev", &session_2.token, false);
+        let user_1 = authenticate("aud.comame.dev", &session_1.unwrap().token, false);
+        let user_2 = authenticate("aud.comame.dev", &session_2.unwrap().token, false);
 
         assert_eq!(user_1.unwrap().id, user_id);
         assert_eq!(user_2.unwrap().id, user_id);

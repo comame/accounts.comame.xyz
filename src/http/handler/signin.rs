@@ -63,7 +63,7 @@ pub async fn sign_in_with_password(req: Request<Body>) -> Response<Body> {
     let body = PasswordSignInResponse::new(user_id.as_str());
     let mut response = Response::new(Body::from(to_string(&body).unwrap()));
 
-    let session = create_session(&user_id);
+    let session = create_session(&user_id).unwrap();
 
     let header_value = format!("Session={}; Secure; HttpOnly; Path=/", session.token);
     set_header(&mut response, "Set-Cookie", &header_value);
