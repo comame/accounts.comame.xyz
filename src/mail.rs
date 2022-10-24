@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use hyper::client::HttpConnector;
 use hyper::{Body, Client, Method, Request, StatusCode};
 use hyper_tls::HttpsConnector;
@@ -8,7 +10,6 @@ use crate::enc::base64::encode_base64_url;
 use crate::enc::url::encode;
 use crate::http::parse_body::parse_body;
 use crate::http::set_header::set_header_req;
-use crate::time::now;
 
 static mut ACCESS_TOKEN: Option<String> = None;
 
@@ -24,15 +25,16 @@ struct MailBody {
     pub body: String,
 }
 
-impl MailBody {
-    fn to_string(&self) -> String {
-        encode_base64_url(
+impl Display for MailBody {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let text = encode_base64_url(
             format!(
                 "Subject: {}\r\nTo: {}\r\nFrom: {}\r\n\r\n{}",
                 self.subject, self.to, self.from, self.body
             )
             .as_bytes(),
-        )
+        );
+        write!(f, "{text}")
     }
 }
 
@@ -116,9 +118,10 @@ struct TokenRequest {
     pub refresh_token: String,
 }
 
-impl TokenRequest {
-    fn to_string(&self) -> String {
-        format!(
+impl Display for TokenRequest {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
             "client_id={}&client_secret={}&refresh_token={}&grant_type=refresh_token",
             encode(&self.client_id),
             encode(&self.client_secret),

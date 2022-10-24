@@ -10,9 +10,7 @@ const SESSION_EXPIRE_MIN: u64 = 24 * 60;
 
 pub fn create_session(user_id: &str) -> Option<Session> {
     let user = User::find(user_id);
-    if user.is_none() {
-        return None;
-    }
+    user.as_ref()?;
     let session = Session::new(user_id);
     insert_session(&session);
     Some(session)
