@@ -138,8 +138,6 @@ pub async fn add_redirect_uri(req: Request<Body>) -> Response<Body> {
 
     let _result = relying_party::add_redirect_uri(&body.client_id, &body.redirect_uri);
 
-    
-
     Response::new(Body::from("{}"))
 }
 

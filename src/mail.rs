@@ -1,13 +1,14 @@
-use hyper::{client::HttpConnector, Body, Client, Method, Request, StatusCode};
+use hyper::client::HttpConnector;
+use hyper::{Body, Client, Method, Request, StatusCode};
 use hyper_tls::HttpsConnector;
 use serde::{Deserialize, Serialize};
 use serde_json::{from_str, to_string};
 
-use crate::{
-    enc::{base64::encode_base64_url, url::encode},
-    http::{parse_body::parse_body, set_header::set_header_req},
-    time::now,
-};
+use crate::enc::base64::encode_base64_url;
+use crate::enc::url::encode;
+use crate::http::parse_body::parse_body;
+use crate::http::set_header::set_header_req;
+use crate::time::now;
 
 static mut ACCESS_TOKEN: Option<String> = None;
 
