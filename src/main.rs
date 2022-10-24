@@ -20,6 +20,7 @@ mod db;
 mod enc;
 mod external;
 mod http;
+mod mail;
 mod oidc;
 mod time;
 

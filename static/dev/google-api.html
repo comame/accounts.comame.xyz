@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <form id="auth">
+        <input id="scope"
+            value="https://mail.google.com/ https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/gmail.compose https://www.googleapis.com/auth/gmail.send">
+        <input id="client_id" placeholder="client_id">
+        <input id="redirect_uri" value="https://accounts.comame.xyz/google-callback">
+        <input id="response_type" value="code">
+        <input id="access_type" value="offline">
+        <input type="submit">
+    </form>
+    <form id="code">
+        <input id="client_secret" placeholder="client_secret">
+        <input id="code" placeholder="code">
+        <input id="refresh_token" placeholder="refresh_token">
+        <input type="submit">
+    </form>
+
+    <script>
+        const authorizationEndpoint = 'https://accounts.google.com/o/oauth2/v2/auth'
+        const tokenEndpoint = 'https://oauth2.googleapis.com/token'
+        const authForm = document.getElementById('auth')
+        const codeForm = document.getElementById('code')
+
+        authForm.addEventListener('submit', async (e) => {
+            e.preventDefault()
+
+            const scope = encodeURIComponent(authForm.scope.value)
+            const clientId = encodeURIComponent(authForm.client_id.value)
+            const redirectUri = encodeURIComponent(authForm.redirect_uri.value)
+            const responseType = encodeURIComponent(authForm.response_type.value)
+            const accessType = encodeURIComponent(authForm.access_type.value)
+
+            const query = `scope=${scope}&client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&access_type=${accessType}`
+
+            const url = authorizationEndpoint + '?' + query
+            console.log(url)
+        })
+
+        codeForm.addEventListener('submit', async (e) => {
+            e.preventDefault()
+
+            const clientId = encodeURIComponent(authForm.client_id.value)
+            const redirectUri = encodeURIComponent(authForm.redirect_uri.value)
+
+            const clinetSecret = encodeURIComponent(codeForm.client_secret.value)
+            const code = encodeURIComponent(codeForm.code.value)
+            const refreshToken = encodeURIComponent(codeForm.refresh_token.value)
+
+            const body = refreshToken ?
+                `client_id=${clientId}&client_secret=${clinetSecret}&refresh_token=${refreshToken}&grant_type=refresh_token` :
+                `client_id=${clientId}&redirect_uri=${redirectUri}&client_secret=${clinetSecret}&code=${code}&grant_type=authorization_code`
+
+            const script = `fetch('${tokenEndpoint}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: '${body}'
+            }).then(res => res.text()).then(console.log)`
+
+            console.log(tokenEndpoint)
+            console.log(script)
+        })
+    </script>
+
+    <style>
+        input {
+            display: block;
+        }
+
+    </style>
+</body>
+
+</html>
