@@ -1,6 +1,8 @@
 use super::session::revoke_session_by_user_id;
 use crate::crypto::sha::sha256;
 use crate::data::authentication::{Authentication, AuthenticationMethod, LoginPrompt};
+use crate::data::authentication_failure::{AuthenticationFailure, AuthenticationFailureReason};
+use crate::data::user::User;
 use crate::data::user_password::UserPassword;
 use crate::db::user;
 use crate::db::user_password::{insert_password, password_matched};
@@ -48,13 +50,30 @@ pub fn authenticate(
     };
 
     let password_ok = password_matched(&user_password);
-    let user_found = user::find_user_by_id(user_id).is_some();
+    let user = User::find(user_id);
+    let user_found = user.is_some();
 
-    if !password_ok {
+    if !user_found {
+        AuthenticationFailure::new(
+            user_id,
+            &AuthenticationMethod::Password,
+            &AuthenticationFailureReason::UserNotFound,
+        );
         return false;
     }
 
-    if !user_found {
+    if !password_ok {
+        AuthenticationFailure::new(
+            user_id,
+            &AuthenticationMethod::Password,
+            &AuthenticationFailureReason::InvalidPassword,
+        );
+
+        if AuthenticationFailure::is_too_many(user_id) {
+            println!("Password authentication is blocked for {user_id} because too many fails");
+            user.unwrap().remove_password();
+        }
+
         return false;
     }
 

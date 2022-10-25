@@ -28,7 +28,6 @@ CREATE TABLE authentications (
 
 CREATE TABLE authentication_failures (
     tried_at TIMESTAMP NOT NULL,
-    audience VARCHAR(100) NOT NULL,
     `subject` VARCHAR(100) NOT NULL,
     method VARCHAR(16) NOT NULL,
     reason VARCHAR(32) NOT NULL
