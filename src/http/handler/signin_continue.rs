@@ -89,6 +89,7 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
     let result = post_authentication(
         &user.unwrap().id,
         &request_body.state_id,
+        &request_body.relying_party_id,
         request_body.login_type,
     );
 

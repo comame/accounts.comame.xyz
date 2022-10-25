@@ -47,6 +47,7 @@ const App = () => {
             },
             body: JSON.stringify({
                 csrf_token: csrfToken,
+                relying_party_id: relyingPartyId
             }),
         })
             .then((res) => {
@@ -98,6 +99,7 @@ const App = () => {
             user_id: id,
             password,
             csrf_token: csrfToken,
+            relying_party_id: relyingPartyId
         })
         const res = await fetch("/api/signin-password", {
             method: "POST",

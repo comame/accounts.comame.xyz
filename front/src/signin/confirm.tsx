@@ -34,6 +34,7 @@ const App = () => {
             },
             body: JSON.stringify({
                 csrf_token: csrfToken,
+                relying_party_id: relyingPartyId,
             }),
         })
             .then((res) => res.json())

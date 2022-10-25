@@ -61,9 +61,9 @@ CREATE TABLE external_sessions (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE TABLE mails {
+CREATE TABLE mails (
     `subject` TEXT NOT NULL,
     `to` TEXT NOT NULL,
     `body` TEXT NOT NULL,
-    created_at TIMESTAMP NOT NULL,
-}
+    created_at TIMESTAMP NOT NULL
+)

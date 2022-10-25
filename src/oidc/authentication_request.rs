@@ -193,6 +193,7 @@ pub struct PostAuthenticationResponse {
 pub fn post_authentication(
     user_id: &str,
     state_id: &str,
+    relying_party_id: &str,
     login_type: AuthenticationMethod,
 ) -> Result<PostAuthenticationResponse, AuthenticationError> {
     let state = authentication_flow_state::get_state(state_id);
@@ -209,6 +210,19 @@ pub fn post_authentication(
         });
     }
     let state = state.unwrap();
+
+    if state.relying_party_id.clone() != relying_party_id {
+        let response = AuthenticationErrorResponse {
+            error: ErrorCode::InvalidRequest,
+            state: state.state,
+        };
+        dbg!("invalid");
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            flow: None,
+            response,
+        });
+    }
 
     let auth_level_ok = match state.login_requirement {
         LoginRequirement::Consent => login_type != AuthenticationMethod::Session,
