@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react"
+import { getUserAgentId } from "./getUserAgentId"
 
 export function useContinueForm(
     csrfToken: string | undefined,
@@ -20,6 +21,7 @@ export function useContinueForm(
             const csrfToken = ref.current?.csrf_token.value
             const loginType = ref.current?.login_type.value
             const stateId = ref.current?.state_id.value
+            const userAgentId = getUserAgentId()
 
             const body = `csrf_token=${encodeURIComponent(
                 csrfToken
@@ -27,7 +29,7 @@ export function useContinueForm(
                 loginType
             )}&state_id=${encodeURIComponent(
                 stateId
-            )}&relying_party_id=${encodeURIComponent(relyingPartyId!)}`
+            )}&relying_party_id=${encodeURIComponent(relyingPartyId!)}&user_agent_id=${encodeURIComponent(userAgentId)}`
 
             console.log("fetch")
 

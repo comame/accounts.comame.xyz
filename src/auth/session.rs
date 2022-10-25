@@ -24,7 +24,12 @@ pub fn revoke_session_by_token(token: &str) {
     delete_by_token(token);
 }
 
-pub fn authenticate(audience: &str, token: &str, is_continue: bool) -> Option<User> {
+pub fn authenticate(
+    audience: &str,
+    token: &str,
+    is_continue: bool,
+    user_agent_id: &str,
+) -> Option<User> {
     delete_expired(SESSION_EXPIRE_MIN);
 
     if token.is_empty() {
@@ -51,6 +56,7 @@ pub fn authenticate(audience: &str, token: &str, is_continue: bool) -> Option<Us
             audience,
             &user.id,
             AuthenticationMethod::Session,
+            user_agent_id,
         );
     }
 
@@ -75,7 +81,7 @@ mod tests {
         .unwrap();
 
         let session = create_session(user_id);
-        let user = authenticate("aud.comame.dev", &session.unwrap().token, false);
+        let user = authenticate("aud.comame.dev", &session.unwrap().token, false, "ua");
 
         assert_eq!(user_id, user.unwrap().id);
     }
@@ -92,7 +98,7 @@ mod tests {
         .unwrap();
 
         let _session = create_session(user_id);
-        let user = authenticate("aud.comame.dev", "dummy_session", false);
+        let user = authenticate("aud.comame.dev", "dummy_session", false, "ua");
 
         assert!(user.is_none());
     }
@@ -111,7 +117,7 @@ mod tests {
         let session = create_session(user_id);
         revoke_session_by_user_id(user_id);
 
-        let user = authenticate("aud.comame.dev", &session.unwrap().token, false);
+        let user = authenticate("aud.comame.dev", &session.unwrap().token, false, "ua");
 
         assert!(user.is_none());
     }
@@ -130,7 +136,7 @@ mod tests {
         let session = create_session(user_id).unwrap();
         revoke_session_by_token(&session.token);
 
-        let user = authenticate("aud.comame.dev", &session.token, false);
+        let user = authenticate("aud.comame.dev", &session.token, false, "ua");
 
         assert!(user.is_none());
     }
@@ -149,8 +155,8 @@ mod tests {
         let session_1 = create_session(user_id);
         let session_2 = create_session(user_id);
 
-        let user_1 = authenticate("aud.comame.dev", &session_1.unwrap().token, false);
-        let user_2 = authenticate("aud.comame.dev", &session_2.unwrap().token, false);
+        let user_1 = authenticate("aud.comame.dev", &session_1.unwrap().token, false, "ua");
+        let user_2 = authenticate("aud.comame.dev", &session_2.unwrap().token, false, "ua");
 
         assert_eq!(user_1.unwrap().id, user_id);
         assert_eq!(user_2.unwrap().id, user_id);

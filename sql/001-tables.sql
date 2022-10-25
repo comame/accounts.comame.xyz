@@ -22,6 +22,7 @@ CREATE TABLE authentications (
     created_at TIMESTAMP NOT NULL,
     audience VARCHAR(100) NOT NULL,
     `subject` VARCHAR(100) NOT NULL,
+    user_agent_id VARCHAR(100) NOT NULL,
     method VARCHAR(16) NOT NULL
 );
 

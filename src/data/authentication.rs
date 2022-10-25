@@ -9,6 +9,7 @@ pub struct Authentication {
     pub created_at: u64,
     pub audience: String,
     pub subject: String,
+    pub user_agent_id: String,
     pub method: AuthenticationMethod,
 }
 
@@ -18,12 +19,14 @@ impl Authentication {
         audience: &str,
         subject: &str,
         method: AuthenticationMethod,
+        user_agent_id: &str,
     ) -> Self {
         let instance = Self {
             authenticated_at,
             created_at: now(),
             audience: audience.to_string(),
             subject: subject.to_string(),
+            user_agent_id: user_agent_id.to_string(),
             method,
         };
 
@@ -32,8 +35,8 @@ impl Authentication {
         instance
     }
 
-    pub fn latest(user_id: &str) -> Option<Self> {
-        find_latest_authentication_by_user(user_id)
+    pub fn latest(user_id: &str, user_agent_id: &str) -> Option<Self> {
+        find_latest_authentication_by_user(user_id, user_agent_id)
     }
 }
 
@@ -125,6 +128,7 @@ mod tests {
             "audience.comame.dev",
             "Bob",
             AuthenticationMethod::Password,
+            "ua",
         );
     }
 }

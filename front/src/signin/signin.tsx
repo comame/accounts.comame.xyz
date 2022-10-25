@@ -12,6 +12,7 @@ import {
     LayoutItemHeader,
 } from "@charcoal-ui/react-sandbox"
 import { Bold, ButtonsContainer, Global, InputContainer } from "./layouts"
+import { getUserAgentId } from "./getUserAgentId"
 
 const App = () => {
     const { stateId, relyingPartyId, csrfToken } = useQueryParams()
@@ -47,7 +48,8 @@ const App = () => {
             },
             body: JSON.stringify({
                 csrf_token: csrfToken,
-                relying_party_id: relyingPartyId
+                relying_party_id: relyingPartyId,
+                user_agent_id: getUserAgentId()
             }),
         })
             .then((res) => {
@@ -99,7 +101,8 @@ const App = () => {
             user_id: id,
             password,
             csrf_token: csrfToken,
-            relying_party_id: relyingPartyId
+            relying_party_id: relyingPartyId,
+            user_agent_id: getUserAgentId()
         })
         const res = await fetch("/api/signin-password", {
             method: "POST",

@@ -12,6 +12,7 @@ import {
     LayoutItemHeader,
 } from "@charcoal-ui/react-sandbox"
 import { Bold, TextContainer, ButtonsContainer, Global } from "./layouts"
+import { getUserAgentId } from "./getUserAgentId"
 
 const App = () => {
     const { stateId, relyingPartyId, csrfToken } = useQueryParams()
@@ -35,6 +36,7 @@ const App = () => {
             body: JSON.stringify({
                 csrf_token: csrfToken,
                 relying_party_id: relyingPartyId,
+                user_agent_id: getUserAgentId()
             }),
         })
             .then((res) => res.json())

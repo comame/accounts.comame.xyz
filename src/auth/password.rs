@@ -34,7 +34,13 @@ pub fn set_password(user_id: &str, password: &str) {
     insert_password(&user_password).unwrap();
 }
 
-pub fn authenticate(user_id: &str, password: &str, audience: &str, _prompt: LoginPrompt) -> bool {
+pub fn authenticate(
+    user_id: &str,
+    password: &str,
+    audience: &str,
+    _prompt: LoginPrompt,
+    user_agent_id: &str,
+) -> bool {
     let hash = calculate_password_hash(password, user_id);
     let user_password = UserPassword {
         user_id: user_id.to_string(),
@@ -52,7 +58,13 @@ pub fn authenticate(user_id: &str, password: &str, audience: &str, _prompt: Logi
         return false;
     }
 
-    Authentication::create(now(), audience, user_id, AuthenticationMethod::Password);
+    Authentication::create(
+        now(),
+        audience,
+        user_id,
+        AuthenticationMethod::Password,
+        user_agent_id,
+    );
 
     password_ok && user_found
 }
@@ -78,7 +90,8 @@ mod tests {
             user_id,
             "foo",
             "aud.comame.dev",
-            LoginPrompt::Login
+            LoginPrompt::Login,
+            "ua"
         ));
     }
 
@@ -95,13 +108,15 @@ mod tests {
             user_id,
             "bar",
             "aud.comame.dev",
-            LoginPrompt::Login
+            LoginPrompt::Login,
+            "ua"
         ));
         assert!(!authenticate(
             "bob",
             "bar",
             "aud.comame.dev",
-            LoginPrompt::Login
+            LoginPrompt::Login,
+            "ua"
         ));
     }
 

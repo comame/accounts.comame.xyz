@@ -194,6 +194,7 @@ pub fn post_authentication(
     user_id: &str,
     state_id: &str,
     relying_party_id: &str,
+    user_agent_id: &str,
     login_type: AuthenticationMethod,
 ) -> Result<PostAuthenticationResponse, AuthenticationError> {
     let state = authentication_flow_state::get_state(state_id);
@@ -248,7 +249,7 @@ pub fn post_authentication(
         });
     }
 
-    let latest_auth = Authentication::latest(user_id);
+    let latest_auth = Authentication::latest(user_id, user_agent_id);
     if latest_auth.is_none() {
         let response = AuthenticationErrorResponse {
             error: ErrorCode::InvalidRequest,

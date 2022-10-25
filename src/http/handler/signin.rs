@@ -52,9 +52,10 @@ pub async fn sign_in_with_password(req: Request<Body>) -> Response<Body> {
     let password = request.password;
     let token = request.csrf_token;
     let audience = request.relying_party_id;
+    let ua_id = request.user_agent_id;
 
     let is_authenticated =
-        password::authenticate(&user_id, &password, &audience, LoginPrompt::Login);
+        password::authenticate(&user_id, &password, &audience, LoginPrompt::Login, &ua_id);
     let is_token_collect = csrf_token::validate_keep_token(&token);
 
     if !(is_authenticated && is_token_collect) {
@@ -104,7 +105,12 @@ pub async fn sign_in_with_session(req: Request<Body>) -> Response<Body> {
         }
     };
 
-    let user = session::authenticate(&request.relying_party_id, session_token.unwrap(), false);
+    let user = session::authenticate(
+        &request.relying_party_id,
+        session_token.unwrap(),
+        false,
+        &request.user_agent_id,
+    );
 
     if user.is_none() {
         return response_bad_request();
@@ -112,7 +118,7 @@ pub async fn sign_in_with_session(req: Request<Body>) -> Response<Body> {
 
     let user = user.unwrap();
 
-    let latest_authentication = Authentication::latest(&user.id);
+    let latest_authentication = Authentication::latest(&user.id, &request.user_agent_id);
 
     let csrf_token_correct = csrf_token::validate_keep_token(&request.csrf_token);
 
@@ -161,6 +167,7 @@ mod tests {
             password: "password".to_string(),
             csrf_token,
             relying_party_id: "rp.comame.dev".to_string(),
+            user_agent_id: "ua".to_string(),
         };
         let req = Request::new(Body::from(to_string(&req).unwrap()));
 
@@ -185,6 +192,7 @@ mod tests {
             password: "password".to_string(),
             csrf_token,
             relying_party_id: "rp.comame.dev".to_string(),
+            user_agent_id: "ua".to_string(),
         };
         let req = Request::new(Body::from(to_string(&req).unwrap()));
 
@@ -209,6 +217,7 @@ mod tests {
             password: "password".to_string(),
             csrf_token: "fake".to_string(),
             relying_party_id: "rp.comame.dev".to_string(),
+            user_agent_id: "ua".to_string(),
         };
         let req = Request::new(Body::from(to_string(&req).unwrap()));
 
@@ -231,6 +240,7 @@ mod tests {
             password: "password".to_string(),
             csrf_token,
             relying_party_id: "rp.comame.dev".to_string(),
+            user_agent_id: "ua".to_string(),
         };
         let req = Request::new(Body::from(to_string(&req).unwrap()));
         let res = sign_in_with_password(req).await;
@@ -245,6 +255,7 @@ mod tests {
         let req = SessionSignInRequest {
             csrf_token,
             relying_party_id: "rp.comame.dev".to_string(),
+            user_agent_id: "ua".to_string(),
         };
 
         let mut req = Request::new(Body::from(to_string(&req).unwrap()));
@@ -266,6 +277,7 @@ mod tests {
         let req = SessionSignInRequest {
             csrf_token,
             relying_party_id: "rp.comame.dev".to_string(),
+            user_agent_id: "ua".to_string(),
         };
 
         let mut req = Request::new(Body::from(to_string(&req).unwrap()));

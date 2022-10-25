@@ -61,12 +61,6 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
 
     let session_token = session_token.unwrap().clone();
 
-    let user = session::authenticate("id.comame.dev", &session_token, true);
-    if user.is_none() {
-        dbg!("invalid");
-        return response_bad_request();
-    }
-
     let request_body = parse_body(req.into_body()).await;
     if request_body.is_err() {
         dbg!("invalid");
@@ -80,6 +74,17 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
     }
     let request_body = request_body.unwrap();
 
+    let user = session::authenticate(
+        "id.comame.dev",
+        &session_token,
+        true,
+        &request_body.user_agent_id,
+    );
+    if user.is_none() {
+        dbg!("invalid");
+        return response_bad_request();
+    }
+
     let token_ok = csrf_token::validate_once(&request_body.csrf_token);
     if !token_ok {
         dbg!("invalid");
@@ -90,6 +95,7 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
         &user.unwrap().id,
         &request_body.state_id,
         &request_body.relying_party_id,
+        &request_body.user_agent_id,
         request_body.login_type,
     );
 

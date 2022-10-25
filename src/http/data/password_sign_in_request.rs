@@ -6,4 +6,5 @@ pub struct PasswordSignInRequest {
     pub password: String,
     pub csrf_token: String,
     pub relying_party_id: String,
+    pub user_agent_id: String,
 }

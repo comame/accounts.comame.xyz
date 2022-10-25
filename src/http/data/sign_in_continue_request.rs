@@ -7,6 +7,7 @@ pub struct SignInContinueRequest {
     pub login_type: AuthenticationMethod,
     pub state_id: String,
     pub relying_party_id: String,
+    pub user_agent_id: String,
 }
 
 #[derive(PartialEq, Eq, Debug)]
@@ -44,11 +45,17 @@ impl SignInContinueRequest {
             return Err(());
         }
 
+        let user_agent_id = map.get("user_agent_id").cloned();
+        if user_agent_id.is_none() {
+            return Err(());
+        }
+
         Ok(Self {
             csrf_token: token,
             login_type: login_type.unwrap(),
             state_id: state_id.unwrap().clone(),
             relying_party_id: relying_party_id.unwrap().clone(),
+            user_agent_id: user_agent_id.unwrap(),
         })
     }
 }
@@ -84,7 +91,7 @@ mod tests {
     fn test() {
         assert_eq!(
             Target::parse_from(
-                "csrf_token=abcde&login_type=password&state_id=xyz&relying_party_id=hoge"
+                "csrf_token=abcde&login_type=password&state_id=xyz&relying_party_id=hoge&user_agent_id=ua"
             )
             .unwrap(),
             Target {
@@ -92,6 +99,7 @@ mod tests {
                 login_type: AuthenticationMethod::Password,
                 state_id: "xyz".to_string(),
                 relying_party_id: "hoge".to_string(),
+                user_agent_id: "ua".to_string(),
             }
         );
     }

@@ -94,6 +94,7 @@ mod tests {
             password: "password".to_string(),
             csrf_token,
             relying_party_id: "rp.comame.dev".to_string(),
+            user_agent_id: "ua".to_string(),
         };
         let req = Request::new(Body::from(to_string(&req).unwrap()));
         let res = sign_in_with_password(req).await;
