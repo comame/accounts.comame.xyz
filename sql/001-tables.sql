@@ -60,3 +60,10 @@ CREATE TABLE external_sessions (
     FOREIGN KEY (client_id) REFERENCES relying_parties(client_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+CREATE TABLE mails {
+    `subject` TEXT NOT NULL,
+    `to` TEXT NOT NULL,
+    `body` TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+}

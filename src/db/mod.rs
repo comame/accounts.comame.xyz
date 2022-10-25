@@ -1,6 +1,7 @@
 pub mod _test_init;
 pub mod authentication;
 pub mod external_session;
+pub mod mail;
 pub mod mysql;
 pub mod redis;
 pub mod relying_party;

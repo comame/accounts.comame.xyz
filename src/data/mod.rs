@@ -1,5 +1,6 @@
 pub mod authentication;
 pub mod external;
+pub mod mail;
 pub mod oidc_flow;
 pub mod oidc_relying_party;
 pub mod rsa_keypair;
