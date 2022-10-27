@@ -33,6 +33,9 @@ const App = () => {
         relyingPartyId
     )
 
+    const [invalidCredential, setInvalidCredential] = useState(false)
+    const [sendingPassword, setSendingPassword] = useState(false)
+
     useEffect(() => {
         fetch("/api/signin-session", {
             method: "POST",
@@ -43,7 +46,7 @@ const App = () => {
             body: JSON.stringify({
                 csrf_token: csrfToken,
                 relying_party_id: relyingPartyId,
-                user_agent_id: getUserAgentId()
+                user_agent_id: getUserAgentId(),
             }),
         })
             .then((res) => res.json())
@@ -67,12 +70,14 @@ const App = () => {
     const onSubmitPassword = async (e: React.FormEvent) => {
         e.preventDefault()
 
+        setSendingPassword(true)
+
         const body = JSON.stringify({
             user_id: id,
             password,
             csrf_token: csrfToken,
             relying_party_id: relyingPartyId,
-            user_agent_id: getUserAgentId()
+            user_agent_id: getUserAgentId(),
         })
         const res = await fetch("/api/signin-password", {
             method: "POST",
@@ -82,6 +87,8 @@ const App = () => {
             },
         })
         if (res.status !== 200) {
+            setInvalidCredential(true)
+            setSendingPassword(false)
             return
         }
 
@@ -120,16 +127,21 @@ const App = () => {
                                     </div>
                                 </TextContainer>
                                 <InputContainer>
-                                    <input
-                                        type="hidden"
-                                        onChange={(e) => setId(e.target.value)}
-                                    ></input>
                                     <TextField
                                         label="パスワード"
                                         placeholder="パスワード"
                                         type="password"
                                         required
-                                        onChange={(e) => setPassword(e)}
+                                        onChange={(e) => {
+                                            setInvalidCredential(false)
+                                            setPassword(e)
+                                        }}
+                                        invalid={invalidCredential}
+                                        assistiveText={
+                                            invalidCredential
+                                                ? "パスワードが正しくありません"
+                                                : undefined
+                                        }
                                     ></TextField>
                                 </InputContainer>
                                 <ButtonsContainer>
@@ -138,10 +150,15 @@ const App = () => {
                                         fixed
                                         onClick={onSubmitPassword}
                                         type="submit"
+                                        disabled={sendingPassword}
                                     >
                                         続ける
                                     </Button>
-                                    <Button fixed onClick={chooseOtherAccount}>
+                                    <Button
+                                        fixed
+                                        onClick={chooseOtherAccount}
+                                        disabled={sendingPassword}
+                                    >
                                         アカウントを切り替える
                                     </Button>
                                 </ButtonsContainer>

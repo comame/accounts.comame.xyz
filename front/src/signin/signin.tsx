@@ -49,7 +49,7 @@ const App = () => {
             body: JSON.stringify({
                 csrf_token: csrfToken,
                 relying_party_id: relyingPartyId,
-                user_agent_id: getUserAgentId()
+                user_agent_id: getUserAgentId(),
             }),
         })
             .then((res) => {
@@ -94,15 +94,20 @@ const App = () => {
     const [id, setId] = useState("")
     const [password, setPassword] = useState("")
 
+    const [sendingPassword, setSendingPassword] = useState(false)
+    const [invalidCredential, setInvalidCredential] = useState(false)
+
     const onSubmitPassword = async (e: React.FormEvent) => {
         e.preventDefault()
+
+        setSendingPassword(true)
 
         const body = JSON.stringify({
             user_id: id,
             password,
             csrf_token: csrfToken,
             relying_party_id: relyingPartyId,
-            user_agent_id: getUserAgentId()
+            user_agent_id: getUserAgentId(),
         })
         const res = await fetch("/api/signin-password", {
             method: "POST",
@@ -111,7 +116,10 @@ const App = () => {
                 "Content-Type": "application/json",
             },
         })
+
         if (res.status !== 200) {
+            setInvalidCredential(true)
+            setSendingPassword(false)
             return
         }
 
@@ -136,14 +144,27 @@ const App = () => {
                                         showLabel
                                         label="ID"
                                         required
-                                        onChange={(e) => setId(e)}
+                                        onChange={(e) => {
+                                            setInvalidCredential(false)
+                                            setId(e)
+                                        }}
+                                        invalid={invalidCredential}
                                     ></TextField>
                                     <TextField
                                         showLabel
                                         label="パスワード"
                                         type="password"
                                         required
-                                        onChange={(e) => setPassword(e)}
+                                        onChange={(e) => {
+                                            setInvalidCredential(false)
+                                            setPassword(e)
+                                        }}
+                                        invalid={invalidCredential}
+                                        assistiveText={
+                                            invalidCredential
+                                                ? "ID またはパスワードが正しくありません"
+                                                : undefined
+                                        }
                                     ></TextField>
                                 </InputContainer>
                                 <ButtonsContainer>
@@ -152,6 +173,7 @@ const App = () => {
                                         fixed
                                         onClick={onSubmitPassword}
                                         type="submit"
+                                        disabled={sendingPassword}
                                     >
                                         ログイン
                                     </Button>

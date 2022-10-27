@@ -12,7 +12,6 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, "../static/front/"),
         filename: "[name].js",
-        assetModuleFilename: "[name][ext]",
     },
     resolve: {
         extensions: [".js", ".ts", ".tsx", ".json"],

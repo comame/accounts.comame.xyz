@@ -26,6 +26,8 @@ const App = () => {
         relyingPartyId
     )
 
+    const [isSending, setIsSending] = useState(false)
+
     useEffect(() => {
         fetch("/api/signin-session", {
             method: "POST",
@@ -36,7 +38,7 @@ const App = () => {
             body: JSON.stringify({
                 csrf_token: csrfToken,
                 relying_party_id: relyingPartyId,
-                user_agent_id: getUserAgentId()
+                user_agent_id: getUserAgentId(),
             }),
         })
             .then((res) => res.json())
@@ -57,6 +59,7 @@ const App = () => {
     const [id, setId] = useState("")
 
     const onSubmit = async (e: React.FormEvent) => {
+        setIsSending(true)
         e.preventDefault()
         next()
     }
@@ -110,12 +113,16 @@ const App = () => {
                                         variant="Primary"
                                         fixed
                                         onClick={onSubmit}
-                                        disabled={disabled}
+                                        disabled={disabled || isSending}
                                         type="submit"
                                     >
                                         続ける
                                     </Button>
-                                    <Button fixed onClick={chooseOtherAccount}>
+                                    <Button
+                                        fixed
+                                        onClick={chooseOtherAccount}
+                                        disabled={isSending}
+                                    >
                                         アカウントを切り替える
                                     </Button>
                                 </ButtonsContainer>

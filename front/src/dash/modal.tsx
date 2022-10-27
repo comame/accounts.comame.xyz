@@ -1,7 +1,5 @@
 import React, { ReactNode } from "react"
-import { Button } from "@charcoal-ui/react"
-
-import "./Close.svg"
+import { IconButton } from "@charcoal-ui/react"
 
 type props = {
     open: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
@@ -41,16 +39,14 @@ export function Modal({
                 >
                     {children}
                     <div className="absolute top-16 right-16 z-20">
-                        <Button
+                        <IconButton
+                            variant="Overlay"
+                            icon="24/Close"
                             onClick={() => {
                                 open[1](false)
                                 onClose?.()
                             }}
-                        >
-                            <svg width={24} height={24}>
-                                <use xlinkHref="/front/Close.svg#Close"></use>
-                            </svg>
-                        </Button>
+                        />
                     </div>
                 </div>
             </div>
