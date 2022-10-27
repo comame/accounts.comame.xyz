@@ -1,7 +1,7 @@
 use hyper::{Body, Method, Request, Response, StatusCode};
 
 use crate::http::mime_types::{extract_extension, get_mime_types};
-use crate::http::set_header::set_header;
+use crate::http::set_header::{set_header, set_no_store};
 use crate::http::{handler, static_file};
 
 pub async fn routes(req: Request<Body>) -> Response<Body> {
@@ -26,24 +26,31 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
             response = handler::signout::signout(req).await;
         }
         (&Method::POST, "/api/signin-password") => {
+            set_no_store(&mut response);
             response = handler::signin::sign_in_with_password(req).await;
         }
         (&Method::POST, "/api/signin-session") => {
+            set_no_store(&mut response);
             response = handler::signin::sign_in_with_session(req).await;
         }
         (&Method::POST, "/api/signin-continue") => {
+            set_no_store(&mut response);
             response = handler::signin_continue::handler(req).await;
         }
         (&Method::POST, "/api/signin-continue-nointeraction-fail") => {
+            set_no_store(&mut response);
             response = handler::signin_continue::no_interaction_fail(req).await;
         }
         (&Method::GET, "/authenticate") => {
+            set_no_store(&mut response);
             response = handler::oidc_authentication_request::handler(req).await;
         }
         (&Method::POST, "/authenticate") => {
+            set_no_store(&mut response);
             response = handler::oidc_authentication_request::handler(req).await;
         }
         (&Method::POST, "/code") => {
+            set_no_store(&mut response);
             response = handler::oidc_code_request::handle(req).await;
         }
         (&Method::GET, "/.well-known/openid-configuration") => {
@@ -131,6 +138,14 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
             }
         }
     };
+
+    if !uri.clone().path().starts_with("/dev/") {
+        set_header(
+            &mut response,
+            "Content-Security-Policy",
+            "default-src 'self'; style-src 'self' 'unsafe-inline'",
+        );
+    }
 
     let time = std::time::SystemTime::now()
         .duration_since(start_time)
