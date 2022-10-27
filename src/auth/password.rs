@@ -71,7 +71,7 @@ pub fn authenticate(
 
         if AuthenticationFailure::is_too_many(user_id) {
             println!("Password authentication is blocked for {user_id} because too many fails");
-            user.unwrap().remove_password();
+            user.unwrap().lock();
         }
 
         return false;

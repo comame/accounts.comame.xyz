@@ -30,7 +30,8 @@ CREATE TABLE authentication_failures (
     tried_at TIMESTAMP NOT NULL,
     `subject` VARCHAR(100) NOT NULL,
     method VARCHAR(16) NOT NULL,
-    reason VARCHAR(32) NOT NULL
+    reason VARCHAR(32) NOT NULL,
+    clean BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE relying_parties (

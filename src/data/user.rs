@@ -41,4 +41,9 @@ impl User {
         remove_password(&self.id);
         revoke_session_by_user_id(&self.id);
     }
+
+    pub fn lock(&self) {
+        self.remove_password();
+        revoke_session_by_user_id(&self.id);
+    }
 }
