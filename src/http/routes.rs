@@ -68,9 +68,6 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
         (&Method::POST, "/tools/session-revoke") => {
             todo!()
         }
-        (&Method::GET, "/rp/callback") => {
-            response = handler::rp_callback::handler(req).await;
-        }
         (&Method::GET, "/dash") => {
             response = handler::dash::index(req).await;
         }
