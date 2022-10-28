@@ -1,8 +1,9 @@
 use hyper::{Body, Method, Request, Response, StatusCode};
 
+use crate::http::cachable_file::CacheResult;
 use crate::http::mime_types::{extract_extension, get_mime_types};
 use crate::http::set_header::{set_header, set_no_store};
-use crate::http::{handler, static_file};
+use crate::http::{cachable_file, handler, static_file};
 
 pub async fn routes(req: Request<Body>) -> Response<Body> {
     let start_time = std::time::SystemTime::now();
@@ -117,7 +118,7 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
             todo!()
         }
         _ => {
-            let file = static_file::read(req.uri().path());
+            let file = cachable_file::read_with_etag(req.uri().path());
 
             let uri = req.uri().to_string();
             let extension = extract_extension(&uri);
@@ -127,11 +128,36 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
                 set_header(&mut response, "Content-Type", &content_type);
             }
 
-            if file.is_ok() {
-                *response.body_mut() = Body::from(file.unwrap());
-            } else {
+            if file.is_none() {
                 *response.body_mut() = "Not Found".into();
                 *response.status_mut() = StatusCode::NOT_FOUND;
+            } else {
+                let file = file.unwrap();
+
+                set_header(&mut response, "Cache-Control", "no-cache");
+
+                match file {
+                    CacheResult::Etag(etag) => {
+                        let previous_etag = req.headers().get("If-None-Match").cloned();
+                        if previous_etag.is_none() {
+                            set_header(&mut response, "Etag", &format!(r#""{}""#, etag));
+                            *response.body_mut() = Body::from(static_file::read(&uri).unwrap());
+                        } else {
+                            let previous_etag = previous_etag.unwrap();
+                            let previous_etag = previous_etag.to_str().unwrap();
+                            if previous_etag == format!("\"{}\"", etag) {
+                                *response.status_mut() = StatusCode::NOT_MODIFIED;
+                            } else {
+                                set_header(&mut response, "Etag", &format!(r#""{}""#, etag));
+                                *response.body_mut() = Body::from(static_file::read(&uri).unwrap());
+                            }
+                        }
+                    }
+                    CacheResult::Value(value) => {
+                        set_header(&mut response, "Etag", &format!(r#""{}""#, value.etag));
+                        *response.body_mut() = Body::from(value.value);
+                    }
+                }
             }
         }
     };
