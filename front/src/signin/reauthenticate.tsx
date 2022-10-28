@@ -35,6 +35,7 @@ const App = () => {
 
     const [invalidCredential, setInvalidCredential] = useState(false)
     const [sendingPassword, setSendingPassword] = useState(false)
+    const [isEmpty, setIsEmpty] = useState(false)
 
     useEffect(() => {
         fetch("/api/signin-session", {
@@ -69,6 +70,11 @@ const App = () => {
 
     const onSubmitPassword = async (e: React.FormEvent) => {
         e.preventDefault()
+
+        if (!password) {
+            setIsEmpty(true)
+            return
+        }
 
         setSendingPassword(true)
 
@@ -135,11 +141,14 @@ const App = () => {
                                         onChange={(e) => {
                                             setInvalidCredential(false)
                                             setPassword(e)
+                                            setIsEmpty(false)
                                         }}
-                                        invalid={invalidCredential}
+                                        invalid={invalidCredential || isEmpty}
                                         assistiveText={
                                             invalidCredential
                                                 ? "パスワードが正しくありません"
+                                                : isEmpty
+                                                ? "パスワードを入力してください"
                                                 : undefined
                                         }
                                     ></TextField>

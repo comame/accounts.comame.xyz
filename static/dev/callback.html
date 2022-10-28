@@ -18,6 +18,7 @@
         * {
             vertical-align: top;
         }
+
     </style>
     <script>
         const query = new URL(location.href).searchParams
@@ -40,12 +41,12 @@
                 return
             }
 
-            const redirect_uri = encodeURIComponent(`${location.origin}/rp/callback`)
+            const redirect_uri = encodeURIComponent(`${location.origin}/dev/callback.html`)
 
             fetch('/code', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `code=${code}&client_id=accounts.comame.xyz&client_secret=${clientSecretInput.value}&redirect_uri=${redirect_uri}&grant_type=authorization_code`
+                body: `code=${code}&client_id=demo.accounts.comame.dev&client_secret=${clientSecretInput.value}&redirect_uri=${redirect_uri}&grant_type=authorization_code`
             }).then(res => res.json()).then(json => {
                 session(json.id_token)
             })
@@ -56,7 +57,7 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    client_id: 'accounts.comame.xyz',
+                    client_id: 'demo.accounts.comame.dev',
                     client_secret: clientSecretInput.value,
                     id_token: idToken,
                     nonce: "nonce"

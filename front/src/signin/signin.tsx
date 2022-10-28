@@ -96,9 +96,21 @@ const App = () => {
 
     const [sendingPassword, setSendingPassword] = useState(false)
     const [invalidCredential, setInvalidCredential] = useState(false)
+    const [isEmptyId, setIsEmptyId] = useState(false)
+    const [isEmptyPassword, setIsEmptyPassword] = useState(false)
 
     const onSubmitPassword = async (e: React.FormEvent) => {
         e.preventDefault()
+
+        if (!id) {
+            setIsEmptyId(true)
+        }
+        if (!password) {
+            setIsEmptyPassword(true)
+        }
+        if (!id || !password) {
+            return
+        }
 
         setSendingPassword(true)
 
@@ -146,9 +158,17 @@ const App = () => {
                                         required
                                         onChange={(e) => {
                                             setInvalidCredential(false)
+                                            setIsEmptyId(false)
                                             setId(e)
                                         }}
-                                        invalid={invalidCredential}
+                                        invalid={invalidCredential || isEmptyId}
+                                        assistiveText={
+                                            invalidCredential
+                                                ? "ID またはパスワードが正しくありません"
+                                                : isEmptyId
+                                                ? "ID を入力してください"
+                                                : undefined
+                                        }
                                     ></TextField>
                                     <TextField
                                         showLabel
@@ -157,12 +177,17 @@ const App = () => {
                                         required
                                         onChange={(e) => {
                                             setInvalidCredential(false)
+                                            setIsEmptyPassword(false)
                                             setPassword(e)
                                         }}
-                                        invalid={invalidCredential}
+                                        invalid={
+                                            invalidCredential || isEmptyPassword
+                                        }
                                         assistiveText={
                                             invalidCredential
                                                 ? "ID またはパスワードが正しくありません"
+                                                : isEmptyPassword
+                                                ? "パスワードを入力してください"
                                                 : undefined
                                         }
                                     ></TextField>
