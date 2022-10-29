@@ -1,25 +1,14 @@
 import { Layout, LayoutItem, LayoutItemBody } from "@charcoal-ui/react-sandbox"
-import React, { useEffect, useState } from "react"
+import React, { StrictMode, Suspense, useEffect, useState } from "react"
 import { createRoot } from "react-dom/client"
 import { Themed } from "../theme"
 import { RelyingParty } from "./relyingParty"
 import { User } from "./user"
 import { useSideMenu } from "./useSideMenu"
 
+const Loading = () => <div>Loading</div>
+
 const App = () => {
-    const [token, setToken] = useState("")
-
-    useEffect(() => {
-        if (!location.hash && !token) {
-            location.replace("/dash/signin")
-        } else {
-            if (!token) {
-                setToken(location.hash.slice(1))
-                location.hash = ""
-            }
-        }
-    }, [location.hash])
-
     const toNormalRepresentation = (msg: string) => {
         return msg
             .split("-")
@@ -33,20 +22,24 @@ const App = () => {
     const Header = <div>{toNormalRepresentation(currentPage)}</div>
 
     return (
-        <Themed>
-            <div className="min-w-[800px] overflow-auto">
-                <Layout menu={Menu} header={Header}>
-                    <LayoutItem span={3}>
-                        <LayoutItemBody>
-                            {currentPage == "relying-party" && (
-                                <RelyingParty token={token} />
-                            )}
-                            {currentPage == "user" && <User token={token} />}
-                        </LayoutItemBody>
-                    </LayoutItem>
-                </Layout>
-            </div>
-        </Themed>
+        <StrictMode>
+            <Themed>
+                <div className="min-w-[800px] overflow-auto">
+                    <Layout menu={Menu} header={Header}>
+                        <LayoutItem span={3}>
+                            <LayoutItemBody>
+                                <Suspense fallback={<Loading />}>
+                                    {currentPage == "relying-party" && (
+                                        <RelyingParty />
+                                    )}
+                                    {currentPage == "user" && <User />}
+                                </Suspense>
+                            </LayoutItemBody>
+                        </LayoutItem>
+                    </Layout>
+                </div>
+            </Themed>
+        </StrictMode>
     )
 }
 

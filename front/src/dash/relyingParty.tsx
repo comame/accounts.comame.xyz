@@ -1,18 +1,21 @@
 import { Button, TextField } from "@charcoal-ui/react"
 import React, { useEffect, useState } from "react"
 import { Modal, ModalBody, ModalHeader } from "./modal"
-import { useApi } from "./useApi"
+import { relyingParty } from "./types"
+import { useSuspendApi, fetchApi } from "./useApi"
+import { useToken } from "./useToken"
 
-export function RelyingParty({ token }: { token: string }) {
-    const [relyingParties, setRelyingParties] = useState<any[]>([])
-    const [listRpApi] = useApi(token, "/dash/rp/list", (json) => {
-        if (json.values) {
-            setRelyingParties(json.values)
-        }
-    })
+export function RelyingParty() {
+    const { data: relyingPartiesResponse, mutate: updateView } = useSuspendApi(
+        useToken(),
+        "/dash/rp/list",
+        {}
+    )
+    const relyingParties = relyingPartiesResponse.values
+
     useEffect(() => {
-        listRpApi()
-    }, [token])
+        updateView()
+    }, [])
 
     const createModalOpen = useState(false)
 
@@ -21,14 +24,13 @@ export function RelyingParty({ token }: { token: string }) {
             <div>
                 <CreateRPModal
                     open={createModalOpen}
-                    token={token}
-                    updateView={listRpApi}
+                    updateView={updateView}
                 ></CreateRPModal>
                 <div className="p-8 inline-block">
                     <Button
                         size="S"
                         variant="Navigation"
-                        onClick={() => listRpApi()}
+                        onClick={() => updateView()}
                     >
                         RELOAD
                     </Button>
@@ -48,8 +50,7 @@ export function RelyingParty({ token }: { token: string }) {
                         <RelyingPartyListItem
                             key={rp.client_id}
                             rp={rp}
-                            token={token}
-                            updateView={listRpApi}
+                            updateView={updateView}
                         />
                     ))}
             </div>
@@ -60,17 +61,11 @@ export function RelyingParty({ token }: { token: string }) {
 const RelyingPartyListItem = ({
     rp,
     updateView,
-    token,
 }: {
-    rp: any
+    rp: relyingParty
     updateView: () => void
-    token: string
 }) => {
     const deleteModalOpen = useState(false)
-
-    const [deleteRelyingPartyApi] = useApi(token, "/dash/rp/delete", () => {
-        updateView()
-    })
 
     const editModalOpen = useState(false)
 
@@ -78,15 +73,10 @@ const RelyingPartyListItem = ({
         <div key={rp.client_id} className="p-8 mb-16 bg-surface3">
             <DeleteRPModal
                 open={deleteModalOpen}
-                deleteApi={deleteRelyingPartyApi}
                 clientId={rp.client_id}
-            />
-            <EditModal
-                open={editModalOpen}
-                rp={rp}
                 updateView={updateView}
-                token={token}
             />
+            <EditModal open={editModalOpen} rp={rp} updateView={updateView} />
             <h2 className="font-bold text-base">{rp.client_id}</h2>
             <div>
                 <div className="inline-block p-8 pl-0">
@@ -120,14 +110,17 @@ const RelyingPartyListItem = ({
 
 type createRPModalProps = {
     open: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
-    token: string
     updateView: () => void
 }
-const CreateRPModal = ({ open, token, updateView }: createRPModalProps) => {
+const CreateRPModal = ({ open, updateView }: createRPModalProps) => {
     const [id, setId] = useState("")
     const onSubmit = () => {
         if (id) {
-            createApi({ client_id: id })
+            fetchApi(useToken(), "/dash/rp/create", { client_id: id }).then(
+                (res) => {
+                    setClientSecret(res.client_secret)
+                }
+            )
         }
     }
     const [disabled, setDisabled] = useState(true)
@@ -141,14 +134,6 @@ const CreateRPModal = ({ open, token, updateView }: createRPModalProps) => {
     }
 
     const [clientSecret, setClientSecret] = useState("")
-
-    const [createApi] = useApi(
-        token,
-        "/dash/rp/create",
-        ({ client_secret }) => {
-            setClientSecret(client_secret)
-        }
-    )
 
     const onCloseClick = () => {
         setClientSecret("")
@@ -199,10 +184,10 @@ const CreateRPModal = ({ open, token, updateView }: createRPModalProps) => {
 
 type deleteRPModalProps = {
     open: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
-    deleteApi: (body: any) => void
     clientId: string
+    updateView: () => void
 }
-const DeleteRPModal = ({ open, deleteApi, clientId }: deleteRPModalProps) => {
+const DeleteRPModal = ({ open, clientId, updateView }: deleteRPModalProps) => {
     const [disabled, setDisabled] = useState(true)
     useEffect(() => {
         if (open[0]) {
@@ -214,8 +199,12 @@ const DeleteRPModal = ({ open, deleteApi, clientId }: deleteRPModalProps) => {
     }, [open[0]])
 
     const onSubmit = () => {
-        deleteApi({ client_id: clientId })
-        open[1](false)
+        fetchApi(useToken(), "/dash/rp/delete", { client_id: clientId }).then(
+            () => {
+                updateView()
+                open[1](false)
+            }
+        )
     }
 
     return (
@@ -243,9 +232,8 @@ type editModalProps = {
     open: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
     rp: any
     updateView: () => void
-    token: string
 }
-const EditModal = ({ open, rp, updateView, token }: editModalProps) => {
+const EditModal = ({ open, rp, updateView }: editModalProps) => {
     const [uris, setUris] = useState<string[]>([...rp.redirect_uris])
     useEffect(() => {
         setUris([...rp.redirect_uris])
@@ -254,24 +242,32 @@ const EditModal = ({ open, rp, updateView, token }: editModalProps) => {
         setUris(v.split("\n"))
     }
     const onSubmit = () => {
-        const promises = [
+        const deletes = [
             ...rp.redirect_uris.map((uri: string) =>
-                deleteUri({ client_id: rp.client_id, redirect_uri: uri })
+                fetchApi(useToken(), "/dash/rp/redirect_uri/remove", {
+                    client_id: rp.client_id,
+                    redirect_uri: uri,
+                })
             ),
+        ]
+        const adds = [
             ...uris
                 .filter((v) => v.trim() !== "")
                 .map((uri: string) =>
-                    addUri({ client_id: rp.client_id, redirect_uri: uri })
+                    fetchApi(useToken(), "/dash/rp/redirect_uri/add", {
+                        client_id: rp.client_id,
+                        redirect_uri: uri,
+                    })
                 ),
         ]
-        Promise.allSettled(promises).then(() => {
-            updateView()
-            open[1](false)
-        })
-    }
 
-    const [deleteUri] = useApi(token, "/dash/rp/redirect_uri/remove", () => {})
-    const [addUri] = useApi(token, "/dash/rp/redirect_uri/add", () => {})
+        Promise.allSettled(deletes)
+            .then(() => Promise.allSettled(adds))
+            .then(() => {
+                updateView()
+                open[1](false)
+            })
+    }
 
     return (
         <Modal open={open} isDissmissable={false}>

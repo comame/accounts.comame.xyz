@@ -74,22 +74,6 @@ const App = () => {
         location.replace(`/signout?continue=${continueUrl}`)
     }
 
-    const [disabled, setDisabled] = useState(true)
-    useEffect(() => {
-        setTimeout(() => {
-            setDisabled(false)
-        }, 800)
-    }, [])
-    useEffect(() => {
-        const button = document.getElementsByTagName("button")[0]
-        if (!button) {
-            return
-        }
-        if (!button.disabled) {
-            button.focus()
-        }
-    }, [disabled])
-
     return (
         <Themed>
             {!hidden && (
@@ -113,8 +97,9 @@ const App = () => {
                                         variant="Primary"
                                         fixed
                                         onClick={onSubmit}
-                                        disabled={disabled || isSending}
+                                        disabled={isSending}
                                         type="submit"
+                                        autoFocus
                                     >
                                         続ける
                                     </Button>

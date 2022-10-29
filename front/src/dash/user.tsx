@@ -1,23 +1,27 @@
 import { Button, TextField } from "@charcoal-ui/react"
 import React, { useEffect, useState } from "react"
 import { Modal, ModalBody, ModalHeader } from "./modal"
-import { useApi } from "./useApi"
+import { fetchApi, useSuspendApi } from "./useApi"
+import { useToken } from "./useToken"
 
-export function User({ token }: { token: string }) {
-    const [users, setUsers] = useState<any[]>([])
-    const [listUserApi] = useApi(token, "/dash/user/list", (json) => {
-        if (json.values) {
-            setUsers(json.values)
-        }
-    })
-    useEffect(() => {
-        listUserApi()
-    }, [token])
+type user = {
+    user_id: string
+    has_password: boolean
+}
 
-    const [createUserApi] = useApi(token, "/dash/user/create", () => {
-        listUserApi()
-    })
+export function User() {
+    const { data: usersResponse, mutate } = useSuspendApi(
+        useToken(),
+        "/dash/user/list",
+        {}
+    )
+    const users = usersResponse.values
+
     const createModalOpen = useState(false)
+
+    useEffect(() => {
+        mutate()
+    }, [])
 
     return (
         <>
@@ -26,7 +30,7 @@ export function User({ token }: { token: string }) {
                     <Button
                         size="S"
                         variant="Navigation"
-                        onClick={() => listUserApi()}
+                        onClick={() => mutate()}
                     >
                         RELOAD
                     </Button>
@@ -41,7 +45,7 @@ export function User({ token }: { token: string }) {
                     </Button>
                     <CreateUserModal
                         open={createModalOpen}
-                        createApi={createUserApi}
+                        updateView={mutate}
                     />
                 </div>
                 {users
@@ -50,8 +54,7 @@ export function User({ token }: { token: string }) {
                         <UserListItem
                             key={user.user_id}
                             user={user}
-                            token={token}
-                            updateView={listUserApi}
+                            updateView={mutate}
                         />
                     ))}
             </div>
@@ -62,16 +65,11 @@ export function User({ token }: { token: string }) {
 const UserListItem = ({
     user,
     updateView,
-    token,
 }: {
-    user: any
+    user: user
     updateView: () => void
-    token: string
 }) => {
     const deleteModalOpen = useState(false)
-    const [deleteApi] = useApi(token, "/dash/user/delete", () => {
-        updateView()
-    })
 
     const passwordEditOpen = useState(false)
 
@@ -94,7 +92,6 @@ const UserListItem = ({
                         updateView={updateView}
                         open={passwordEditOpen}
                         userId={user.user_id}
-                        token={token}
                     />
                 </div>
                 <div className="inline-block p-8 pl-0">
@@ -107,8 +104,8 @@ const UserListItem = ({
                     </Button>
                     <DeleteUserModal
                         open={deleteModalOpen}
-                        deleteApi={deleteApi}
                         userId={user.user_id}
+                        updateView={updateView}
                     />
                 </div>
             </div>
@@ -118,14 +115,18 @@ const UserListItem = ({
 
 type createUserModalProps = {
     open: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
-    createApi: (body: any) => void
+    updateView: () => void
 }
-const CreateUserModal = ({ open, createApi }: createUserModalProps) => {
+const CreateUserModal = ({ open, updateView }: createUserModalProps) => {
     const [id, setId] = useState("")
     const onSubmit = () => {
         if (id) {
-            createApi({ user_id: id })
-            open[1](false)
+            fetchApi(useToken(), "/dash/user/create", { user_id: id }).then(
+                () => {
+                    open[1](false)
+                    updateView()
+                }
+            )
         }
     }
     const [disabled, setDisabled] = useState(true)
@@ -164,10 +165,14 @@ const CreateUserModal = ({ open, createApi }: createUserModalProps) => {
 
 type deleteUserModalProps = {
     open: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
-    deleteApi: (body: any) => void
     userId: string
+    updateView: () => void
 }
-const DeleteUserModal = ({ open, deleteApi, userId }: deleteUserModalProps) => {
+const DeleteUserModal = ({
+    open,
+    userId,
+    updateView,
+}: deleteUserModalProps) => {
     const [disabled, setDisabled] = useState(true)
     useEffect(() => {
         if (open[0]) {
@@ -179,8 +184,12 @@ const DeleteUserModal = ({ open, deleteApi, userId }: deleteUserModalProps) => {
     }, [open[0]])
 
     const onSubmit = () => {
-        deleteApi({ user_id: userId })
-        open[1](false)
+        fetchApi(useToken(), "/dash/user/delete", { user_id: userId }).then(
+            () => {
+                updateView()
+                open[1](false)
+            }
+        )
     }
 
     return (
@@ -205,12 +214,10 @@ const DeleteUserModal = ({ open, deleteApi, userId }: deleteUserModalProps) => {
 
 type setPasswordModalProps = {
     open: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
-    token: string
     userId: string
     updateView: () => void
 }
 const SetPasswordModal = ({
-    token,
     userId,
     open,
     updateView,
@@ -223,24 +230,23 @@ const SetPasswordModal = ({
         }
     }, [open[0]])
 
-    const [setPasswordApi] = useApi(token, "/dash/user/password/change", () => {
-        updateView()
-    })
-    const [removePasswordApi] = useApi(
-        token,
-        "/dash/user/password/remove",
-        () => {
-            updateView()
-        }
-    )
-
     const onSubmit = () => {
         if (password == "") {
-            removePasswordApi({ user_id: userId })
+            fetchApi(useToken(), "/dash/user/password/remove", {
+                user_id: userId,
+            }).then(() => {
+                updateView()
+                open[1](false)
+            })
         } else {
-            setPasswordApi({ user_id: userId, password })
+            fetchApi(useToken(), "/dash/user/password/change", {
+                user_id: userId,
+                password,
+            }).then(() => {
+                updateView()
+                open[1](false)
+            })
         }
-        open[1](false)
     }
 
     return (

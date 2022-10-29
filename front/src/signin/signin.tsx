@@ -72,8 +72,13 @@ const App = () => {
                     return
                 }
                 if (hash !== "maxage") {
-                    setLoginType("session")
-                    next()
+                    // setLoginType("session")
+                    // next()
+                    location.replace(
+                        `/confirm?sid=${stateId}&cid=${encodeURIComponent(
+                            relyingPartyId
+                        )}`
+                    )
                 } else {
                     const lastAuth = json["last_auth"]
                     const now = Math.trunc(Date.now() / 1000)
