@@ -31,7 +31,7 @@ for (const file of dir) {
     replacedFile = replacedFile.replace(/\$MYSQL_DATABASE/g, mysqlDb)
     writeFileSync('/tmp/comame-dev-id-sql.sql', replacedFile)
 
-    execSync(`mysql -h${mysqlHost} -u${user} -p${password} < /tmp/comame-dev-id-sql.sql`)
+    execSync(`mysql -h${mysqlHost} -u${user} -p${password} ${mysqlDb} < /tmp/comame-dev-id-sql.sql`)
 }
 
 console.log('Finish')

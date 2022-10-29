@@ -4,6 +4,7 @@ use jsonwebtoken::{encode, Algorithm, EncodingKey, Header};
 
 use super::{authentication_flow_state, code_state};
 use crate::data::authentication::{Authentication, AuthenticationMethod, LoginPrompt};
+use crate::data::idtoken_issues::IdTokenIssues;
 use crate::data::oidc_flow::authentication_flow_state::{
     AuthenticationFlowState, LoginRequirement, OidcFlow,
 };
@@ -288,6 +289,8 @@ pub fn post_authentication(
         auth_time: latest_auth.authenticated_at,
         nonce: state.nonce,
     };
+
+    IdTokenIssues::log(&claim);
 
     let jwt_header = Header {
         alg: Algorithm::RS256,

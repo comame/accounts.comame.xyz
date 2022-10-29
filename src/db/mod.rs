@@ -2,6 +2,7 @@ pub mod _test_init;
 pub mod authentication;
 pub mod authentication_failure;
 pub mod external_session;
+pub mod idtoken_issues;
 pub mod mail;
 pub mod mysql;
 pub mod redis;
