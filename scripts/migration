@@ -8,22 +8,33 @@ const password = process.argv[3]
 
 if (!user || !password) throw './scripts/dev-sql.js MYSQL_USER MYSQL_PASSWORD'
 
-const dotenvFile = readFileSync('./.env', { encoding: 'utf-8' })
+const dotenvFile = readFileSync('./.env.prod', { encoding: 'utf-8' })
 
 const mysqlUser = /MYSQL_USER=(.+)/.exec(dotenvFile)?.[1]
 const mysqlPassword = /MYSQL_PASSWORD=(.+)/.exec(dotenvFile)?.[1]
 const mysqlDb = /MYSQL_DATABASE=(.+)/.exec(dotenvFile)?.[1]
 const mysqlHost = /MYSQL_HOST=(.+)/.exec(dotenvFile)?.[1]
 
-if (!mysqlUser || !mysqlPassword || !mysqlDb || !mysqlHost) throw 'set .env'
+if (!mysqlUser || !mysqlPassword || !mysqlDb || !mysqlHost) throw 'set .env.prod'
 
 const dir = readdirSync('./sql').sort()
+const current = Number.parseInt(readFileSync('./sql/migration'), 10)
+if (Number.isNaN(current)) {
+    throw 'Invalid Format migration'
+}
 
 for (const file of dir) {
     const migrationNumber = Number.parseInt(file.slice(0, 3), 10)
     if (Number.isNaN(migrationNumber)) {
         continue
     }
+
+    if (migrationNumber <= current) {
+        console.log(`Skipeed ${file}`)
+        continue
+    }
+
+    console.log(`Running ${file}`)
 
     let replacedFile = readFileSync(`./sql/${file}`, { encoding: 'utf-8' })
     replacedFile = replacedFile.replace(/\$MYSQL_USER/g, mysqlUser)
@@ -32,6 +43,6 @@ for (const file of dir) {
     writeFileSync('/tmp/comame-dev-id-sql.sql', replacedFile)
 
     execSync(`mysql -h${mysqlHost} -u${user} -p${password} < /tmp/comame-dev-id-sql.sql`)
-}
 
-console.log('Finish')
+    writeFileSync('./sql/migration', (migrationNumber).toString())
+}
