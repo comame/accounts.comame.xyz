@@ -5,6 +5,7 @@ const { execSync } = require('child_process')
 
 const user = process.argv[2]
 const password = process.argv[3]
+const untilStable = process.argv[4]
 
 if (!user || !password) throw './scripts/dev-sql.js MYSQL_USER MYSQL_PASSWORD'
 
@@ -18,10 +19,18 @@ const mysqlHost = /MYSQL_HOST=(.+)/.exec(dotenvFile)?.[1]
 if (!mysqlUser || !mysqlPassword || !mysqlDb || !mysqlHost) throw 'set .env'
 
 const dir = readdirSync('./sql').sort()
+const current = Number.parseInt(readFileSync('./sql/migration'), 10)
+if (Number.isNaN(current)) {
+    throw 'Invalid Format migration'
+}
 
 for (const file of dir) {
     const migrationNumber = Number.parseInt(file.slice(0, 3), 10)
     if (Number.isNaN(migrationNumber)) {
+        continue
+    }
+
+    if (untilStable && migrationNumber > current) {
         continue
     }
 
