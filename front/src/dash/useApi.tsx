@@ -29,7 +29,8 @@ type useSuspendApiReturnType<T extends keyof apis> = {
 export function useSuspendApi<T extends keyof apis>(
     token: string,
     endpoint: T,
-    body: request<T>
+    body: request<T>,
+    key: string = endpoint
 ): useSuspendApiReturnType<T> {
     const fetcher = (body: any = {}) =>
         fetch(endpoint, {
@@ -44,11 +45,11 @@ export function useSuspendApi<T extends keyof apis>(
                     // 再レンダリングしない
                     return new Promise(() => {})
                 } else {
-                    suspendApiResponses.set(endpoint, json)
+                    suspendApiResponses.set(key, json)
                 }
             })
 
-    const cached = suspendApiResponses.get(endpoint)
+    const cached = suspendApiResponses.get(key)
 
     const [_s, update] = useState(false)
 
@@ -56,7 +57,7 @@ export function useSuspendApi<T extends keyof apis>(
         return {
             data: cached,
             mutate: () => {
-                suspendApiResponses.delete(endpoint)
+                suspendApiResponses.delete(key)
                 update((v) => !v)
             },
         }

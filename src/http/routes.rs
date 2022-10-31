@@ -139,7 +139,7 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
                 match file {
                     CacheResult::Etag(etag) => {
                         let previous_etag = req.headers().get("If-None-Match").cloned();
-                        if previous_etag.is_none() {
+                        if !cfg!(not(debug_assertions)) || previous_etag.is_none() {
                             set_header(&mut response, "Etag", &format!(r#""{}""#, etag));
                             *response.body_mut() = Body::from(static_file::read(&uri).unwrap());
                         } else {

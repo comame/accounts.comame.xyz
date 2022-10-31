@@ -146,7 +146,8 @@ const Logs = ({ userId }: { userId: string }) => {
     const { data, mutate } = useSuspendApi(
         useToken(),
         "/dash/user/authentication/list",
-        { user_id: userId }
+        { user_id: userId },
+        "/dash/user/authentication/list/" + userId
     )
     useEffect(() => {
         mutate()
