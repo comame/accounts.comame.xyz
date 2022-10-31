@@ -4,11 +4,11 @@ use hyper::{Body, Request, Response, StatusCode};
 use serde::Deserialize;
 use serde_json::{from_str, to_string};
 
-use crate::dash::user;
+use crate::dash::user::{self, get_idtoken_issues};
 use crate::external::session::inspect_token;
 use crate::http::data::dash_standard_request::StandardRequest;
 use crate::http::data::dash_user_request::{UserIdPasswordRequest, UserIdRequest};
-use crate::http::data::dash_user_response::ListUserRespnse;
+use crate::http::data::dash_user_response::{IdTokenIssueResponse, ListUserRespnse};
 use crate::http::parse_body::parse_body;
 
 #[inline]
@@ -155,4 +155,32 @@ pub async fn remove_password(req: Request<Body>) -> Response<Body> {
     user::remove_password(&body.user_id);
 
     Response::new(Body::from("{}"))
+}
+
+pub async fn list_token_issues(req: Request<Body>) -> Response<Body> {
+    let body = parse_body(req.into_body()).await;
+    if body.is_err() {
+        return response_bad_request();
+    }
+    let body = body.unwrap();
+    let body = from_str::<UserIdRequest>(&body);
+    if body.is_err() {
+        return response_bad_request();
+    }
+    let body = body.unwrap();
+
+    let user = inspect_token(
+        "accounts.comame.xyz",
+        &env::var("CLIENT_SECRET").unwrap(),
+        &body.token,
+    );
+    if user.is_none() || user.unwrap() != "admin" {
+        return response_unauthorized();
+    }
+
+    let values = get_idtoken_issues(&body.user_id);
+
+    Response::new(Body::from(
+        to_string(&IdTokenIssueResponse { values }).unwrap(),
+    ))
 }

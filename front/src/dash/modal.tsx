@@ -65,5 +65,5 @@ type bodyProps = {
     children: ReactNode
 }
 export function ModalBody({ children }: bodyProps) {
-    return <div>{children}</div>
+    return <div className="overflow-y-auto max-h-[80vh]">{children}</div>
 }

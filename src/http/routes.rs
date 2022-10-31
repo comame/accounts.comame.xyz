@@ -115,7 +115,7 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
             todo!()
         }
         (&Method::POST, "/dash/user/authentication/list") => {
-            todo!()
+            response = handler::dash_user::list_token_issues(req).await;
         }
         _ => {
             let file = cachable_file::read_with_etag(req.uri().path());

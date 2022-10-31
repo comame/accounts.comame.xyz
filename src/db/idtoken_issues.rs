@@ -1,10 +1,10 @@
 use mysql::{params, prelude::*};
 
-use crate::{data::idtoken_issues::IdTokenIssues, time::unixtime_to_datetime};
+use crate::{data::idtoken_issues::IdTokenIssue, time::unixtime_to_datetime};
 
-use super::mysql::get_conn;
+use super::mysql::{get_conn, mysqldate_to_unixtime};
 
-pub fn insert(claim: &IdTokenIssues) {
+pub fn insert(claim: &IdTokenIssue) {
     get_conn()
         .unwrap()
         .exec_drop(
@@ -16,4 +16,22 @@ pub fn insert(claim: &IdTokenIssues) {
             },
         )
         .unwrap()
+}
+
+pub fn list_by_sub(subject: &str) -> Vec<IdTokenIssue> {
+    let result = get_conn()
+        .unwrap()
+        .exec_map(
+            "SELECT * FROM idtoken_issues WHERE sub=:sub ORDER BY iat DESC",
+            params! {
+                "sub" => subject.to_string()
+            },
+            |(sub, aud, iat)| IdTokenIssue {
+                sub,
+                aud,
+                iat: mysqldate_to_unixtime(iat),
+            },
+        )
+        .unwrap();
+    result
 }

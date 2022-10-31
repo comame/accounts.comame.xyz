@@ -2,6 +2,7 @@ use serde::Serialize;
 
 use crate::auth::password::set_password;
 use crate::auth::session::revoke_session_by_user_id;
+use crate::data::idtoken_issues::IdTokenIssue;
 use crate::data::user::User;
 
 #[derive(Serialize)]
@@ -50,4 +51,8 @@ pub fn remove_password(user_id: &str) {
     revoke_session_by_user_id(user_id);
 
     user.unwrap().remove_password();
+}
+
+pub fn get_idtoken_issues(user_id: &str) -> Vec<IdTokenIssue> {
+    IdTokenIssue::list_by_sub(user_id)
 }

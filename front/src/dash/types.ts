@@ -8,7 +8,8 @@ export type apis = {
     "/dash/user/create": [userIdRequest, empty],
     "/dash/user/delete": [userIdRequest, empty],
     "/dash/user/password/change": [userIdPasswordRequest, empty],
-    "/dash/user/password/remove": [userIdRequest, empty]
+    "/dash/user/password/remove": [userIdRequest, empty],
+    "/dash/user/authentication/list": [userIdRequest, authenticationListResponse]
 }
 
 export type request<T extends keyof apis> = apis[T][0]
@@ -54,4 +55,14 @@ type userListResponse = {
         user_id: string,
         has_password: boolean
     }[]
+}
+
+type idTokenIssue = {
+    sub: string,
+    aud: string,
+    iat: number
+}
+
+type authenticationListResponse = {
+    values: idTokenIssue[]
 }

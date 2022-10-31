@@ -1,5 +1,5 @@
 import { Button, TextField } from "@charcoal-ui/react"
-import React, { useEffect, useState } from "react"
+import React, { Suspense, useEffect, useState } from "react"
 import { Modal, ModalBody, ModalHeader } from "./modal"
 import { fetchApi, useSuspendApi } from "./useApi"
 import { useToken } from "./useToken"
@@ -73,13 +73,15 @@ const UserListItem = ({
 
     const passwordEditOpen = useState(false)
 
+    const logModalOpen = useState(false)
+
     return (
         <div key={user.user_id} className="p-8 mb-16 bg-surface3">
             <h2 className="font-bold text-base mb-8">{user.user_id}</h2>
             <div className="mb-8">
                 パスワード {user.has_password ? "設定済み" : "未設定"}
             </div>
-            <div>
+            <div className="mb-8">
                 <div className="inline-block p-8 pl-0">
                     <Button
                         size="S"
@@ -109,7 +111,54 @@ const UserListItem = ({
                     />
                 </div>
             </div>
+            <div>
+                <Button
+                    size="S"
+                    variant="Navigation"
+                    onClick={() => logModalOpen[1](true)}
+                >
+                    ログイン履歴
+                </Button>
+                <LogModal userId={user.user_id} open={logModalOpen} />
+            </div>
         </div>
+    )
+}
+
+type logModalProps = {
+    open: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
+    userId: string
+}
+const LogModal = ({ open, userId }: logModalProps) => {
+    return (
+        <Modal open={open}>
+            <ModalHeader>ログイン履歴</ModalHeader>
+            <ModalBody>
+                <Suspense fallback={<>Loading</>}>
+                    <Logs userId={userId} />
+                </Suspense>
+            </ModalBody>
+        </Modal>
+    )
+}
+
+const Logs = ({ userId }: { userId: string }) => {
+    const { data, mutate } = useSuspendApi(
+        useToken(),
+        "/dash/user/authentication/list",
+        { user_id: userId }
+    )
+    useEffect(() => {
+        mutate()
+    }, [])
+    return (
+        <ul>
+            {data.values.map((log) => (
+                <li key={log.iat}>
+                    {new Date(log.iat * 1000).toLocaleString()}: {log.aud}
+                </li>
+            ))}
+        </ul>
     )
 }
 
