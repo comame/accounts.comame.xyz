@@ -13,6 +13,7 @@ import {
 } from "@charcoal-ui/react-sandbox"
 import { Bold, ButtonsContainer, Global, InputContainer } from "./layouts"
 import { getUserAgentId } from "./getUserAgentId"
+import { useRequiredInputElement } from "./useRequiredInputElement"
 
 const App = () => {
     const { stateId, relyingPartyId, csrfToken } = useQueryParams()
@@ -99,6 +100,17 @@ const App = () => {
     const [id, setId] = useState("")
     const [password, setPassword] = useState("")
 
+    const formRef = useRef<HTMLFormElement>(null)
+    const idRef = useRef<HTMLInputElement & HTMLTextAreaElement>(null)
+    const passwordRef = useRef<HTMLInputElement & HTMLTextAreaElement>(null)
+    useRequiredInputElement([hidden])
+
+    useEffect(() => {
+        if (!hidden) {
+            idRef.current?.focus()
+        }
+    }, [hidden])
+
     const [sendingPassword, setSendingPassword] = useState(false)
     const [invalidCredential, setInvalidCredential] = useState(false)
     const [isEmptyId, setIsEmptyId] = useState(false)
@@ -107,13 +119,15 @@ const App = () => {
     const onSubmitPassword = async (e: React.FormEvent) => {
         e.preventDefault()
 
+        const valid = formRef.current?.reportValidity()
+
         if (!id) {
             setIsEmptyId(true)
         }
         if (!password) {
             setIsEmptyPassword(true)
         }
-        if (!id || !password) {
+        if (!valid || !id || !password) {
             return
         }
 
@@ -137,6 +151,7 @@ const App = () => {
         if (res.status !== 200) {
             setInvalidCredential(true)
             setSendingPassword(false)
+            passwordRef.current?.focus()
             return
         }
 
@@ -155,7 +170,7 @@ const App = () => {
                             </div>
                         </LayoutItemHeader>
                         <LayoutItemBody>
-                            <form>
+                            <form ref={formRef}>
                                 <InputContainer>
                                     <TextField
                                         showLabel
@@ -174,6 +189,7 @@ const App = () => {
                                                 ? "ID を入力してください"
                                                 : undefined
                                         }
+                                        ref={idRef}
                                     ></TextField>
                                     <TextField
                                         showLabel
@@ -195,6 +211,7 @@ const App = () => {
                                                 ? "パスワードを入力してください"
                                                 : undefined
                                         }
+                                        ref={passwordRef}
                                     ></TextField>
                                 </InputContainer>
                                 <ButtonsContainer>

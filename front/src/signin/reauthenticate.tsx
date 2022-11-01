@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { createRoot } from "react-dom/client"
 
 import { Button, TextField } from "@charcoal-ui/react"
@@ -19,6 +19,7 @@ import {
     Global,
 } from "./layouts"
 import { getUserAgentId } from "./getUserAgentId"
+import { useRequiredInputElement } from "./useRequiredInputElement"
 
 const App = () => {
     const { stateId, relyingPartyId, csrfToken } = useQueryParams()
@@ -65,13 +66,25 @@ const App = () => {
             })
     }, [])
 
+    const formRef = useRef<HTMLFormElement>(null)
+    const passwordRef = useRef<HTMLInputElement & HTMLTextAreaElement>(null)
+    useRequiredInputElement([hidden])
+
     const [id, setId] = useState("")
     const [password, setPassword] = useState("")
+
+    useEffect(() => {
+        if (!hidden) {
+            passwordRef.current?.focus()
+        }
+    }, [hidden])
 
     const onSubmitPassword = async (e: React.FormEvent) => {
         e.preventDefault()
 
-        if (!password) {
+        const valid = formRef.current?.reportValidity()
+
+        if (!valid || !password) {
             setIsEmpty(true)
             return
         }
@@ -95,6 +108,7 @@ const App = () => {
         if (res.status !== 200) {
             setInvalidCredential(true)
             setSendingPassword(false)
+            passwordRef.current?.focus()
             return
         }
 
@@ -123,7 +137,7 @@ const App = () => {
                             </div>
                         </LayoutItemHeader>
                         <LayoutItemBody>
-                            <form>
+                            <form ref={formRef}>
                                 <TextContainer>
                                     <div>
                                         <Bold>{id}</Bold> さん
@@ -151,6 +165,7 @@ const App = () => {
                                                 ? "パスワードを入力してください"
                                                 : undefined
                                         }
+                                        ref={passwordRef}
                                     ></TextField>
                                 </InputContainer>
                                 <ButtonsContainer>
