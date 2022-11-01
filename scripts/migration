@@ -1,48 +1,69 @@
 #! /bin/env node
 
-const { readFileSync, readdirSync, writeFileSync, readFile } = require('fs')
-const { execSync } = require('child_process')
+const { readFileSync, readdirSync, writeFileSync, readFile } = require("fs");
+const { execSync } = require("child_process");
 
-const user = process.argv[2]
-const password = process.argv[3]
+const user = process.argv[2];
+const password = process.argv[3];
 
-if (!user || !password) throw './scripts/dev-sql.js MYSQL_USER MYSQL_PASSWORD'
+if (!user || !password) throw "./scripts/dev-sql.js MYSQL_USER MYSQL_PASSWORD";
 
-const dotenvFile = readFileSync('./.env.prod', { encoding: 'utf-8' })
+const dotenvFile = readFileSync("./.env.prod", { encoding: "utf-8" });
 
-const mysqlUser = /MYSQL_USER=(.+)/.exec(dotenvFile)?.[1]
-const mysqlPassword = /MYSQL_PASSWORD=(.+)/.exec(dotenvFile)?.[1]
-const mysqlDb = /MYSQL_DATABASE=(.+)/.exec(dotenvFile)?.[1]
-const mysqlHost = /MYSQL_HOST=(.+)/.exec(dotenvFile)?.[1]
+const mysqlUser = /MYSQL_USER=(.+)/.exec(dotenvFile)?.[1];
+const mysqlPassword = /MYSQL_PASSWORD=(.+)/.exec(dotenvFile)?.[1];
+const mysqlDb = /MYSQL_DATABASE=(.+)/.exec(dotenvFile)?.[1];
+const mysqlHost = /MYSQL_HOST=(.+)/.exec(dotenvFile)?.[1];
 
-if (!mysqlUser || !mysqlPassword || !mysqlDb || !mysqlHost) throw 'set .env.prod'
+if (!mysqlUser || !mysqlPassword || !mysqlDb || !mysqlHost)
+    throw "set .env.prod";
 
-const dir = readdirSync('./sql').sort()
-const current = Number.parseInt(readFileSync('./sql/migration'), 10)
+const dir = readdirSync("./sql").sort();
+const current = Number.parseInt(readFileSync("./sql/migration"), 10);
 if (Number.isNaN(current)) {
-    throw 'Invalid Format migration'
+    throw "Invalid Format migration";
 }
 
 for (const file of dir) {
-    const migrationNumber = Number.parseInt(file.slice(0, 3), 10)
+    const migrationNumber = Number.parseInt(file.slice(0, 3), 10);
     if (Number.isNaN(migrationNumber)) {
-        continue
+        continue;
     }
 
     if (migrationNumber <= current) {
-        console.log(`Skipeed ${file}`)
-        continue
+        console.log(`Skipeed ${file}`);
+        continue;
     }
 
-    console.log(`Running ${file}`)
+    console.log(`Running ${file}`);
 
-    let replacedFile = readFileSync(`./sql/${file}`, { encoding: 'utf-8' })
-    replacedFile = replacedFile.replace(/\$MYSQL_USER/g, mysqlUser)
-    replacedFile = replacedFile.replace(/\$MYSQL_PASSWORD/g, mysqlPassword)
-    replacedFile = replacedFile.replace(/\$MYSQL_DATABASE/g, mysqlDb)
-    writeFileSync('/tmp/comame-dev-id-sql.sql', replacedFile)
+    let replacedFile = readFileSync(`./sql/${file}`, { encoding: "utf-8" });
+    replacedFile = replacedFile.replace(/\$MYSQL_USER/g, mysqlUser);
+    replacedFile = replacedFile.replace(/\$MYSQL_PASSWORD/g, mysqlPassword);
+    replacedFile = replacedFile.replace(/\$MYSQL_DATABASE/g, mysqlDb);
+    writeFileSync("/tmp/comame-dev-id-sql.sql", replacedFile);
 
-    execSync(`mysql -h${mysqlHost} -u${user} -p${password} ${mysqlDb} < /tmp/comame-dev-id-sql.sql`)
+    execSync(
+        `mysql -h${mysqlHost} -u${user} -p${password} ${mysqlDb} < /tmp/comame-dev-id-sql.sql`
+    );
 
-    writeFileSync('./sql/migration', (migrationNumber).toString())
+    writeFileSync("./sql/migration", migrationNumber.toString());
 }
+
+const tables = execSync(
+    `echo "show tables" | mysql -h${mysqlHost} -u${user} -p${password} ${mysqlDb}`
+)
+    .toString()
+    .split("\n")
+    .slice(1)
+    .filter((v) => v);
+
+let schemas = "";
+for (const table of tables) {
+    const schema = execSync(
+        `echo "show create table ${table}" | mysql -h${mysqlHost} -u${user} -p${password} ${mysqlDb}`
+    ).toString().split('\n').slice(1)[0].replaceAll("\\n", "\n") + ';';
+    schemas += schema.replaceAll("\\n", "\n") + "\n\n";
+}
+
+writeFileSync("./sql/schemas.sql", schemas)
