@@ -117,7 +117,7 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
         _ => {
             let file = cachable_file::read_with_etag(req.uri().path());
 
-            let uri = req.uri().to_string();
+            let uri = req.uri().path().to_string();
             let extension = extract_extension(&uri);
             let content_type = get_mime_types(&extension);
 
