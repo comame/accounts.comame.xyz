@@ -4,8 +4,8 @@ use hyper::{Body, Request, Response, StatusCode};
 use serde::Deserialize;
 use serde_json::{from_str, to_string};
 
+use crate::dash::signin::validate_token;
 use crate::dash::user::{self, get_idtoken_issues};
-use crate::external::session::inspect_token;
 use crate::http::data::dash_standard_request::StandardRequest;
 use crate::http::data::dash_user_request::{UserIdPasswordRequest, UserIdRequest};
 use crate::http::data::dash_user_response::{IdTokenIssueResponse, ListUserRespnse};
@@ -37,12 +37,7 @@ pub async fn list_user(req: Request<Body>) -> Response<Body> {
     }
     let body = body.unwrap();
 
-    let user = inspect_token(
-        "accounts.comame.xyz",
-        &env::var("CLIENT_SECRET").unwrap(),
-        &body.token,
-    );
-    if user.is_none() || user.unwrap() != "admin" {
+    if !validate_token(&body.token) {
         return response_unauthorized();
     }
 
@@ -65,12 +60,7 @@ pub async fn create_user(req: Request<Body>) -> Response<Body> {
     }
     let body = body.unwrap();
 
-    let user = inspect_token(
-        "accounts.comame.xyz",
-        &env::var("CLIENT_SECRET").unwrap(),
-        &body.token,
-    );
-    if user.is_none() || user.unwrap() != "admin" {
+    if !validate_token(&body.token) {
         return response_unauthorized();
     }
 
@@ -91,12 +81,7 @@ pub async fn delete_user(req: Request<Body>) -> Response<Body> {
     }
     let body = body.unwrap();
 
-    let user = inspect_token(
-        "accounts.comame.xyz",
-        &env::var("CLIENT_SECRET").unwrap(),
-        &body.token,
-    );
-    if user.is_none() || user.unwrap() != "admin" {
+    if !validate_token(&body.token) {
         return response_unauthorized();
     }
 
@@ -117,12 +102,7 @@ pub async fn insert_password(req: Request<Body>) -> Response<Body> {
     }
     let body = body.unwrap();
 
-    let user = inspect_token(
-        "accounts.comame.xyz",
-        &env::var("CLIENT_SECRET").unwrap(),
-        &body.token,
-    );
-    if user.is_none() || user.unwrap() != "admin" {
+    if !validate_token(&body.token) {
         return response_unauthorized();
     }
 
@@ -143,12 +123,7 @@ pub async fn remove_password(req: Request<Body>) -> Response<Body> {
     }
     let body = body.unwrap();
 
-    let user = inspect_token(
-        "accounts.comame.xyz",
-        &env::var("CLIENT_SECRET").unwrap(),
-        &body.token,
-    );
-    if user.is_none() || user.unwrap() != "admin" {
+    if !validate_token(&body.token) {
         return response_unauthorized();
     }
 
@@ -169,12 +144,7 @@ pub async fn list_token_issues(req: Request<Body>) -> Response<Body> {
     }
     let body = body.unwrap();
 
-    let user = inspect_token(
-        "accounts.comame.xyz",
-        &env::var("CLIENT_SECRET").unwrap(),
-        &body.token,
-    );
-    if user.is_none() || user.unwrap() != "admin" {
+    if !validate_token(&body.token) {
         return response_unauthorized();
     }
 

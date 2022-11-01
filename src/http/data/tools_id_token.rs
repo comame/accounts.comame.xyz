@@ -12,5 +12,4 @@ pub struct IdTokenRequest {
 #[derive(Serialize, Deserialize)]
 pub struct IdTokenResponse {
     pub claim: IdTokenClaim,
-    pub session: String,
 }

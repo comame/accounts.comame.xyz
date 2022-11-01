@@ -13,7 +13,8 @@ use crate::http::data::tools_id_token::{IdTokenRequest, IdTokenResponse};
 use crate::http::parse_body::parse_body;
 use crate::time::now;
 
-const PREFIX: &str = "DASH-SIGN";
+const PREFIX_NONCE: &str = "DASH-SIGN";
+const PREFIX_TOKEN: &str = "DASH-TOKEN";
 
 /// Returns redirect url
 pub fn signin() -> String {
@@ -21,7 +22,7 @@ pub fn signin() -> String {
     let nonce = random_str(16);
     let origin = env::var("HOST").unwrap();
 
-    let redis_key = format!("{PREFIX}:{state}:{nonce}");
+    let redis_key = format!("{PREFIX_NONCE}:{state}:{nonce}");
     redis::set(&redis_key, "_", 60);
 
     let redirect_uri = format!("{origin}/dash/callback");
@@ -107,20 +108,19 @@ pub async fn callback(state: &str, code: &str) -> Result<String, ()> {
     let session_response = session_response.unwrap();
 
     let claim = session_response.claim;
-    let token = session_response.session;
 
     if claim.nonce.is_none() {
         dbg!("invalid");
         return Err(());
     }
 
-    let redis_key = format!("{PREFIX}:{state}:{}", claim.nonce.unwrap());
-    let redis_value = redis::get(&redis_key);
-    if redis_value.is_none() {
+    let nonce_redis_key = format!("{PREFIX_NONCE}:{state}:{}", claim.nonce.unwrap());
+    let saved_nonce = redis::get(&nonce_redis_key);
+    if saved_nonce.is_none() {
         dbg!("invalid");
         return Err(());
     }
-    redis::del(&redis_key);
+    redis::del(&nonce_redis_key);
 
     if claim.aud != "accounts.comame.xyz" {
         dbg!("invalid");
@@ -137,5 +137,15 @@ pub async fn callback(state: &str, code: &str) -> Result<String, ()> {
         return Err(());
     }
 
+    let token = random_str(60);
+    let token_redis_key = format!("{PREFIX_TOKEN}:{token}");
+    redis::set(&token_redis_key, "_", 5 * 60);
+
     Ok(token)
+}
+
+pub fn validate_token(token: &str) -> bool {
+    let token_redis_key = format!("{PREFIX_TOKEN}:{token}");
+    let token = redis::get(&token_redis_key);
+    token.is_some()
 }

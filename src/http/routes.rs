@@ -63,9 +63,6 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
         (&Method::POST, "/tools/id-token") => {
             response = handler::tools_id_token::handle(req).await;
         }
-        (&Method::POST, "/tools/session") => {
-            response = handler::tools_session_inspect::handle(req).await;
-        }
         (&Method::POST, "/tools/session-revoke") => {
             todo!()
         }

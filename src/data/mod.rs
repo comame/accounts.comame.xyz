@@ -1,6 +1,5 @@
 pub mod authentication;
 pub mod authentication_failure;
-pub mod external;
 pub mod idtoken_issues;
 pub mod mail;
 pub mod oidc_flow;

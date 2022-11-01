@@ -4,7 +4,7 @@ use hyper::{Body, Request, Response, StatusCode};
 use serde_json::{from_str, to_string};
 
 use crate::dash::relying_party;
-use crate::external::session::inspect_token;
+use crate::dash::signin::validate_token;
 use crate::http::data::dash_rp_request::{
     RelyingPartyAddRedirectUriRequest, RelyingPartyClientIdRequest,
 };
@@ -38,12 +38,7 @@ pub async fn list_rp(req: Request<Body>) -> Response<Body> {
     }
     let body = body.unwrap();
 
-    let user = inspect_token(
-        "accounts.comame.xyz",
-        &env::var("CLIENT_SECRET").unwrap(),
-        &body.token,
-    );
-    if user.is_none() || user.unwrap() != "admin" {
+    if !validate_token(&body.token) {
         return response_unauthorized();
     }
 
@@ -66,12 +61,7 @@ pub async fn create_rp(req: Request<Body>) -> Response<Body> {
     }
     let body = body.unwrap();
 
-    let user = inspect_token(
-        "accounts.comame.xyz",
-        &env::var("CLIENT_SECRET").unwrap(),
-        &body.token,
-    );
-    if user.is_none() || user.unwrap() != "admin" {
+    if !validate_token(&body.token) {
         return response_unauthorized();
     }
 
@@ -101,12 +91,7 @@ pub async fn delete_rp(req: Request<Body>) -> Response<Body> {
     }
     let body = body.unwrap();
 
-    let user = inspect_token(
-        "accounts.comame.xyz",
-        &env::var("CLIENT_SECRET").unwrap(),
-        &body.token,
-    );
-    if user.is_none() || user.unwrap() != "admin" {
+    if !validate_token(&body.token) {
         return response_unauthorized();
     }
 
@@ -127,12 +112,7 @@ pub async fn add_redirect_uri(req: Request<Body>) -> Response<Body> {
     }
     let body = body.unwrap();
 
-    let user = inspect_token(
-        "accounts.comame.xyz",
-        &env::var("CLIENT_SECRET").unwrap(),
-        &body.token,
-    );
-    if user.is_none() || user.unwrap() != "admin" {
+    if !validate_token(&body.token) {
         return response_unauthorized();
     }
 
@@ -153,12 +133,7 @@ pub async fn delete_redirect_uri(req: Request<Body>) -> Response<Body> {
     }
     let body = body.unwrap();
 
-    let user = inspect_token(
-        "accounts.comame.xyz",
-        &env::var("CLIENT_SECRET").unwrap(),
-        &body.token,
-    );
-    if user.is_none() || user.unwrap() != "admin" {
+    if !validate_token(&body.token) {
         return response_unauthorized();
     }
 
