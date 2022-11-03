@@ -17,7 +17,7 @@ use crate::oidc::authentication_request::{post_authentication, pronpt_none_fail_
 
 #[inline]
 fn response_bad_request() -> Response<Body> {
-    let mut response = Response::new(Body::from(r#"{"message": "Bad Request"}"#));
+    let mut response = Response::new(Body::from(r#"{"message": "bad_request"}"#));
     *response.status_mut() = StatusCode::BAD_REQUEST;
     response
 }

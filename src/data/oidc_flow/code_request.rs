@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use crate::http::parse_form_urlencoded::parse;
 
+#[derive(Debug)]
 pub struct CodeRequest {
     pub grant_type: String,
     pub code: String,

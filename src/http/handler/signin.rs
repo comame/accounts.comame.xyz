@@ -15,7 +15,21 @@ use crate::http::static_file;
 
 #[inline]
 fn response_bad_request() -> Response<Body> {
-    let mut response = Response::new(Body::from(r#"{"message": "Bad Request"}"#));
+    let mut response = Response::new(Body::from(r#"{"error": "bad_request"}"#));
+    *response.status_mut() = StatusCode::BAD_REQUEST;
+    response
+}
+
+#[inline]
+fn response_invalid_credential() -> Response<Body> {
+    let mut response = Response::new(Body::from(r#"{"error": "invalid_credential"}"#));
+    *response.status_mut() = StatusCode::BAD_REQUEST;
+    response
+}
+
+#[inline]
+fn response_no_session() -> Response<Body> {
+    let mut response = Response::new(Body::from(r#"{"error": "no_session"}"#));
     *response.status_mut() = StatusCode::BAD_REQUEST;
     response
 }
@@ -58,7 +72,11 @@ pub async fn sign_in_with_password(req: Request<Body>) -> Response<Body> {
         password::authenticate(&user_id, &password, &audience, LoginPrompt::Login, &ua_id);
     let is_token_collect = csrf_token::validate_keep_token(&token);
 
-    if !(is_authenticated && is_token_collect) {
+    if !is_authenticated {
+        return response_invalid_credential();
+    }
+
+    if !is_token_collect {
         return response_bad_request();
     }
 
@@ -77,31 +95,31 @@ pub async fn sign_in_with_session(req: Request<Body>) -> Response<Body> {
     let cookie = req.headers().get("Cookie");
 
     if cookie.is_none() {
-        return response_bad_request();
+        return response_no_session();
     }
 
     let cookie = parse_cookie(cookie.unwrap().to_str().unwrap());
 
     if cookie.is_err() {
-        return response_bad_request();
+        return response_no_session();
     }
 
     let cookie_map = cookie.unwrap();
     let session_token = cookie_map.get("Session");
 
     if session_token.is_none() {
-        return response_bad_request();
+        return response_no_session();
     }
 
     let body = parse_body(req.into_body()).await;
     if body.is_err() {
-        return response_bad_request();
+        return response_no_session();
     }
 
     let request = match from_str::<SessionSignInRequest>(&body.unwrap()) {
         Ok(v) => v,
         Err(_) => {
-            return response_bad_request();
+            return response_no_session();
         }
     };
 
@@ -113,7 +131,7 @@ pub async fn sign_in_with_session(req: Request<Body>) -> Response<Body> {
     );
 
     if user.is_none() {
-        return response_bad_request();
+        return response_no_session();
     }
 
     let user = user.unwrap();

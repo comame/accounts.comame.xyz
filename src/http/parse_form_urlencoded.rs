@@ -14,7 +14,7 @@ pub fn parse(body: &str) -> Result<HashMap<String, String>, ()> {
     }
 
     for c in body.chars() {
-        if is_key && c == '&' || is_value && c == '=' {
+        if is_value && c == '=' {
             return Err(());
         }
 
@@ -39,6 +39,21 @@ pub fn parse(body: &str) -> Result<HashMap<String, String>, ()> {
             );
             tmp_key = vec![];
             tmp_value = vec![];
+        } else if is_key && c == '&' {
+            is_key = true;
+            is_value = false;
+
+            if tmp_key.is_empty() {
+                return Err(());
+            }
+
+            map.insert(
+                decode(&tmp_key.iter().collect::<String>()),
+                String::from(""),
+            );
+
+            tmp_key = vec![];
+            tmp_value = vec![];
         } else if is_key {
             tmp_key.push(c);
         } else if is_value {
@@ -46,10 +61,6 @@ pub fn parse(body: &str) -> Result<HashMap<String, String>, ()> {
         } else {
             panic!();
         }
-    }
-
-    if is_key || tmp_value.is_empty() {
-        return Err(());
     }
 
     map.insert(
@@ -73,6 +84,15 @@ mod tests {
         let map = parse("field1=value1&field2=value2").unwrap();
         assert!(map.len() == 2);
         assert_eq!(map.get("field1").unwrap(), "value1");
+        assert_eq!(map.get("field2").unwrap(), "value2");
+
+        let map = parse("field").unwrap();
+        assert!(map.len() == 1);
+        assert_eq!(map.get("field").unwrap(), "");
+
+        let map = parse("field1&field2=value2").unwrap();
+        assert!(map.len() == 2);
+        assert_eq!(map.get("field1").unwrap(), "");
         assert_eq!(map.get("field2").unwrap(), "value2");
     }
 

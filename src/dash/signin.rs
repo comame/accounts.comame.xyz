@@ -26,7 +26,7 @@ pub fn signin() -> String {
     redis::set(&redis_key, "_", 60);
 
     let redirect_uri = format!("{origin}/dash/callback");
-    format!("{origin}/authenticate?client_id=accounts.comame.xyz&redirect_uri={redirect_uri}&scope=openid+code&response_type=code&state={state}&nonce={nonce}&prompt=login")
+    format!("{origin}/authenticate?client_id=accounts.comame.xyz&redirect_uri={redirect_uri}&scope=openid&response_type=code&state={state}&nonce={nonce}&prompt=login")
 }
 
 /// Returns token
