@@ -66,11 +66,7 @@ pub fn pre_authenticate(
         });
     }
 
-    let flow = if request.scope.is("openid") {
-        OidcFlow::Implicit
-    } else if request.scope.is("openid code") {
-        OidcFlow::Code
-    } else {
+    if !request.scope.is("openid") {
         let response = AuthenticationErrorResponse {
             error: ErrorCode::InvalidScope,
             state: request.state,
@@ -81,11 +77,13 @@ pub fn pre_authenticate(
             flow: Some(OidcFlow::Code), // フローは未確定だが、クエリパラメータで返すのでこれでよい
             response,
         });
-    };
+    }
 
-    if (matches!(flow, OidcFlow::Implicit) && request.response_type != "id_token")
-        || (matches!(flow, OidcFlow::Code) && request.response_type != "code")
-    {
+    let flow = if request.response_type == "code" {
+        OidcFlow::Code
+    } else if request.response_type == "id_token" {
+        OidcFlow::Implicit
+    } else {
         let response = AuthenticationErrorResponse {
             error: ErrorCode::UnsupportedResponseType,
             state: request.state,
@@ -93,10 +91,10 @@ pub fn pre_authenticate(
         dbg!("invalid");
         return Err(AuthenticationError {
             redirect_uri: Some(request.redirect_uri),
-            flow: Some(flow),
+            flow: Some(OidcFlow::Code), // フローは未確定だが、クエリパラメータで返すのでこれでよい
             response,
         });
-    }
+    };
 
     if matches!(flow, OidcFlow::Implicit) && request.nonce.is_none() {
         let response = AuthenticationErrorResponse {
