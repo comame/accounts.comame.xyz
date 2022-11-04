@@ -2,7 +2,7 @@ use crate::data::authentication::{Authentication, AuthenticationMethod};
 use crate::data::session::Session;
 use crate::data::user::User;
 use crate::db::session::{
-    delete_by_token, delete_by_user, delete_expired, insert_session, select_session_by_token,
+    delete_by_token, delete_by_user, insert_session, select_session_by_token,
 };
 use crate::db::user::find_user_by_id;
 
@@ -30,8 +30,6 @@ pub fn authenticate(
     is_continue: bool,
     user_agent_id: &str,
 ) -> Option<User> {
-    delete_expired(SESSION_EXPIRE_MIN);
-
     if token.is_empty() {
         return None;
     }

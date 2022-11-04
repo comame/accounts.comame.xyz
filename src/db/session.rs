@@ -40,6 +40,7 @@ pub fn select_session_by_token(token: &str, expire_min: u64) -> Option<Session> 
     Some(session.clone())
 }
 
+#[allow(dead_code)]
 pub fn delete_expired(expire_min: u64) {
     get_conn().unwrap().exec_drop(
         "DELETE FROM sessions WHERE TIMESTAMPDIFF(MINUTE, created_at, CURRENT_TIME()) >= :expire_min",
