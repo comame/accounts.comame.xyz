@@ -20,6 +20,7 @@ import {
 } from "./layouts"
 import { getUserAgentId } from "./getUserAgentId"
 import { useRequiredInputElement } from "./useRequiredInputElement"
+import { fetchApi } from "./fetchApi"
 
 const App = () => {
     const { stateId, relyingPartyId, csrfToken } = useQueryParams()
@@ -39,31 +40,30 @@ const App = () => {
     const [isEmpty, setIsEmpty] = useState(false)
 
     useEffect(() => {
-        fetch("/api/signin-session", {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                csrf_token: csrfToken,
-                relying_party_id: relyingPartyId,
-                user_agent_id: getUserAgentId(),
-            }),
+        fetchApi("/api/signin-session", {
+            csrf_token: csrfToken,
+            relying_party_id: relyingPartyId,
+            user_agent_id: getUserAgentId(),
+        }).then((res) => {
+            if ("error" in res && res.error === "bad_request") {
+                throw "bad_request"
+            }
+
+            if ("error" in res && res.error === "no_session") {
+                location.replace(
+                    `/signin?sid=${stateId}&cid=${encodeURIComponent(
+                        relyingPartyId
+                    )}`
+                )
+            }
+
+            if ("error" in res) {
+                throw "unreachable"
+            }
+
+            setId(res.user_id)
+            setHidden(false)
         })
-            .then((res) => res.json())
-            .then((json) => {
-                if (json["user_id"]) {
-                    setId(json["user_id"])
-                    setHidden(false)
-                } else {
-                    location.replace(
-                        `/signin?sid=${stateId}&cid=${encodeURIComponent(
-                            relyingPartyId
-                        )}`
-                    )
-                }
-            })
     }, [])
 
     const formRef = useRef<HTMLFormElement>(null)
@@ -91,25 +91,24 @@ const App = () => {
 
         setSendingPassword(true)
 
-        const body = JSON.stringify({
+        const body = {
             user_id: id,
             password,
             csrf_token: csrfToken,
             relying_party_id: relyingPartyId,
             user_agent_id: getUserAgentId(),
-        })
-        const res = await fetch("/api/signin-password", {
-            method: "POST",
-            body,
-            headers: {
-                "Content-Type": "application/json",
-            },
-        })
-        if (res.status !== 200) {
-            setInvalidCredential(true)
-            setSendingPassword(false)
-            passwordRef.current?.focus()
-            return
+        }
+        const res = await fetchApi("/api/signin-password", body)
+
+        if ("error" in res) {
+            if (res.error === "bad_request") {
+                throw "bad_request"
+            } else if (res.error === "invalid_credential") {
+                setInvalidCredential(true)
+                setSendingPassword(false)
+                passwordRef.current?.focus()
+                return
+            }
         }
 
         setLoginType("password")

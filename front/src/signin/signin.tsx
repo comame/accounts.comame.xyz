@@ -14,10 +14,10 @@ import {
 import { Bold, ButtonsContainer, Global, InputContainer } from "./layouts"
 import { getUserAgentId } from "./getUserAgentId"
 import { useRequiredInputElement } from "./useRequiredInputElement"
+import { fetchApi } from "./fetchApi"
 
 const App = () => {
     const { stateId, relyingPartyId, csrfToken } = useQueryParams()
-
     const hash = useMemo(() => location.hash.slice(1), [])
     const maxage = useMemo(
         () =>
@@ -41,60 +41,58 @@ const App = () => {
     )
 
     useEffect(() => {
-        fetch("/api/signin-session", {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                csrf_token: csrfToken,
-                relying_party_id: relyingPartyId,
-                user_agent_id: getUserAgentId(),
-            }),
-        })
-            .then((res) => {
-                if (res.status !== 200 && hash === "nointeraction") {
-                    return Promise.reject("nointeraction-fail")
-                } else if (res.status !== 200) {
-                    return Promise.reject("no-session")
-                }
-                return res.json()
-            })
-            .catch((reason) => {
-                if (reason === "nointeraction-fail") {
+        fetchApi("/api/signin-session", {
+            csrf_token: csrfToken,
+            relying_party_id: relyingPartyId,
+            user_agent_id: getUserAgentId(),
+        }).then((res) => {
+            if ("error" in res && res.error === "bad_request") {
+                throw "bad_request"
+            }
+
+            if (hash === "nointeraction") {
+                if ("error" in res && res.error === "no_session") {
                     failRef.current?.submit()
-                } else if (reason === "no-session") {
-                    setHidden(false)
+                } else {
+                    setLoginType("session")
+                    next()
                 }
-            })
-            .then((json) => {
-                if (!json) {
-                    return
-                }
-                if (hash !== "maxage") {
-                    // setLoginType("session")
-                    // next()
+                return
+            }
+
+            if ("error" in res && res.error === "no_session") {
+                setHidden(false)
+                return
+            }
+
+            if ("error" in res) {
+                throw "unreachable"
+            }
+
+            if (hash === "maxage") {
+                const lastAuth = res.last_auth
+                const now = Math.trunc(Date.now() / 1000)
+                if (lastAuth && now <= lastAuth + maxage - 3 /* lag */) {
+                    setLoginType("session")
+                    next()
+                } else {
                     location.replace(
-                        `/confirm?sid=${stateId}&cid=${encodeURIComponent(
+                        `/reauthenticate?sid=${stateId}&cid=${encodeURIComponent(
                             relyingPartyId
                         )}`
                     )
-                } else {
-                    const lastAuth = json["last_auth"]
-                    const now = Math.trunc(Date.now() / 1000)
-                    if (now <= lastAuth + maxage - 3 /* lag */) {
-                        setLoginType("session")
-                        next()
-                    } else {
-                        location.replace(
-                            `/reauthenticate?sid=${stateId}&cid=${encodeURIComponent(
-                                relyingPartyId
-                            )}`
-                        )
-                    }
                 }
-            })
+                return
+            }
+
+            // setLoginType("sessiozn")
+            // next()
+            location.replace(
+                `/confirm?sid=${stateId}&cid=${encodeURIComponent(
+                    relyingPartyId
+                )}`
+            )
+        })
     }, [])
 
     const [id, setId] = useState("")
@@ -133,26 +131,27 @@ const App = () => {
 
         setSendingPassword(true)
 
-        const body = JSON.stringify({
+        const res = await fetchApi("/api/signin-password", {
             user_id: id,
             password,
             csrf_token: csrfToken,
             relying_party_id: relyingPartyId,
             user_agent_id: getUserAgentId(),
         })
-        const res = await fetch("/api/signin-password", {
-            method: "POST",
-            body,
-            headers: {
-                "Content-Type": "application/json",
-            },
-        })
 
-        if (res.status !== 200) {
+        if ("error" in res && res.error === "invalid_credential") {
             setInvalidCredential(true)
             setSendingPassword(false)
             passwordRef.current?.focus()
             return
+        }
+
+        if ("error" in res && res.error === "bad_request") {
+            throw "bad_request"
+        }
+
+        if ("error" in res) {
+            throw "unreachable"
         }
 
         setLoginType("password")
