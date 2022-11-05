@@ -211,7 +211,7 @@ pub fn post_authentication(
     }
     let state = state.unwrap();
 
-    if state.relying_party_id.clone() != relying_party_id {
+    if state.relying_party_id != relying_party_id {
         let response = AuthenticationErrorResponse {
             error: ErrorCode::InvalidRequest,
             state: state.state,

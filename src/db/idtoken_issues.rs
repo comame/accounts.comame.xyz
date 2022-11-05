@@ -20,7 +20,8 @@ pub fn insert(claim: &IdTokenIssue) {
 }
 
 pub fn list_by_sub(subject: &str) -> Vec<IdTokenIssue> {
-    let result = get_conn()
+    
+    get_conn()
         .unwrap()
         .exec_map(
             "SELECT * FROM idtoken_issues WHERE sub=:sub ORDER BY iat DESC",
@@ -33,6 +34,5 @@ pub fn list_by_sub(subject: &str) -> Vec<IdTokenIssue> {
                 iat: mysqldate_to_unixtime(iat),
             },
         )
-        .unwrap();
-    result
+        .unwrap()
 }

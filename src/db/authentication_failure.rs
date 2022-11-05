@@ -26,5 +26,5 @@ pub fn count_recent_log(user_id: &str) -> u8 {
         params! { "user" => user_id.to_string(), "expire" => 24 * 60 },
         |(count,)| count
     ).unwrap();
-    result.first().unwrap().clone()
+    *result.first().unwrap()
 }
