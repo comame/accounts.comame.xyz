@@ -27,6 +27,20 @@ pub fn create(client_id: &str) -> Result<RelyingPartyRawSecret, ()> {
     })
 }
 
+pub fn update_secret(client_id: &str) -> Result<RelyingPartyRawSecret, ()> {
+    let rp = RelyingParty::find(client_id);
+    if rp.is_none() {
+        return Err(());
+    }
+
+    let new_secret = RelyingParty::update_secret(client_id)?;
+
+    Ok(RelyingPartyRawSecret {
+        rp: rp.unwrap(),
+        raw_secret: new_secret,
+    })
+}
+
 pub fn delete(client_id: &str) {
     RelyingParty::delete(client_id);
 }

@@ -66,8 +66,8 @@ const RelyingPartyListItem = ({
     updateView: () => void
 }) => {
     const deleteModalOpen = useState(false)
-
     const editModalOpen = useState(false)
+    const updateSecretModalOpen = useState(false)
 
     return (
         <div key={rp.client_id} className="p-8 mb-16 bg-surface3">
@@ -77,6 +77,10 @@ const RelyingPartyListItem = ({
                 updateView={updateView}
             />
             <EditModal open={editModalOpen} rp={rp} updateView={updateView} />
+            <NewSecretModal
+                open={updateSecretModalOpen}
+                client_id={rp.client_id}
+            />
             <h2 className="font-bold text-base">{rp.client_id}</h2>
             <div>
                 <div className="inline-block p-8 pl-0">
@@ -95,6 +99,15 @@ const RelyingPartyListItem = ({
                         onClick={() => deleteModalOpen[1](true)}
                     >
                         DELETE
+                    </Button>
+                </div>
+                <div className="inline-block p-8 pl-0">
+                    <Button
+                        size="S"
+                        variant="Overlay"
+                        onClick={() => updateSecretModalOpen[1](true)}
+                    >
+                        UPDATE client_secret
                     </Button>
                 </div>
                 <h3 className="font-bold">Redirect URIs</h3>
@@ -223,6 +236,38 @@ const DeleteRPModal = ({ open, clientId, updateView }: deleteRPModalProps) => {
                 >
                     削除する
                 </Button>
+            </ModalBody>
+        </Modal>
+    )
+}
+
+type newSecretModalProps = {
+    open: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
+    client_id: string
+}
+const NewSecretModal = ({ open, client_id }: newSecretModalProps) => {
+    const [secret, setSecret] = useState("")
+    const onClick = async () => {
+        const res = await fetchApi(useToken(), "/dash/rp/update_secret", {
+            client_id,
+        })
+        setSecret(res.client_secret)
+    }
+    useEffect(() => {
+        if (!open[0]) {
+            setSecret("")
+        }
+    }, [open[0]])
+    return (
+        <Modal open={open} isDissmissable={false}>
+            <ModalHeader>client_secret の更新</ModalHeader>
+            <ModalBody>
+                <div className="mb-8">
+                    <Button variant="Danger" fixed onClick={onClick}>
+                        更新する
+                    </Button>
+                </div>
+                <TextField label="client_secret" showLabel value={secret} />
             </ModalBody>
         </Modal>
     )

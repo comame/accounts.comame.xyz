@@ -108,6 +108,19 @@ pub fn register_relying_party(client_id: &str, hashed_secret: &str) -> Result<()
     }
 }
 
+pub fn update_secret(client_id: &str, hashed_secret: &str) {
+    get_conn()
+        .unwrap()
+        .exec_drop(
+            "UPDATE relying_parties SET hashed_client_secret=:secret WHERE client_id=:id",
+            params! {
+                "secret" => hashed_secret,
+                "id" => client_id
+            },
+        )
+        .unwrap();
+}
+
 pub fn delete_relying_party(client_id: &str) {
     get_conn()
         .unwrap()

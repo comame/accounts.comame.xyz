@@ -81,6 +81,9 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
         (&Method::POST, "/dash/rp/create") => {
             response = handler::dash_relying_party::create_rp(req).await;
         }
+        (&Method::POST, "/dash/rp/update_secret") => {
+            response = handler::dash_relying_party::update_secret(req).await;
+        }
         (&Method::POST, "/dash/rp/delete") => {
             response = handler::dash_relying_party::delete_rp(req).await;
         }

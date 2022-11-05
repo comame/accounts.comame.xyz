@@ -1,12 +1,13 @@
 use std::ops::Not;
 
+use hyper::client;
 use serde::Serialize;
 
 use crate::auth::password::calculate_password_hash;
 use crate::crypto::rand::random_str;
 use crate::db::relying_party::{
     add_redirect_uri, delete_relying_party, find_relying_party_by_id, list_all_relying_party,
-    register_relying_party, remove_redirect_uri,
+    register_relying_party, remove_redirect_uri, update_secret,
 };
 
 #[derive(Eq, PartialEq, Debug, Serialize)]
@@ -35,6 +36,14 @@ impl RelyingParty {
         let hashed = calculate_password_hash(&client_secret, client_id);
         register_relying_party(client_id, &hashed)?;
         Ok(client_secret)
+    }
+
+    /// Returns raw client_secret
+    pub fn update_secret(client_id: &str) -> Result<String, ()> {
+        let new_secret = random_str(32);
+        let hashed = calculate_password_hash(&new_secret, client_id);
+        update_secret(client_id, &hashed);
+        Ok(new_secret)
     }
 
     pub fn add_redirect_uri(&self, redirect_uri: &str) -> Result<(), ()> {

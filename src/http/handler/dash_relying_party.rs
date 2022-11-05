@@ -1,5 +1,3 @@
-
-
 use hyper::{Body, Request, Response, StatusCode};
 use serde_json::{from_str, to_string};
 
@@ -69,6 +67,37 @@ pub async fn create_rp(req: Request<Body>) -> Response<Body> {
     if result.is_err() {
         return response_bad_request();
     }
+    let result = result.unwrap();
+
+    let response = RelyingPartyRawSecretResponse {
+        client_id: result.rp.client_id,
+        client_secret: result.raw_secret,
+    };
+
+    Response::new(Body::from(to_string(&response).unwrap()))
+}
+
+pub async fn update_secret(req: Request<Body>) -> Response<Body> {
+    let body = parse_body(req.into_body()).await;
+    if body.is_err() {
+        return response_bad_request();
+    }
+    let body = body.unwrap();
+    let body = from_str::<RelyingPartyClientIdRequest>(&body);
+    if body.is_err() {
+        return response_bad_request();
+    }
+    let body = body.unwrap();
+
+    if !validate_token(&body.token) {
+        return response_unauthorized();
+    }
+
+    let result = relying_party::update_secret(&body.client_id);
+    if result.is_err() {
+        return response_bad_request();
+    }
+
     let result = result.unwrap();
 
     let response = RelyingPartyRawSecretResponse {
