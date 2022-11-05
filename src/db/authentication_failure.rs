@@ -1,7 +1,9 @@
-use crate::{data::authentication_failure::AuthenticationFailure, time::unixtime_to_datetime};
-use mysql::{params, prelude::*};
+use mysql::params;
+use mysql::prelude::*;
 
 use super::mysql::get_conn;
+use crate::data::authentication_failure::AuthenticationFailure;
+use crate::time::unixtime_to_datetime;
 
 pub fn insert_fail(fail: &AuthenticationFailure) {
     get_conn()

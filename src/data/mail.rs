@@ -1,12 +1,10 @@
-use serde::{Deserialize, Serialize};
-
 use std::env::var;
 
-use crate::{
-    db::mail::{insert_mail, list_new_mail},
-    mail::send_mail,
-    time::now,
-};
+use serde::{Deserialize, Serialize};
+
+use crate::db::mail::{insert_mail, list_new_mail};
+use crate::mail::send_mail;
+use crate::time::now;
 
 #[derive(Serialize, Deserialize)]
 pub struct Mail {

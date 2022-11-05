@@ -1,6 +1,7 @@
 use serde::Serialize;
 
-use crate::{dash::user::UserWithPassword, data::idtoken_issues::IdTokenIssue};
+use crate::dash::user::UserWithPassword;
+use crate::data::idtoken_issues::IdTokenIssue;
 
 #[derive(Serialize)]
 pub struct ListUserRespnse {

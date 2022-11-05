@@ -1,8 +1,7 @@
 use serde::Serialize;
 
-use crate::db::idtoken_issues::{insert, list_by_sub};
-
 use super::oidc_flow::id_token_claim::IdTokenClaim;
+use crate::db::idtoken_issues::{insert, list_by_sub};
 
 #[derive(Serialize)]
 pub struct IdTokenIssue {

@@ -1,11 +1,8 @@
 use std::fmt::Display;
 
-use crate::{
-    db::authentication_failure::{count_recent_log, insert_fail},
-    time::now,
-};
-
 use super::authentication::AuthenticationMethod;
+use crate::db::authentication_failure::{count_recent_log, insert_fail};
+use crate::time::now;
 
 pub struct AuthenticationFailure {
     pub tried_at: u64,

@@ -1,8 +1,8 @@
-use std::{collections::HashMap, sync::Mutex};
-
-use crate::crypto::sha;
+use std::collections::HashMap;
+use std::sync::Mutex;
 
 use super::static_file::read;
+use crate::crypto::sha;
 
 static CACHE: Mutex<Option<HashMap<String, String>>> = Mutex::new(None);
 

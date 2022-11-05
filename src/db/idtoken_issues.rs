@@ -1,8 +1,9 @@
-use mysql::{params, prelude::*};
-
-use crate::{data::idtoken_issues::IdTokenIssue, time::unixtime_to_datetime};
+use mysql::params;
+use mysql::prelude::*;
 
 use super::mysql::{get_conn, mysqldate_to_unixtime};
+use crate::data::idtoken_issues::IdTokenIssue;
+use crate::time::unixtime_to_datetime;
 
 pub fn insert(claim: &IdTokenIssue) {
     get_conn()

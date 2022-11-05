@@ -1,8 +1,8 @@
-use mysql::{params, prelude::*};
-
-use crate::data::mail::Mail;
+use mysql::params;
+use mysql::prelude::*;
 
 use super::mysql::{get_conn, mysqldate_to_unixtime};
+use crate::data::mail::Mail;
 
 pub fn insert_mail(mail: &Mail) {
     get_conn()
