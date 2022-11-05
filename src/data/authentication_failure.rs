@@ -54,9 +54,9 @@ impl Display for AuthenticationFailureReason {
     }
 }
 
-impl Into<AuthenticationFailureReason> for String {
-    fn into(self) -> AuthenticationFailureReason {
-        match self.as_str() {
+impl From<String> for AuthenticationFailureReason {
+    fn from(str: String) -> Self {
+        match str.as_str() {
             "user_not_found" => AuthenticationFailureReason::UserNotFound,
             "invalid_password" => AuthenticationFailureReason::InvalidPassword,
             _ => panic!(),
