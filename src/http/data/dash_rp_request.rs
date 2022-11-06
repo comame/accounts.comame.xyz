@@ -12,3 +12,10 @@ pub struct RelyingPartyAddRedirectUriRequest {
     pub client_id: String,
     pub redirect_uri: String,
 }
+
+#[derive(Deserialize)]
+pub struct RelyingPartyBindingRequest {
+    pub token: String,
+    pub client_id: String,
+    pub user_id: String,
+}

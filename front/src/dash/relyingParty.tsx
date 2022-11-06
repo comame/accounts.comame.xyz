@@ -1,5 +1,6 @@
-import { Button, TextField } from "@charcoal-ui/react"
-import React, { useEffect, useState } from "react"
+import { Button, TextField, SelectGroup, Select } from "@charcoal-ui/react"
+import React, { Suspense, useEffect, useRef, useState } from "react"
+import { diffArray } from "../lib"
 import { Modal, ModalBody, ModalHeader } from "./modal"
 import { relyingParty } from "./types"
 import { useSuspendApi, fetchApi } from "./useApi"
@@ -68,6 +69,7 @@ const RelyingPartyListItem = ({
     const deleteModalOpen = useState(false)
     const editModalOpen = useState(false)
     const updateSecretModalOpen = useState(false)
+    const bindingModalOpen = useState(false)
 
     return (
         <div key={rp.client_id} className="p-8 mb-16 bg-surface3">
@@ -81,6 +83,7 @@ const RelyingPartyListItem = ({
                 open={updateSecretModalOpen}
                 client_id={rp.client_id}
             />
+            <BindingModal open={bindingModalOpen} clientId={rp.client_id} />
             <h2 className="font-bold text-base">{rp.client_id}</h2>
             <div>
                 <div className="inline-block p-8 pl-0">
@@ -89,7 +92,16 @@ const RelyingPartyListItem = ({
                         variant="Navigation"
                         onClick={() => editModalOpen[1](true)}
                     >
-                        EDIT
+                        redirect_uris
+                    </Button>
+                </div>
+                <div className="inline-block p-8 pl-0">
+                    <Button
+                        size="S"
+                        variant="Navigation"
+                        onClick={() => bindingModalOpen[1](true)}
+                    >
+                        bindings
                     </Button>
                 </div>
                 <div className="inline-block p-8 pl-0">
@@ -107,7 +119,7 @@ const RelyingPartyListItem = ({
                         variant="Overlay"
                         onClick={() => updateSecretModalOpen[1](true)}
                     >
-                        UPDATE client_secret
+                        client_secret
                     </Button>
                 </div>
                 <h3 className="font-bold">Redirect URIs</h3>
@@ -238,6 +250,117 @@ const DeleteRPModal = ({ open, clientId, updateView }: deleteRPModalProps) => {
                 </Button>
             </ModalBody>
         </Modal>
+    )
+}
+
+type bindingModalProps = {
+    open: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
+    clientId: string
+}
+const BindingModal = ({ open, clientId }: bindingModalProps) => {
+    return (
+        <Modal open={open}>
+            <ModalHeader>UserBinding</ModalHeader>
+            <ModalBody>
+                <Suspense fallback={<>Loading</>}>
+                    <div className="p-8">
+                        <Bindings clientId={clientId} />
+                    </div>
+                </Suspense>
+            </ModalBody>
+        </Modal>
+    )
+}
+
+const Bindings = ({ clientId }: { clientId: string }) => {
+    const { data: bindings, mutate: mutateA } = useSuspendApi(
+        useToken(),
+        "/dash/rp/binding/list",
+        {
+            client_id: clientId,
+        },
+        `/dash/rp/binding/list/${clientId}`
+    )
+    const { data: users, mutate: mutateB } = useSuspendApi(
+        useToken(),
+        "/dash/user/list",
+        {}
+    )
+    useEffect(() => {
+        mutateA()
+        mutateB()
+    }, [clientId])
+
+    const [selected, setSelected] = useState(
+        bindings.values.map((v) => v.user_id)
+    )
+
+    const [udpate, setUpdate] = useState(false)
+
+    const fieldsetRef = useRef<HTMLFieldSetElement>(null)
+    const onChange: React.FormEventHandler<HTMLInputElement> = (e) => {
+        const value = e.currentTarget.value
+        if (selected.includes(value)) {
+            const index = selected.indexOf(value)
+            const newValue = [...selected]
+            newValue.splice(index, 1)
+            setSelected(newValue)
+        } else {
+            setSelected([...selected, value])
+        }
+        setUpdate((v) => !v)
+    }
+
+    useEffect(() => {
+        setSelected([...selected])
+    }, [udpate])
+
+    const onClick = async () => {
+        setDisabled(true)
+        const diff = diffArray(
+            bindings.values.map((v) => v.user_id),
+            selected
+        )
+        for (const addUser of diff.add) {
+            await fetchApi(useToken(), "/dash/rp/binding/add", {
+                client_id: clientId,
+                user_id: addUser,
+            })
+        }
+        for (const delUser of diff.del) {
+            await fetchApi(useToken(), "/dash/rp/binding/remove", {
+                client_id: clientId,
+                user_id: delUser,
+            })
+        }
+        setDisabled(false)
+    }
+
+    const [disabled, setDisabled] = useState(false)
+
+    return (
+        <>
+            <fieldset ref={fieldsetRef} className="mb-8">
+                {users.values.map((v) => {
+                    return (
+                        <div key={v.user_id}>
+                            <input
+                                type="checkbox"
+                                checked={selected.includes(v.user_id)}
+                                value={v.user_id}
+                                id={v.user_id}
+                                className="inline-block mr-4"
+                                onChange={onChange}
+                            />
+                            <label htmlFor={v.user_id}>{v.user_id}</label>
+                        </div>
+                    )
+                })}
+            </fieldset>
+            <Button onClick={onClick} fixed disabled={disabled}>
+                変更する
+            </Button>
+        </>
     )
 }
 

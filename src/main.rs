@@ -3,6 +3,7 @@ use std::env;
 use std::net::SocketAddr;
 
 use auth::password::calculate_password_hash;
+use data::user_binding::UserBinding;
 use http::set_header::set_header;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request, Response, Server, StatusCode};
@@ -30,27 +31,31 @@ fn create_admin_user() {
 
     let user = data::user::User { id: user_id };
     let create_user = db::user::insert_user(&user);
-    if create_user.is_err() {
-        println!("Skipped creating admin user.");
-        return;
+    if create_user.is_ok() {
+        println!("User created.");
     }
     set_password(&user.id, &password);
-    println!("Admin user created.");
 }
 
 fn create_default_rp() {
     let client_secret = env::var("CLIENT_SECRET").unwrap();
     let client_secret = calculate_password_hash(&client_secret, "accounts.comame.xyz");
     let result = register_relying_party("accounts.comame.xyz", &client_secret);
-    if result.is_err() {
-        dbg!("Skipped create default RP.");
+    if result.is_ok() {
+        println!("RelyingParty created.")
     }
     let result = crate::db::relying_party::add_redirect_uri(
         "accounts.comame.xyz",
         &format!("{}/dash/callback", env::var("HOST").unwrap()),
     );
-    if result.is_err() {
-        dbg!("Dashboard redirect_uri is already set.");
+    if result.is_ok() {
+        println!("redirect_uri added.")
+    }
+
+    let user_id = env::var("ADMIN_USER").unwrap();
+    let result = UserBinding::create("accounts.comame.xyz", &user_id);
+    if result.is_ok() {
+        println!("UserBinding created.")
     }
 }
 

@@ -93,6 +93,15 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
         (&Method::POST, "/dash/rp/redirect_uri/remove") => {
             response = handler::dash_relying_party::delete_redirect_uri(req).await;
         }
+        (&Method::POST, "/dash/rp/binding/list") => {
+            response = handler::dash_relying_party::list_user_binding(req).await;
+        }
+        (&Method::POST, "/dash/rp/binding/add") => {
+            response = handler::dash_relying_party::add_user_binding(req).await;
+        }
+        (&Method::POST, "/dash/rp/binding/remove") => {
+            response = handler::dash_relying_party::remove_user_binding(req).await;
+        }
         (&Method::POST, "/dash/user/list") => {
             response = handler::dash_user::list_user(req).await;
         }

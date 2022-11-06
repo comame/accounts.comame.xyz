@@ -58,6 +58,16 @@ sessions	CREATE TABLE `sessions` (
   CONSTRAINT `sessions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+user_bindings	CREATE TABLE `user_bindings` (
+  `relying_party_id` varchar(100) NOT NULL,
+  `user_id` varchar(100) NOT NULL,
+  PRIMARY KEY (`relying_party_id`,`user_id`),
+  UNIQUE KEY `relying_party_id` (`relying_party_id`,`user_id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `user_bindings_ibfk_1` FOREIGN KEY (`relying_party_id`) REFERENCES `relying_parties` (`client_id`) ON DELETE CASCADE,
+  CONSTRAINT `user_bindings_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 user_passwords	CREATE TABLE `user_passwords` (
   `user_id` varchar(100) NOT NULL,
   `hashed_password` text NOT NULL,

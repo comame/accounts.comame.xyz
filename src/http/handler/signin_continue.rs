@@ -5,6 +5,7 @@ use url::Url;
 use crate::auth::{csrf_token, session};
 use crate::data::oidc_flow::authentication_flow_state::OidcFlow;
 use crate::data::oidc_flow::authentication_response::AuthenticationResponse;
+use crate::data::user_binding::UserBinding;
 use crate::enc::url::encode;
 use crate::http::data::sign_in_continue_request::{
     SignInContinueNoSessionRequest, SignInContinueRequest,
@@ -17,7 +18,14 @@ use crate::oidc::authentication_request::{post_authentication, pronpt_none_fail_
 
 #[inline]
 fn response_bad_request() -> Response<Body> {
-    let mut response = Response::new(Body::from(r#"{"message": "bad_request"}"#));
+    let mut response = Response::new(Body::from(r#"{"error": "bad_request"}"#));
+    *response.status_mut() = StatusCode::BAD_REQUEST;
+    response
+}
+
+#[inline]
+fn response_no_permission() -> Response<Body> {
+    let mut response = Response::new(Body::from(r#"{"error": "no_permission"}"#));
     *response.status_mut() = StatusCode::BAD_REQUEST;
     response
 }
@@ -91,8 +99,15 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
         return response_bad_request();
     }
 
+    let user = user.unwrap();
+    let binding_exists = UserBinding::exists(&request_body.relying_party_id, &user.id);
+    if binding_exists.is_err() {
+        dbg!("invalid");
+        return response_no_permission();
+    }
+
     let result = post_authentication(
-        &user.unwrap().id,
+        &user.id,
         &request_body.state_id,
         &request_body.relying_party_id,
         &request_body.user_agent_id,

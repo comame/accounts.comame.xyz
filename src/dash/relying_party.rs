@@ -1,4 +1,4 @@
-use crate::data::oidc_relying_party::RelyingParty;
+use crate::data::{oidc_relying_party::RelyingParty, user_binding::UserBinding};
 
 pub fn list() -> Vec<RelyingParty> {
     RelyingParty::list_all()
@@ -60,4 +60,16 @@ pub fn remove_redirect_uri(client_id: &str, redirect_uri: &str) {
     if let Some(rp) = rp {
         rp.remove_redirect_uri(redirect_uri);
     }
+}
+
+pub fn list_user_binding(relying_party_id: &str) -> Result<Vec<UserBinding>, ()> {
+    Ok(UserBinding::list(relying_party_id))
+}
+
+pub fn add_user_binding(relying_party_id: &str, user_id: &str) {
+    UserBinding::create(relying_party_id, user_id).unwrap();
+}
+
+pub fn remove_user_binding(relying_party_id: &str, user_id: &str) {
+    UserBinding::remove(relying_party_id, user_id);
 }

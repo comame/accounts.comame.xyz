@@ -4,9 +4,11 @@ use serde_json::{from_str, to_string};
 use crate::dash::relying_party;
 use crate::dash::signin::validate_token;
 use crate::http::data::dash_rp_request::{
-    RelyingPartyAddRedirectUriRequest, RelyingPartyClientIdRequest,
+    RelyingPartyAddRedirectUriRequest, RelyingPartyBindingRequest, RelyingPartyClientIdRequest,
 };
-use crate::http::data::dash_rp_response::{RelyingPartiesResponse, RelyingPartyRawSecretResponse};
+use crate::http::data::dash_rp_response::{
+    RelyingPartiesResponse, RelyingPartyBindingResponse, RelyingPartyRawSecretResponse,
+};
 use crate::http::data::dash_standard_request::StandardRequest;
 use crate::http::parse_body::parse_body;
 
@@ -167,6 +169,74 @@ pub async fn delete_redirect_uri(req: Request<Body>) -> Response<Body> {
     }
 
     relying_party::remove_redirect_uri(&body.client_id, &body.redirect_uri);
+
+    Response::new(Body::from("{}"))
+}
+
+pub async fn list_user_binding(req: Request<Body>) -> Response<Body> {
+    let body = parse_body(req.into_body()).await;
+    if body.is_err() {
+        return response_bad_request();
+    }
+    let body = body.unwrap();
+    let body = from_str::<RelyingPartyClientIdRequest>(&body);
+    if body.is_err() {
+        return response_bad_request();
+    }
+    let body = body.unwrap();
+
+    if !validate_token(&body.token) {
+        return response_unauthorized();
+    }
+
+    let result = relying_party::list_user_binding(&body.client_id);
+
+    Response::new(Body::from(
+        to_string(&RelyingPartyBindingResponse {
+            values: result.unwrap(),
+        })
+        .unwrap(),
+    ))
+}
+
+pub async fn add_user_binding(req: Request<Body>) -> Response<Body> {
+    let body = parse_body(req.into_body()).await;
+    if body.is_err() {
+        return response_bad_request();
+    }
+    let body = body.unwrap();
+    let body = from_str::<RelyingPartyBindingRequest>(&body);
+    if body.is_err() {
+        return response_bad_request();
+    }
+    let body = body.unwrap();
+
+    if !validate_token(&body.token) {
+        return response_unauthorized();
+    }
+
+    relying_party::add_user_binding(&body.client_id, &body.user_id);
+
+    Response::new(Body::from("{}"))
+}
+
+pub async fn remove_user_binding(req: Request<Body>) -> Response<Body> {
+    let body = parse_body(req.into_body()).await;
+    if body.is_err() {
+        return response_bad_request();
+    }
+    let body = body.unwrap();
+    let body = from_str::<RelyingPartyBindingRequest>(&body);
+    if body.is_err() {
+        return response_bad_request();
+    }
+    let body = body.unwrap();
+
+    if !validate_token(&body.token) {
+        return response_unauthorized();
+    }
+
+    relying_party::remove_user_binding(&body.client_id, &body.user_id);
 
     Response::new(Body::from("{}"))
 }

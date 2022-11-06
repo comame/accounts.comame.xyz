@@ -5,6 +5,9 @@ export type apis = {
     "/dash/rp/delete": [clientIdRequest, empty]
     "/dash/rp/redirect_uri/add": [relyingPartyUriRequest, empty]
     "/dash/rp/redirect_uri/remove": [relyingPartyUriRequest, empty]
+    "/dash/rp/binding/list": [clientIdRequest, bindingResponse]
+    "/dash/rp/binding/add": [userBinding, empty]
+    "/dash/rp/binding/remove": [userBinding, empty]
     "/dash/user/list": [empty, userListResponse]
     "/dash/user/create": [userIdRequest, empty]
     "/dash/user/delete": [userIdRequest, empty]
@@ -69,4 +72,13 @@ type idTokenIssue = {
 
 type authenticationListResponse = {
     values: idTokenIssue[]
+}
+
+type userBinding = {
+    client_id: string
+    user_id: string
+}
+
+type bindingResponse = {
+    values: userBinding[]
 }

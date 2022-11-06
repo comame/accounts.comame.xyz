@@ -29,7 +29,9 @@ export function useContinueForm(
                 loginType
             )}&state_id=${encodeURIComponent(
                 stateId
-            )}&relying_party_id=${encodeURIComponent(relyingPartyId!)}&user_agent_id=${encodeURIComponent(userAgentId)}`
+            )}&relying_party_id=${encodeURIComponent(
+                relyingPartyId!
+            )}&user_agent_id=${encodeURIComponent(userAgentId)}`
 
             console.log("fetch")
 
@@ -45,6 +47,8 @@ export function useContinueForm(
                 .then((json) => {
                     if (json.location) {
                         location.replace(json.location)
+                    } else if (json.error) {
+                        alert(json.error)
                     }
                 })
         }
