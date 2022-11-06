@@ -264,7 +264,7 @@ const BindingModal = ({ open, clientId }: bindingModalProps) => {
             <ModalBody>
                 <Suspense fallback={<>Loading</>}>
                     <div className="p-8">
-                        <Bindings clientId={clientId} />
+                        <Bindings clientId={clientId} open={open[0]} />
                     </div>
                 </Suspense>
             </ModalBody>
@@ -272,7 +272,7 @@ const BindingModal = ({ open, clientId }: bindingModalProps) => {
     )
 }
 
-const Bindings = ({ clientId }: { clientId: string }) => {
+const Bindings = ({ clientId, open }: { clientId: string; open: boolean }) => {
     const { data: bindings, mutate: mutateA } = useSuspendApi(
         useToken(),
         "/dash/rp/binding/list",
@@ -286,34 +286,26 @@ const Bindings = ({ clientId }: { clientId: string }) => {
         "/dash/user/list",
         {}
     )
-    useEffect(() => {
-        mutateA()
-        mutateB()
-    }, [clientId])
 
     const [selected, setSelected] = useState(
         bindings.values.map((v) => v.user_id)
     )
 
-    const [udpate, setUpdate] = useState(false)
-
-    const fieldsetRef = useRef<HTMLFieldSetElement>(null)
-    const onChange: React.FormEventHandler<HTMLInputElement> = (e) => {
-        const value = e.currentTarget.value
-        if (selected.includes(value)) {
-            const index = selected.indexOf(value)
-            const newValue = [...selected]
-            newValue.splice(index, 1)
-            setSelected(newValue)
-        } else {
-            setSelected([...selected, value])
+    const [hasUpdate, setHasUpdate] = useState(false)
+    useEffect(() => {
+        if (open) {
+            mutateA()
+            mutateB()
+            setHasUpdate(true)
         }
-        setUpdate((v) => !v)
-    }
+    }, [open])
 
     useEffect(() => {
-        setSelected([...selected])
-    }, [udpate])
+        if (hasUpdate) {
+            setSelected(bindings.values.map((v) => v.user_id))
+            setHasUpdate(false)
+        }
+    }, [hasUpdate])
 
     const onClick = async () => {
         setDisabled(true)
@@ -340,23 +332,20 @@ const Bindings = ({ clientId }: { clientId: string }) => {
 
     return (
         <>
-            <fieldset ref={fieldsetRef} className="mb-8">
-                {users.values.map((v) => {
-                    return (
-                        <div key={v.user_id}>
-                            <input
-                                type="checkbox"
-                                checked={selected.includes(v.user_id)}
-                                value={v.user_id}
-                                id={v.user_id}
-                                className="inline-block mr-4"
-                                onChange={onChange}
-                            />
-                            <label htmlFor={v.user_id}>{v.user_id}</label>
-                        </div>
-                    )
-                })}
-            </fieldset>
+            <SelectGroup
+                name="user-binding"
+                ariaLabel="user-binding"
+                selected={selected}
+                onChange={setSelected}
+                disabled={disabled}
+                className="mb-16"
+            >
+                {users.values.map((user) => (
+                    <div key={user.user_id} className="mb-4">
+                        <Select value={user.user_id}>{user.user_id}</Select>
+                    </div>
+                ))}
+            </SelectGroup>
             <Button onClick={onClick} fixed disabled={disabled}>
                 変更する
             </Button>

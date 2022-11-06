@@ -15,16 +15,12 @@ export function Modal({
     onClose,
 }: props) {
     const onBackgroundClick = (e: React.MouseEvent) => {
+        if (e.target !== e.currentTarget) return
         e.stopPropagation()
         e.preventDefault()
         if (isDissmissable) {
             open[1](false)
         }
-    }
-
-    const stopPropagation = (e: React.MouseEvent) => {
-        e.stopPropagation()
-        e.preventDefault()
     }
 
     return open[0] ? (
@@ -33,10 +29,7 @@ export function Modal({
                 className="modal-bg-w h-screen bg-surface4 z-10 fixed top-0 left-0 flex justify-center items-center"
                 onClick={onBackgroundClick}
             >
-                <div
-                    className="bg-background1 w-col-span-5 p-24 rounded-24 relative"
-                    onClick={stopPropagation}
-                >
+                <div className="bg-background1 w-col-span-5 p-24 rounded-24 relative">
                     {children}
                     <div className="absolute top-16 right-16 z-20">
                         <IconButton

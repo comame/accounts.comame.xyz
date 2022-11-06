@@ -14,12 +14,15 @@ export function useToken(): string {
         return token
     }
 
-    const tokenInUrl = location.hash.slice(1)
+    const tokenInUrl =
+        sessionStorage.getItem("dash-token") || location.hash.slice(1)
     throw checkToken(tokenInUrl).then((result) => {
         if (result) {
+            sessionStorage.setItem("dash-token", tokenInUrl)
             token = tokenInUrl
             location.hash = ""
         } else {
+            sessionStorage.removeItem("dash-token")
             location.replace("/dash/signin")
             // Resolve しないことで再レンダリングを防ぐ
             return new Promise(() => {})
