@@ -156,7 +156,8 @@ const Logs = ({ userId }: { userId: string }) => {
         <ul>
             {data.values.map((log) => (
                 <li key={log.iat}>
-                    {new Date(log.iat * 1000).toLocaleString()}: {log.aud}
+                    {new Date(log.iat * 1000).toLocaleString()}{" "}
+                    {`${log.remote_addr}`}: {log.aud}
                 </li>
             ))}
         </ul>

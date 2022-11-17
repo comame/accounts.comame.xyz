@@ -8,14 +8,16 @@ pub struct IdTokenIssue {
     pub sub: String,
     pub aud: String,
     pub iat: u64,
+    pub remote_addr: String,
 }
 
 impl IdTokenIssue {
-    pub fn log(claim: &IdTokenClaim) {
+    pub fn log(claim: &IdTokenClaim, remote_addr: &str) {
         insert(&Self {
             sub: claim.sub.clone(),
             aud: claim.aud.clone(),
             iat: claim.iat,
+            remote_addr: remote_addr.to_string(),
         });
     }
 

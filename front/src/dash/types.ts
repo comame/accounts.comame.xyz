@@ -68,6 +68,7 @@ type idTokenIssue = {
     sub: string
     aud: string
     iat: number
+    remote_addr: string
 }
 
 type authenticationListResponse = {

@@ -122,6 +122,7 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
         &request_body.relying_party_id,
         &request_body.user_agent_id,
         request_body.login_type,
+        &remote_addr,
     );
 
     if let Err(err) = result {

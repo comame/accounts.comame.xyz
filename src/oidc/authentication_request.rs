@@ -195,6 +195,7 @@ pub fn post_authentication(
     relying_party_id: &str,
     user_agent_id: &str,
     login_type: AuthenticationMethod,
+    remote_addr: &str,
 ) -> Result<PostAuthenticationResponse, AuthenticationError> {
     let state = authentication_flow_state::get_state(state_id);
     if state.is_none() {
@@ -288,7 +289,7 @@ pub fn post_authentication(
         nonce: state.nonce,
     };
 
-    IdTokenIssue::log(&claim);
+    IdTokenIssue::log(&claim, remote_addr);
 
     let jwt_header = Header {
         alg: Algorithm::RS256,
