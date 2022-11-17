@@ -42,6 +42,7 @@ impl AuthenticationFailure {
 pub enum AuthenticationFailureReason {
     UserNotFound,
     InvalidPassword,
+    NoUserBinding,
 }
 
 impl Display for AuthenticationFailureReason {
@@ -52,6 +53,7 @@ impl Display for AuthenticationFailureReason {
             match self {
                 Self::UserNotFound => "user_not_found",
                 Self::InvalidPassword => "invalid_password",
+                Self::NoUserBinding => "no_user_binding",
             }
         )
     }
@@ -62,6 +64,7 @@ impl From<String> for AuthenticationFailureReason {
         match str.as_str() {
             "user_not_found" => AuthenticationFailureReason::UserNotFound,
             "invalid_password" => AuthenticationFailureReason::InvalidPassword,
+            "no_user_binding" => AuthenticationFailureReason::NoUserBinding,
             _ => panic!(),
         }
     }

@@ -3,6 +3,7 @@ use serde_json::to_string;
 use url::Url;
 
 use crate::auth::{csrf_token, session};
+use crate::data::authentication_failure::AuthenticationFailure;
 use crate::data::oidc_flow::authentication_flow_state::OidcFlow;
 use crate::data::oidc_flow::authentication_response::AuthenticationResponse;
 use crate::data::user_binding::UserBinding;
@@ -11,6 +12,7 @@ use crate::http::data::sign_in_continue_request::{
     SignInContinueNoSessionRequest, SignInContinueRequest,
 };
 use crate::http::data::sign_in_continue_response::SigninContinueSuccessResponse;
+use crate::http::get_remote_addr::get_remote_addr;
 use crate::http::parse_body::parse_body;
 use crate::http::parse_cookie::parse_cookie;
 use crate::http::set_header::set_header;
@@ -69,6 +71,8 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
 
     let session_token = session_token.unwrap().clone();
 
+    let remote_addr = get_remote_addr(&req);
+
     let request_body = parse_body(req.into_body()).await;
     if request_body.is_err() {
         dbg!("invalid");
@@ -102,6 +106,12 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
     let user = user.unwrap();
     let binding_exists = UserBinding::exists(&request_body.relying_party_id, &user.id);
     if binding_exists.is_err() {
+        AuthenticationFailure::new(
+            &user.id,
+            &crate::data::authentication::AuthenticationMethod::Session,
+            &crate::data::authentication_failure::AuthenticationFailureReason::NoUserBinding,
+            &remote_addr,
+        );
         dbg!("invalid");
         return response_no_permission();
     }
