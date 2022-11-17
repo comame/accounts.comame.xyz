@@ -8,6 +8,7 @@ use crate::http::data::password_sign_in_request::PasswordSignInRequest;
 use crate::http::data::password_sign_in_response::PasswordSignInResponse;
 use crate::http::data::session_sign_in_request::SessionSignInRequest;
 use crate::http::data::session_sign_in_response::SessionSignInResponse;
+use crate::http::get_remote_addr::get_remote_addr;
 use crate::http::parse_body::parse_body;
 use crate::http::parse_cookie::parse_cookie;
 use crate::http::set_header::set_header;
@@ -50,6 +51,8 @@ pub fn page(name: &str) -> Response<Body> {
 }
 
 pub async fn sign_in_with_password(req: Request<Body>) -> Response<Body> {
+    let remote_addr = get_remote_addr(&req);
+
     let body = parse_body(req.into_body()).await;
     if body.is_err() {
         return response_bad_request();
@@ -68,8 +71,14 @@ pub async fn sign_in_with_password(req: Request<Body>) -> Response<Body> {
     let audience = request.relying_party_id;
     let ua_id = request.user_agent_id;
 
-    let is_authenticated =
-        password::authenticate(&user_id, &password, &audience, LoginPrompt::Login, &ua_id);
+    let is_authenticated = password::authenticate(
+        &user_id,
+        &password,
+        &audience,
+        LoginPrompt::Login,
+        &ua_id,
+        &remote_addr,
+    );
     let is_token_collect = csrf_token::validate_keep_token(&token);
 
     if !is_authenticated {

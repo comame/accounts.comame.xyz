@@ -9,6 +9,7 @@ pub struct AuthenticationFailure {
     pub subject_input: String,
     pub method: AuthenticationMethod,
     pub reason: AuthenticationFailureReason,
+    pub remote_addr: String,
 }
 
 impl AuthenticationFailure {
@@ -16,12 +17,14 @@ impl AuthenticationFailure {
         subject_input: &str,
         method: &AuthenticationMethod,
         reason: &AuthenticationFailureReason,
+        remote_addr: &str,
     ) -> Self {
         let obj = Self {
             tried_at: now(),
             subject_input: subject_input.to_string(),
             method: method.clone(),
             reason: reason.clone(),
+            remote_addr: remote_addr.to_string(),
         };
 
         insert_fail(&obj);

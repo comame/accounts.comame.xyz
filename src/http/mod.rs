@@ -1,5 +1,6 @@
 pub mod cachable_file;
 pub mod data;
+pub mod get_remote_addr;
 pub mod handler;
 pub mod mime_types;
 pub mod parse_body;

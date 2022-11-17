@@ -3,7 +3,8 @@ authentication_failures	CREATE TABLE `authentication_failures` (
   `subject` varchar(100) NOT NULL,
   `method` varchar(16) NOT NULL,
   `reason` varchar(32) NOT NULL,
-  `clean` tinyint(1) NOT NULL DEFAULT '0'
+  `clean` tinyint(1) NOT NULL DEFAULT '0',
+  `remote_addr` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 authentications	CREATE TABLE `authentications` (

@@ -42,6 +42,7 @@ pub fn authenticate(
     audience: &str,
     _prompt: LoginPrompt,
     user_agent_id: &str,
+    remote_addr: &str,
 ) -> bool {
     let hash = calculate_password_hash(password, user_id);
     let user_password = UserPassword {
@@ -58,6 +59,7 @@ pub fn authenticate(
             user_id,
             &AuthenticationMethod::Password,
             &AuthenticationFailureReason::UserNotFound,
+            remote_addr,
         );
         return false;
     }
@@ -67,6 +69,7 @@ pub fn authenticate(
             user_id,
             &AuthenticationMethod::Password,
             &AuthenticationFailureReason::InvalidPassword,
+            remote_addr,
         );
 
         if AuthenticationFailure::is_too_many(user_id) {
@@ -110,7 +113,8 @@ mod tests {
             "foo",
             "aud.comame.dev",
             LoginPrompt::Login,
-            "ua"
+            "ua",
+            "0.0.0.0",
         ));
     }
 
@@ -128,14 +132,16 @@ mod tests {
             "bar",
             "aud.comame.dev",
             LoginPrompt::Login,
-            "ua"
+            "ua",
+            "0.0.0.0",
         ));
         assert!(!authenticate(
             "bob",
             "bar",
             "aud.comame.dev",
             LoginPrompt::Login,
-            "ua"
+            "ua",
+            "0.0.0.0",
         ));
     }
 

@@ -9,12 +9,13 @@ pub fn insert_fail(fail: &AuthenticationFailure) {
     get_conn()
         .unwrap()
         .exec_drop(
-            "INSERT INTO authentication_failures VALUES (:at, :sub, :met, :rea, FALSE)",
+            "INSERT INTO authentication_failures VALUES (:at, :sub, :met, :rea, FALSE, :addr)",
             params! {
                 "at" => unixtime_to_datetime(fail.tried_at),
                 "sub" => fail.subject_input.clone(),
                 "met" => fail.method.to_string(),
                 "rea" => fail.reason.to_string(),
+                "addr" => fail.remote_addr.to_string(),
             },
         )
         .unwrap();
