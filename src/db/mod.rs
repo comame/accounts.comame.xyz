@@ -12,3 +12,4 @@ pub mod session;
 pub mod user;
 pub mod user_binding;
 pub mod user_password;
+pub mod userinfo;

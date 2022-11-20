@@ -1,6 +1,6 @@
 use crate::data::{
     access_token::{self, AccessToken},
-    oidc_flow::userinfo_reponse::UserInfoResponse,
+    oidc_flow::userinfo::UserInfo,
 };
 
 #[derive(Debug)]
@@ -9,36 +9,37 @@ pub enum ErrorReason {
     InsufficientScope,
 }
 
-pub fn userinfo(access_token: &str) -> Result<UserInfoResponse, ErrorReason> {
+pub fn userinfo(access_token: &str) -> Result<UserInfo, ErrorReason> {
     let access_token = AccessToken::get(&access_token);
     if access_token.is_none() {
         return Err(ErrorReason::InvalidToken);
     }
     let access_token = access_token.unwrap();
 
-    let mut response = UserInfoResponse {
-        sub: access_token.sub,
-        email: None,
-        email_verified: None,
-        name: None,
-        preferred_username: None,
-        profile: None,
-        picture: None,
-    };
+    let userinfo =
+        UserInfo::get(&access_token.sub).unwrap_or_else(|| UserInfo::empty(&access_token.sub));
 
     let scopes = access_token.scopes;
+
+    let mut response = UserInfo::empty(&access_token.sub);
 
     if !scopes.has("email") && !scopes.has("profile") {
         return Err(ErrorReason::InsufficientScope);
     }
 
     if scopes.has("email") {
-        // もしあれば返す
+        response.email = userinfo.email;
+        response.email_verified = userinfo.email_verified;
     }
 
     if scopes.has("profile") {
-        // もしあれば返す
+        response.name = userinfo.name;
+        response.preferred_username = userinfo.preferred_username;
+        response.profile = userinfo.profile;
+        response.picture = userinfo.picture;
     }
+
+    dbg!(&response);
 
     Ok(response)
 }

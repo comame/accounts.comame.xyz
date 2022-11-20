@@ -86,6 +86,13 @@ user_passwords	CREATE TABLE `user_passwords` (
   CONSTRAINT `user_passwords_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+userinfo	CREATE TABLE `userinfo` (
+  `sub` varchar(100) NOT NULL,
+  `value` text NOT NULL,
+  PRIMARY KEY (`sub`),
+  CONSTRAINT `userinfo_ibfk_1` FOREIGN KEY (`sub`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 users	CREATE TABLE `users` (
   `id` varchar(100) NOT NULL,
   PRIMARY KEY (`id`)
