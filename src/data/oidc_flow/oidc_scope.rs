@@ -20,9 +20,13 @@ impl Scopes {
         Self { value: set }
     }
 
-    pub fn is(&self, target: &str) -> bool {
+    pub fn has(&self, target: &str) -> bool {
+        self.value.contains(target)
+    }
+
+    pub fn within(&self, target: &str) -> bool {
         let target = Self::parse(target);
-        target.value == self.value
+        self.value.iter().all(|v| target.value.contains(v))
     }
 }
 
@@ -49,10 +53,15 @@ mod tests {
     }
 
     #[test]
-    fn test_is() {
-        assert!(Scopes::parse("openid code").is("openid code"));
-        assert!(Scopes::parse("code openid").is("openid code"));
-        assert!(Scopes::parse("openid code").is("code openid"));
-        assert!(Scopes::parse("code openid").is("code openid"));
+    fn test_has() {
+        assert!(Scopes::parse("openid code").has("openid"));
+        assert!(Scopes::parse("code openid").has("code"));
+    }
+
+    #[test]
+    fn test_within() {
+        assert!(Scopes::parse("openid").within("openid"));
+        assert!(Scopes::parse("openid").within("openid email"));
+        assert!(Scopes::parse("openid").within("openid email profile"));
     }
 }

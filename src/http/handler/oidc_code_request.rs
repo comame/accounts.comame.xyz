@@ -26,11 +26,7 @@ pub async fn handle(req: Request<Body>) -> Response<Body> {
         }
     }
 
-    dbg!(&user);
-    dbg!(&password);
-
     let body = parse_body(req.into_body()).await.unwrap();
-    dbg!(&body);
 
     let body = CodeRequest::parse(&body, user.as_deref(), password.as_deref());
     if body.is_err() {
@@ -46,6 +42,5 @@ pub async fn handle(req: Request<Body>) -> Response<Body> {
     }
     let result = result.unwrap();
 
-    dbg!(to_string(&result).unwrap());
     Response::new(Body::from(to_string(&result).unwrap()))
 }

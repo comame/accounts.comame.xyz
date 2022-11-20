@@ -1,3 +1,12 @@
+access_tokens	CREATE TABLE `access_tokens` (
+  `sub` varchar(100) NOT NULL,
+  `scopes` text NOT NULL,
+  `token` varchar(100) NOT NULL,
+  `created_at` timestamp NOT NULL,
+  KEY `sub` (`sub`),
+  CONSTRAINT `access_tokens_ibfk_1` FOREIGN KEY (`sub`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 authentication_failures	CREATE TABLE `authentication_failures` (
   `tried_at` timestamp NOT NULL,
   `subject` varchar(100) NOT NULL,

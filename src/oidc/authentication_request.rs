@@ -66,7 +66,7 @@ pub fn pre_authenticate(
         });
     }
 
-    if !request.scope.is("openid") {
+    if !request.scope.within("openid profile email") {
         let response = AuthenticationErrorResponse {
             error: ErrorCode::InvalidScope,
             state: request.state,
@@ -279,7 +279,7 @@ pub fn post_authentication(
         });
     }
 
-    let claim = IdTokenClaim {
+    let mut claim = IdTokenClaim {
         iss: env::var("HOST").unwrap(),
         sub: user_id.to_string(),
         aud: state.relying_party_id.clone(),
@@ -287,7 +287,22 @@ pub fn post_authentication(
         iat: now(),
         auth_time: latest_auth.authenticated_at,
         nonce: state.nonce,
+        email: None,
+        email_verified: None,
+        name: None,
+        preferred_username: None,
+        profile: None,
+        picture: None,
     };
+
+    if state.scopes.has("email") {
+        // set email scope if present
+    }
+
+    if state.scopes.has("profile") {
+        // set profiles if present
+        claim.name = Some(user_id.to_string());
+    }
 
     IdTokenIssue::log(&claim, remote_addr);
 
@@ -308,6 +323,7 @@ pub fn post_authentication(
             &state.relying_party_id,
             &state.scopes,
             &state.redirect_url,
+            user_id,
         );
         code_state::save_state(&code);
         Ok(PostAuthenticationResponse {

@@ -8,3 +8,4 @@ pub mod code_state;
 pub mod error_code;
 pub mod id_token_claim;
 pub mod oidc_scope;
+pub mod userinfo_reponse;

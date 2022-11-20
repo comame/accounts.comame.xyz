@@ -10,10 +10,17 @@ pub struct CodeState {
     pub id_token: String,
     pub scope: Scopes,
     pub redirect_uri: String,
+    pub sub: String,
 }
 
 impl CodeState {
-    pub fn new(id_token: &str, client_id: &str, scope: &Scopes, redirect_uri: &str) -> Self {
+    pub fn new(
+        id_token: &str,
+        client_id: &str,
+        scope: &Scopes,
+        redirect_uri: &str,
+        sub: &str,
+    ) -> Self {
         let code = random_str(16);
         Self {
             code,
@@ -21,6 +28,7 @@ impl CodeState {
             client_id: client_id.to_string(),
             scope: scope.to_owned(),
             redirect_uri: redirect_uri.to_owned(),
+            sub: sub.to_string(),
         }
     }
 }

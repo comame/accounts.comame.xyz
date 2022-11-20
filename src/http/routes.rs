@@ -54,6 +54,14 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
             set_no_store(&mut response);
             response = handler::oidc_code_request::handle(req).await;
         }
+        (&Method::GET, "/userinfo") => {
+            set_no_store(&mut response);
+            response = handler::oidc_userinfo_request::handle(req).await;
+        }
+        (&Method::POST, "/userinfo") => {
+            set_no_store(&mut response);
+            response = handler::oidc_userinfo_request::handle(req).await;
+        }
         (&Method::GET, "/.well-known/openid-configuration") => {
             response = handler::discovery::handle_config(req).await;
         }

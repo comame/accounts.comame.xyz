@@ -12,7 +12,6 @@
     <h1>Token Request Tester</h1>
     <input placeholder="client_secret" id="client_secret" value="client_secret">
     <button id="initiate_code_request">CONTINUE</button>
-    <button id="inspect-session">SESSION</button>
     <textarea readonly id="output" rows="20" cols="100"></textarea>
     <style>
         * {
@@ -31,16 +30,10 @@
         const initiateCodeRequest = document.getElementById('initiate_code_request')
         /** @type {HTMLTextAreaElement} */
         const textarea = document.getElementById('output')
-        const sessionButton = document.getElementById('inspect-session')
 
         let token = ''
 
         initiateCodeRequest.onclick = () => {
-            if (idToken) {
-                session(idToken)
-                return
-            }
-
             const redirect_uri = encodeURIComponent(`${location.origin}/dev/callback.html`)
 
             fetch('/code', {
@@ -48,39 +41,17 @@
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `code=${code}&client_id=demo.accounts.comame.dev&client_secret=${clientSecretInput.value}&redirect_uri=${redirect_uri}&grant_type=authorization_code`
             }).then(res => res.json()).then(json => {
-                session(json.id_token)
+                textarea.value += JSON.stringify(json, null, 2)
+                const accessToken = json.access_token
+
+                return fetch('/userinfo', {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${accessToken}` },
+                }).then(res => res.json()).then(json => {
+                    textarea.value += JSON.stringify(json, null, 2)
+                })
             })
         }
-
-        function session(idToken) {
-            fetch('/tools/id-token', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    client_id: 'demo.accounts.comame.dev',
-                    client_secret: clientSecretInput.value,
-                    id_token: idToken,
-                    nonce: "nonce"
-                })
-            }).then(res => res.json()).then(json => {
-                textarea.value += JSON.stringify(json, null, 2) + '\n\n';
-                token = json.session
-            })
-        }
-
-        sessionButton.addEventListener('click', () => {
-            fetch('/tools/session', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    client_id: 'accounts.comame.xyz',
-                    client_secret: clientSecretInput.value,
-                    token
-                })
-            }).then(res => res.json()).then(json => {
-                textarea.value += JSON.stringify(json, null, 2) + '\n\n';
-            })
-        })
     </script>
 </body>
 

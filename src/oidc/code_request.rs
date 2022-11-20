@@ -1,6 +1,6 @@
 use super::code_state::get_state;
 use crate::auth::password::calculate_password_hash;
-use crate::crypto::rand::random_str;
+use crate::data::access_token::AccessToken;
 use crate::data::oidc_flow::code_request::CodeRequest;
 use crate::data::oidc_flow::code_response::CodeResponse;
 use crate::data::oidc_relying_party::RelyingParty;
@@ -47,10 +47,12 @@ pub fn code_request(req: CodeRequest) -> Result<CodeResponse, ()> {
         return Err(());
     }
 
+    let access_token = AccessToken::new(&saved_state.sub, &saved_state.scope);
+
     Ok(CodeResponse {
-        access_token: random_str(16),
+        access_token: access_token.token,
         token_type: "bearer".to_string(),
         id_token: saved_state.id_token,
-        scope: saved_state.scope,
+        scope: saved_state.scope.to_string(),
     })
 }
