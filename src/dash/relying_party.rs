@@ -1,4 +1,5 @@
-use crate::data::{oidc_relying_party::RelyingParty, user_binding::UserBinding};
+use crate::data::oidc_relying_party::RelyingParty;
+use crate::data::user_binding::UserBinding;
 
 pub fn list() -> Vec<RelyingParty> {
     RelyingParty::list_all()

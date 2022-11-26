@@ -1,4 +1,5 @@
-use hyper::{http::HeaderValue, Body, Request, Response, StatusCode};
+use hyper::http::HeaderValue;
+use hyper::{Body, Request, Response, StatusCode};
 use serde_json::to_string;
 
 use crate::oidc::userinfo::{userinfo, ErrorReason};

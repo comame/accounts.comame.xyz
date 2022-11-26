@@ -1,9 +1,9 @@
-use mysql::{params, prelude::*};
+use mysql::params;
+use mysql::prelude::*;
 use serde_json::{from_str, to_string};
 
-use crate::data::oidc_flow::userinfo::UserInfo;
-
 use super::mysql::get_conn;
+use crate::data::oidc_flow::userinfo::UserInfo;
 
 pub fn insert_userinfo(userinfo: &UserInfo) {
     get_conn()

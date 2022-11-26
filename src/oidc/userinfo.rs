@@ -1,7 +1,5 @@
-use crate::data::{
-    access_token::{self, AccessToken},
-    oidc_flow::userinfo::UserInfo,
-};
+use crate::data::access_token::{self, AccessToken};
+use crate::data::oidc_flow::userinfo::UserInfo;
 
 #[derive(Debug)]
 pub enum ErrorReason {

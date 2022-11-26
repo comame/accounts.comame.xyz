@@ -1,9 +1,6 @@
-use crate::{
-    crypto::rand::random_str,
-    db::access_token::{get_access_token, insert_access_token},
-};
-
 use super::oidc_flow::oidc_scope::Scopes;
+use crate::crypto::rand::random_str;
+use crate::db::access_token::{get_access_token, insert_access_token};
 
 pub const ACCESS_TOKEN_EXPIRES_IN: u16 = 3600;
 

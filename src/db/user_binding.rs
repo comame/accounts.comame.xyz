@@ -1,8 +1,8 @@
-use mysql::{params, prelude::*};
-
-use crate::data::user_binding::UserBinding;
+use mysql::params;
+use mysql::prelude::*;
 
 use super::mysql::get_conn;
+use crate::data::user_binding::UserBinding;
 
 pub fn insert_user_binding(user_binding: &UserBinding) -> Result<(), ()> {
     let result = get_conn().unwrap().exec_drop(

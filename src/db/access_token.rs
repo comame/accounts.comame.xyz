@@ -1,14 +1,10 @@
-use mysql::{params, prelude::*};
-
-use crate::{
-    data::{
-        access_token::{AccessToken, ACCESS_TOKEN_EXPIRES_IN},
-        oidc_flow::oidc_scope::Scopes,
-    },
-    time::{now, unixtime_to_datetime},
-};
+use mysql::params;
+use mysql::prelude::*;
 
 use super::mysql::get_conn;
+use crate::data::access_token::{AccessToken, ACCESS_TOKEN_EXPIRES_IN};
+use crate::data::oidc_flow::oidc_scope::Scopes;
+use crate::time::{now, unixtime_to_datetime};
 
 pub fn insert_access_token(access_token: &AccessToken) {
     get_conn().unwrap().exec_drop(
