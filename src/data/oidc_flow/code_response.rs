@@ -7,4 +7,5 @@ pub struct CodeResponse {
     pub token_type: String,
     pub id_token: String,
     pub scope: String,
+    pub expires_in: u32,
 }

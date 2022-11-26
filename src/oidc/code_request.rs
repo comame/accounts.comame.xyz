@@ -54,5 +54,6 @@ pub fn code_request(req: CodeRequest) -> Result<CodeResponse, ()> {
         token_type: "bearer".to_string(),
         id_token: saved_state.id_token,
         scope: saved_state.scope.to_string(),
+        expires_in: access_token.expires_in.into(),
     })
 }
