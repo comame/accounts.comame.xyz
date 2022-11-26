@@ -24,7 +24,7 @@ pub fn get_access_token(token: &str) -> Option<AccessToken> {
         .exec_map(
             "SELECT sub, scopes, token FROM access_tokens WHERE TIMESTAMPDIFF(SECOND, created_at, :now) < :expire AND token = :token",
             params! {
-                "now" => now.to_string(),
+                "now" => now,
                 "token" => token.to_string(),
                 "expire" => ACCESS_TOKEN_EXPIRES_IN,
             },

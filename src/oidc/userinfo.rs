@@ -1,4 +1,4 @@
-use crate::data::access_token::{self, AccessToken};
+use crate::data::access_token::AccessToken;
 use crate::data::oidc_flow::userinfo::UserInfo;
 
 #[derive(Debug)]
@@ -8,7 +8,7 @@ pub enum ErrorReason {
 }
 
 pub fn userinfo(access_token: &str) -> Result<UserInfo, ErrorReason> {
-    let access_token = AccessToken::get(&access_token);
+    let access_token = AccessToken::get(access_token);
     if access_token.is_none() {
         return Err(ErrorReason::InvalidToken);
     }

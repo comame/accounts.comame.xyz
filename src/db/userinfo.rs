@@ -12,7 +12,7 @@ pub fn insert_userinfo(userinfo: &UserInfo) {
             "INSERT INTO userinfo (sub, value) VALUES (:sub, :value) ON DUPLICATE KEY value=:value",
             params! {
                 "sub" => userinfo.sub.to_string(),
-                "value" => to_string(&userinfo).unwrap().to_string(),
+                "value" => to_string(&userinfo).unwrap(),
             },
         )
         .unwrap();

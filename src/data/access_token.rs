@@ -26,6 +26,6 @@ impl AccessToken {
     }
 
     pub fn get(token: &str) -> Option<Self> {
-        get_access_token(&token)
+        get_access_token(token)
     }
 }
