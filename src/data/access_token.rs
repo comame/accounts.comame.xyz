@@ -16,7 +16,7 @@ impl AccessToken {
         let v = Self {
             sub: sub.to_string(),
             scopes: scopes.to_owned(),
-            token: random_str(16),
+            token: random_str(32),
         };
 
         insert_access_token(&v);
