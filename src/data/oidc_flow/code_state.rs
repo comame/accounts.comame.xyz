@@ -21,7 +21,7 @@ impl CodeState {
         redirect_uri: &str,
         sub: &str,
     ) -> Self {
-        let code = random_str(16);
+        let code = random_str(32);
         Self {
             code,
             id_token: id_token.to_string(),
