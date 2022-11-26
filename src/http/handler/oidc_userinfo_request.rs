@@ -12,7 +12,6 @@ fn response_error(error: &str) -> Response<Body> {
         "WWW-Authenticate",
         HeaderValue::from_str(&header_value).unwrap(),
     );
-    *response.status_mut() = StatusCode::UNAUTHORIZED;
 
     response
 }
