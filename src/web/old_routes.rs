@@ -42,14 +42,6 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
             set_no_store(&mut response);
             response = old_handler::signin_continue::no_interaction_fail(req).await;
         }
-        (&Method::GET, "/authenticate") => {
-            set_no_store(&mut response);
-            response = old_handler::oidc_authentication_request::handler(req).await;
-        }
-        (&Method::POST, "/authenticate") => {
-            set_no_store(&mut response);
-            response = old_handler::oidc_authentication_request::handler(req).await;
-        }
         (&Method::POST, "/code") => {
             set_no_store(&mut response);
             response = old_handler::oidc_code_request::handle(req).await;

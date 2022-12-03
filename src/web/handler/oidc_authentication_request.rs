@@ -1,48 +1,51 @@
-use hyper::{Body, Method, Request, Response, StatusCode};
+use std::borrow::BorrowMut;
+
+use http::request::Method;
+use http::{request::Request, response::Response};
 use url::Url;
 
 use crate::data::oidc_flow::authentication_flow_state::LoginRequirement;
 use crate::data::oidc_flow::authentication_request::AuthenticationRequest;
 use crate::enc::url as percent_encoding;
 use crate::oidc::authentication_request::pre_authenticate;
-use crate::web::parse_body::parse_body;
-use crate::web::set_header::set_header;
 
-fn response_bad_request() -> Response<Body> {
-    let mut response = Response::new(Body::from(r#"{"message": "Bad Request"}"#));
-    *response.status_mut() = StatusCode::BAD_REQUEST;
+fn response_bad_request() -> Response {
+    let mut response = Response::new();
+    response.status = 403;
+    response.body = Some(r#"{"message": "Bad Request"}"#.to_string());
     response
 }
 
-fn redirect(url: &str) -> Response<Body> {
-    let mut response = Response::new(Body::empty());
-    *response.status_mut() = StatusCode::FOUND;
-    set_header(&mut response, "Location", url);
+fn redirect(url: &str) -> Response {
+    let mut response = Response::new();
+    response.status = 302;
+    response
+        .headers
+        .borrow_mut()
+        .insert("Location".to_string(), url.to_string());
     response
 }
 
-pub async fn handler(req: Request<Body>) -> Response<Body> {
-    let method = req.method();
+pub fn handler(req: Request) -> Response {
+    let method = req.method;
 
     let mut authentication_request: Result<AuthenticationRequest, ()> = Err(());
 
-    if method == Method::GET {
-        let url = Url::parse(&format!("http://example.com{}", &req.uri().to_string())).unwrap();
-        let query = url.query();
+    if method == Method::Get {
+        let query = req.query;
         if query.is_none() {
             dbg!("invalid");
             return response_bad_request();
         }
 
-        authentication_request = AuthenticationRequest::parse_query(query.unwrap());
-    } else if method == Method::POST {
-        let body = parse_body(req.into_body()).await;
-        if body.is_err() {
+        authentication_request = AuthenticationRequest::parse_query(&query.unwrap());
+    } else if method == Method::Post {
+        if req.body.is_none() {
             dbg!("invalid");
             return response_bad_request();
         }
 
-        authentication_request = AuthenticationRequest::parse_query(&body.unwrap());
+        authentication_request = AuthenticationRequest::parse_query(&req.body.unwrap());
     }
 
     if authentication_request.is_err() {
