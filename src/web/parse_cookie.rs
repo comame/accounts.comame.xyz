@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+#[deprecated]
 pub fn parse_cookie(value: &str) -> Result<HashMap<String, String>, ()> {
     let mut map: HashMap<String, String> = HashMap::new();
 
@@ -73,47 +74,5 @@ pub fn parse_cookie(value: &str) -> Result<HashMap<String, String>, ()> {
         Err(())
     } else {
         Ok(map)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::parse_cookie;
-
-    #[test]
-    fn single_cookie() {
-        let cookies = parse_cookie("key=value").unwrap();
-        let keys: Vec<String> = cookies.keys().cloned().collect();
-        assert_eq!(vec!("key"), keys);
-        assert_eq!(cookies.get("key").unwrap(), "value");
-    }
-
-    #[test]
-    fn multi_cookies() {
-        let cookies = parse_cookie("foo=foo; bar=bar; baz=baz").unwrap();
-        let mut keys: Vec<String> = cookies.keys().cloned().collect();
-        keys.sort();
-        assert_eq!(vec!("bar", "baz", "foo"), keys);
-        assert_eq!(cookies.get("foo").unwrap(), "foo");
-        assert_eq!(cookies.get("bar").unwrap(), "bar");
-        assert_eq!(cookies.get("baz").unwrap(), "baz");
-    }
-
-    #[test]
-    fn empty_string() {
-        let cookies = parse_cookie("").unwrap();
-        assert_eq!(cookies.len(), 0);
-    }
-
-    #[test]
-    fn fail() {
-        assert!(parse_cookie(" ").is_err());
-        assert!(parse_cookie(";").is_err());
-        assert!(parse_cookie("=").is_err());
-        assert!(parse_cookie("hoge").is_err());
-        assert!(parse_cookie("hoge;").is_err());
-        assert!(parse_cookie("hoge=").is_err());
-        assert!(parse_cookie("=hoge").is_err());
-        assert!(parse_cookie(";hoge").is_err());
     }
 }

@@ -5,6 +5,7 @@ use crate::web::mime_types::{extract_extension, get_mime_types};
 use crate::web::set_header::{set_header, set_no_store_old};
 use crate::web::{cachable_file, old_handler, static_file};
 
+#[deprecated]
 pub async fn routes(req: Request<Body>) -> Response<Body> {
     let start_time = std::time::SystemTime::now();
 

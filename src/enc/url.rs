@@ -1,5 +1,6 @@
 use super::hex;
 
+#[deprecated]
 pub fn encode(str: &str) -> String {
     let mut string = String::new();
 
@@ -33,7 +34,7 @@ pub fn encode(str: &str) -> String {
     string
 }
 
-// TODO: Result にする
+#[deprecated]
 pub fn decode(str: &str) -> String {
     let mut string = String::new();
     let mut hex_chars: [char; 2] = ['\0', '\0'];
@@ -67,71 +68,4 @@ pub fn decode(str: &str) -> String {
     }
 
     string
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn hello_world() {
-        assert_eq!("Hello, world!", super::decode("Hello,%20world!"));
-    }
-
-    #[test]
-    fn plus_space() {
-        assert_eq!("a b", super::decode("a+b"));
-    }
-
-    #[test]
-    fn empty() {
-        super::decode("");
-    }
-
-    #[test]
-    fn zero_char() {
-        super::decode("%00");
-    }
-
-    #[test]
-    fn long_encode_decode() {
-        let str = r#"Special characters needing encoding are: ':', '/', '?', '#', '[', ']', '@', '!', '$', '&', "'", '(', ')', '*', '+', ',', ';', '=', as well as '%' itself. Other characters don't need to be encoded, though they could."#;
-        assert_eq!(str, decode(&encode(str)));
-    }
-
-    #[test]
-    #[should_panic]
-    fn melformed_1() {
-        super::decode("%");
-    }
-
-    #[test]
-    #[should_panic]
-    fn melformed_2() {
-        super::decode("%2");
-    }
-
-    #[test]
-    #[should_panic]
-    fn melformed_3() {
-        super::decode("abcde%");
-    }
-
-    #[test]
-    #[should_panic]
-    fn melformed_4() {
-        super::decode("abcde%2");
-    }
-
-    #[test]
-    #[should_panic]
-    fn melformed_5() {
-        super::decode("%z");
-    }
-
-    #[test]
-    #[should_panic]
-    fn melformed_6() {
-        super::decode("%2z");
-    }
 }

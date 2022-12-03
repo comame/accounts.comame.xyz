@@ -52,6 +52,7 @@ fn u8_to_hex_map() -> [String; 256] {
     vec.try_into().unwrap()
 }
 
+// TODO: Result にする
 pub fn encode_hex(bytes: Vec<u8>) -> String {
     let mut str = String::new();
     for byte in bytes {
@@ -60,6 +61,7 @@ pub fn encode_hex(bytes: Vec<u8>) -> String {
     str
 }
 
+// TODO: Result にする
 pub fn decode_hex(hex: &str) -> Vec<u8> {
     let hex = hex.to_ascii_uppercase();
 
@@ -77,84 +79,4 @@ pub fn decode_hex(hex: &str) -> Vec<u8> {
     }
 
     arr
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    type Testcase = (Vec<u8>, &'static str);
-
-    fn testcases() -> Vec<Testcase> {
-        vec![
-            (vec![], ""),
-            (vec![0], "00"),
-            (vec![1], "01"),
-            (vec![255], "FF"),
-            (vec![1, 0], "0100"),
-            (vec![255, 255], "FFFF"),
-            (
-                vec![
-                    105, 196, 224, 216, 106, 123, 4, 48, 216, 205, 183, 128, 112, 180, 197, 90,
-                ],
-                "69C4E0D86A7B0430D8CDB78070B4C55A",
-            ),
-        ]
-    }
-
-    #[test]
-    fn test_encode() {
-        for testcase in testcases() {
-            assert_eq!(encode_hex(testcase.0), testcase.1);
-        }
-    }
-
-    #[test]
-    fn test_encode_case() {
-        let testcases = vec![(vec![255], "ff"), (vec![255], "fF")];
-        for testcase in testcases {
-            assert_eq!(encode_hex(testcase.0), testcase.1.to_uppercase());
-        }
-    }
-
-    #[test]
-    fn test_decode() {
-        for testcase in testcases() {
-            assert_eq!(decode_hex(testcase.1), testcase.0);
-        }
-    }
-
-    #[test]
-    #[ignore = "benchmark"]
-    fn bench_encode() {
-        let start = std::time::SystemTime::now();
-        for _i in 0..1000 {
-            for testcase in testcases() {
-                encode_hex(testcase.0);
-            }
-        }
-        let time_ms = std::time::SystemTime::now()
-            .duration_since(start)
-            .unwrap()
-            .as_millis() as f64
-            / 1000.0;
-        println!("{}", time_ms);
-    }
-
-    #[test]
-    #[ignore = "benchmark"]
-    fn bench_decode() {
-        let start = std::time::SystemTime::now();
-        for _i in 0..1000 {
-            for testcase in testcases() {
-                decode_hex(testcase.1);
-            }
-        }
-        let time_ms = std::time::SystemTime::now()
-            .duration_since(start)
-            .unwrap()
-            .as_millis() as f64
-            / 1000.0;
-        println!("{}", time_ms);
-    }
 }
