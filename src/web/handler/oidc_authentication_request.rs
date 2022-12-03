@@ -1,5 +1,6 @@
 use std::borrow::BorrowMut;
 
+use http::query_builder::QueryBuilder;
 use http::request::Method;
 use http::{request::Request, response::Response};
 use url::Url;
@@ -62,16 +63,16 @@ pub fn handler(req: Request) -> Response {
         }
 
         let redirect_url = &err.redirect_uri.unwrap();
-        let mut uri = Url::parse(redirect_url).unwrap();
 
         let error_body = err.response;
-        uri.query_pairs_mut()
-            .append_pair("error", &error_body.error.to_string());
+
+        let mut query = QueryBuilder::new();
+        query.append("error", &error_body.error.to_string());
         if let Some(state) = error_body.state {
-            uri.query_pairs_mut().append_pair("state", &state);
+            query.append("state", &state);
         }
 
-        return redirect(uri.as_str());
+        return redirect(&format!("{redirect_url}?{}", query.build()));
     }
 
     // 正常系
