@@ -2,7 +2,7 @@ use hyper::{Body, Method, Request, Response, StatusCode};
 
 use crate::web::cachable_file::CacheResult;
 use crate::web::mime_types::{extract_extension, get_mime_types};
-use crate::web::set_header::{set_header, set_no_store};
+use crate::web::set_header::{set_header, set_no_store_old};
 use crate::web::{cachable_file, old_handler, static_file};
 
 pub async fn routes(req: Request<Body>) -> Response<Body> {
@@ -27,31 +27,31 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
             response = old_handler::signout::signout(req).await;
         }
         (&Method::POST, "/api/signin-password") => {
-            set_no_store(&mut response);
+            set_no_store_old(&mut response);
             response = old_handler::signin::sign_in_with_password(req).await;
         }
         (&Method::POST, "/api/signin-session") => {
-            set_no_store(&mut response);
+            set_no_store_old(&mut response);
             response = old_handler::signin::sign_in_with_session(req).await;
         }
         (&Method::POST, "/api/signin-continue") => {
-            set_no_store(&mut response);
+            set_no_store_old(&mut response);
             response = old_handler::signin_continue::handler(req).await;
         }
         (&Method::POST, "/api/signin-continue-nointeraction-fail") => {
-            set_no_store(&mut response);
+            set_no_store_old(&mut response);
             response = old_handler::signin_continue::no_interaction_fail(req).await;
         }
         (&Method::POST, "/code") => {
-            set_no_store(&mut response);
+            set_no_store_old(&mut response);
             response = old_handler::oidc_code_request::handle(req).await;
         }
         (&Method::GET, "/userinfo") => {
-            set_no_store(&mut response);
+            set_no_store_old(&mut response);
             response = old_handler::oidc_userinfo_request::handle(req).await;
         }
         (&Method::POST, "/userinfo") => {
-            set_no_store(&mut response);
+            set_no_store_old(&mut response);
             response = old_handler::oidc_userinfo_request::handle(req).await;
         }
         (&Method::GET, "/.well-known/openid-configuration") => {

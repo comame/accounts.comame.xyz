@@ -3,17 +3,18 @@ use std::borrow::BorrowMut;
 use http::query_builder::QueryBuilder;
 use http::request::Method;
 use http::{request::Request, response::Response};
-use url::Url;
 
 use crate::data::oidc_flow::authentication_flow_state::LoginRequirement;
 use crate::data::oidc_flow::authentication_request::AuthenticationRequest;
 use crate::enc::url as percent_encoding;
 use crate::oidc::authentication_request::pre_authenticate;
+use crate::web::set_header::no_store;
 
 fn response_bad_request() -> Response {
     let mut response = Response::new();
     response.status = 403;
     response.body = Some(r#"{"message": "Bad Request"}"#.to_string());
+    no_store(&mut response);
     response
 }
 
@@ -24,6 +25,7 @@ fn redirect(url: &str) -> Response {
         .headers
         .borrow_mut()
         .insert("Location".to_string(), url.to_string());
+    no_store(&mut response);
     response
 }
 
