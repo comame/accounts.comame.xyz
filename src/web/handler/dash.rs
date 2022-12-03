@@ -2,8 +2,8 @@ use hyper::{Body, Request, Response, StatusCode};
 use url::Url;
 
 use crate::dash::signin;
-use crate::http::parse_form_urlencoded::parse;
-use crate::http::{set_header, static_file};
+use crate::web::parse_form_urlencoded::parse;
+use crate::web::{set_header, static_file};
 
 #[inline]
 fn response_bad_request() -> Response<Body> {

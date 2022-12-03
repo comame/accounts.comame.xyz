@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::http::parse_form_urlencoded::parse;
+use crate::web::parse_form_urlencoded::parse;
 
 #[derive(Debug)]
 pub struct CodeRequest {

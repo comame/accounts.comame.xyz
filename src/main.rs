@@ -4,9 +4,9 @@ use std::net::SocketAddr;
 
 use auth::password::calculate_password_hash;
 use data::user_binding::UserBinding;
-use http::set_header::set_header;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request, Response, Server, StatusCode};
+use web::set_header::set_header;
 
 use crate::auth::password::set_password;
 use crate::data::rsa_keypair::RsaKeypair;
@@ -20,10 +20,10 @@ mod data;
 mod db;
 mod enc;
 mod external;
-mod http;
 mod mail;
 mod oidc;
 mod time;
+mod web;
 
 fn create_admin_user() {
     let user_id = env::var("ADMIN_USER").unwrap();
@@ -67,9 +67,9 @@ fn moved_permanently(path: &str) -> Response<Body> {
 }
 
 async fn service(req: Request<Body>) -> Result<Response<Body>, Infallible> {
-    Ok(match http::uri::trim(req.uri().path()) {
+    Ok(match web::uri::trim(req.uri().path()) {
         Some(path) => moved_permanently(path.as_str()),
-        None => http::routes::routes(req).await,
+        None => web::routes::routes(req).await,
     })
 }
 

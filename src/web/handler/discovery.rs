@@ -3,7 +3,7 @@ use std::env;
 use hyper::{Body, Request, Response};
 
 use crate::data::rsa_keypair::RsaKeypair;
-use crate::http::static_file;
+use crate::web::static_file;
 
 pub async fn handle_config(_req: Request<Body>) -> Response<Body> {
     let file = static_file::read("/openid-config.json").unwrap();

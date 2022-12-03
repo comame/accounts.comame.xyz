@@ -4,9 +4,9 @@ use url::Url;
 use crate::data::oidc_flow::authentication_flow_state::LoginRequirement;
 use crate::data::oidc_flow::authentication_request::AuthenticationRequest;
 use crate::enc::url as percent_encoding;
-use crate::http::parse_body::parse_body;
-use crate::http::set_header::set_header;
 use crate::oidc::authentication_request::pre_authenticate;
+use crate::web::parse_body::parse_body;
+use crate::web::set_header::set_header;
 
 fn response_bad_request() -> Response<Body> {
     let mut response = Response::new(Body::from(r#"{"message": "Bad Request"}"#));

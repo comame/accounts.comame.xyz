@@ -2,9 +2,9 @@ use hyper::{Body, Request, Response, StatusCode};
 use url::Url;
 
 use crate::auth::session::revoke_session_by_token;
-use crate::http::parse_cookie::parse_cookie;
-use crate::http::parse_form_urlencoded::parse;
-use crate::http::set_header;
+use crate::web::parse_cookie::parse_cookie;
+use crate::web::parse_form_urlencoded::parse;
+use crate::web::set_header;
 
 pub async fn signout(req: Request<Body>) -> Response<Body> {
     let mut response = Response::new(Body::from("{}"));
@@ -67,10 +67,10 @@ mod tests {
     use crate::data::user::User;
     use crate::db::_test_init::{init_mysql, init_redis};
     use crate::db::user::insert_user;
-    use crate::http::data::password_sign_in_request::PasswordSignInRequest;
-    use crate::http::handler::signin::{sign_in_with_password, sign_in_with_session};
-    use crate::http::parse_cookie::parse_cookie;
-    use crate::http::set_header::set_header_req;
+    use crate::web::data::password_sign_in_request::PasswordSignInRequest;
+    use crate::web::handler::signin::{sign_in_with_password, sign_in_with_session};
+    use crate::web::parse_cookie::parse_cookie;
+    use crate::web::set_header::set_header_req;
 
     fn setup_user(user_id: &str) {
         insert_user(&User {

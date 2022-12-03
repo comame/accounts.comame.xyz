@@ -107,12 +107,16 @@ mod tests {
     fn empty() {
         let map = parse("").unwrap();
         assert!(map.is_empty());
+
+        let map = parse(" ").unwrap();
+        assert!(map.is_empty());
     }
 
     #[test]
     fn errors() {
-        let errors = vec![" ", "=", "&", "foo&", "bar=", "&foo", "=bar"];
+        let errors = vec!["=", "&", "&foo", "=bar"];
         for error in errors {
+            dbg!(error);
             assert!(parse(error).is_err());
         }
     }

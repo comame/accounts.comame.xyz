@@ -9,9 +9,9 @@ use crate::data::oidc_flow::code_request::CodeRequest;
 use crate::data::oidc_flow::code_response::CodeResponse;
 use crate::db::redis;
 use crate::enc::url::encode;
-use crate::http::data::tools_id_token::{IdTokenRequest, IdTokenResponse};
-use crate::http::parse_body::parse_body;
 use crate::time::now;
+use crate::web::data::tools_id_token::{IdTokenRequest, IdTokenResponse};
+use crate::web::parse_body::parse_body;
 
 const PREFIX_NONCE: &str = "DASH-SIGN";
 const PREFIX_TOKEN: &str = "DASH-TOKEN";

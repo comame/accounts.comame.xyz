@@ -2,8 +2,8 @@ use hyper::{Body, Request, Response, StatusCode};
 use serde_json::{from_str, to_string};
 
 use crate::external::verfy_id_token::verify_id_token;
-use crate::http::data::tools_id_token::{IdTokenRequest, IdTokenResponse};
-use crate::http::parse_body::parse_body;
+use crate::web::data::tools_id_token::{IdTokenRequest, IdTokenResponse};
+use crate::web::parse_body::parse_body;
 
 fn response_bad_request() -> Response<Body> {
     let mut res = Response::new(Body::from(r#"{"error": "invalid_request"}"#));

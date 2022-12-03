@@ -4,15 +4,15 @@ use serde_json::{from_str, to_string};
 use crate::auth::session::{self, create_session};
 use crate::auth::{csrf_token, password};
 use crate::data::authentication::{Authentication, LoginPrompt};
-use crate::http::data::password_sign_in_request::PasswordSignInRequest;
-use crate::http::data::password_sign_in_response::PasswordSignInResponse;
-use crate::http::data::session_sign_in_request::SessionSignInRequest;
-use crate::http::data::session_sign_in_response::SessionSignInResponse;
-use crate::http::get_remote_addr::get_remote_addr;
-use crate::http::parse_body::parse_body;
-use crate::http::parse_cookie::parse_cookie;
-use crate::http::set_header::set_header;
-use crate::http::static_file;
+use crate::web::data::password_sign_in_request::PasswordSignInRequest;
+use crate::web::data::password_sign_in_response::PasswordSignInResponse;
+use crate::web::data::session_sign_in_request::SessionSignInRequest;
+use crate::web::data::session_sign_in_response::SessionSignInResponse;
+use crate::web::get_remote_addr::get_remote_addr;
+use crate::web::parse_body::parse_body;
+use crate::web::parse_cookie::parse_cookie;
+use crate::web::set_header::set_header;
+use crate::web::static_file;
 
 #[inline]
 fn response_bad_request() -> Response<Body> {
@@ -169,7 +169,7 @@ mod tests {
     use crate::data::user::User;
     use crate::db::_test_init::{init_mysql, init_redis};
     use crate::db::user::insert_user;
-    use crate::http::set_header::set_header_req;
+    use crate::web::set_header::set_header_req;
 
     fn setup_user(user_id: &str) {
         insert_user(&User {

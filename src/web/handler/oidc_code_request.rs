@@ -3,8 +3,8 @@ use serde_json::to_string;
 
 use crate::data::oidc_flow::code_request::CodeRequest;
 use crate::enc::basic_auth::BasicAuthorization;
-use crate::http::parse_body::parse_body;
 use crate::oidc::code_request::code_request;
+use crate::web::parse_body::parse_body;
 
 fn response_bad_request() -> Response<Body> {
     let mut response = Response::new(Body::from(r#"{"error": "invalid_request"}"#));

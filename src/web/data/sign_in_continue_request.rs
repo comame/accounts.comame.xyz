@@ -1,5 +1,5 @@
 use crate::data::authentication::AuthenticationMethod;
-use crate::http::parse_form_urlencoded::parse;
+use crate::web::parse_form_urlencoded::parse;
 
 #[derive(PartialEq, Eq, Debug)]
 pub struct SignInContinueRequest {

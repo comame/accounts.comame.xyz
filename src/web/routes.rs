@@ -1,9 +1,9 @@
 use hyper::{Body, Method, Request, Response, StatusCode};
 
-use crate::http::cachable_file::CacheResult;
-use crate::http::mime_types::{extract_extension, get_mime_types};
-use crate::http::set_header::{set_header, set_no_store};
-use crate::http::{cachable_file, handler, static_file};
+use crate::web::cachable_file::CacheResult;
+use crate::web::mime_types::{extract_extension, get_mime_types};
+use crate::web::set_header::{set_header, set_no_store};
+use crate::web::{cachable_file, handler, static_file};
 
 pub async fn routes(req: Request<Body>) -> Response<Body> {
     let start_time = std::time::SystemTime::now();

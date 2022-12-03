@@ -8,15 +8,15 @@ use crate::data::oidc_flow::authentication_flow_state::OidcFlow;
 use crate::data::oidc_flow::authentication_response::AuthenticationResponse;
 use crate::data::user_binding::UserBinding;
 use crate::enc::url::encode;
-use crate::http::data::sign_in_continue_request::{
+use crate::oidc::authentication_request::{post_authentication, pronpt_none_fail_authentication};
+use crate::web::data::sign_in_continue_request::{
     SignInContinueNoSessionRequest, SignInContinueRequest,
 };
-use crate::http::data::sign_in_continue_response::SigninContinueSuccessResponse;
-use crate::http::get_remote_addr::get_remote_addr;
-use crate::http::parse_body::parse_body;
-use crate::http::parse_cookie::parse_cookie;
-use crate::http::set_header::set_header;
-use crate::oidc::authentication_request::{post_authentication, pronpt_none_fail_authentication};
+use crate::web::data::sign_in_continue_response::SigninContinueSuccessResponse;
+use crate::web::get_remote_addr::get_remote_addr;
+use crate::web::parse_body::parse_body;
+use crate::web::parse_cookie::parse_cookie;
+use crate::web::set_header::set_header;
 
 #[inline]
 fn response_bad_request() -> Response<Body> {

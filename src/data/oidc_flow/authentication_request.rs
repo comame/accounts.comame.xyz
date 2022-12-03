@@ -1,6 +1,6 @@
 use super::oidc_scope::Scopes;
 use crate::data::authentication::LoginPrompt;
-use crate::http::parse_form_urlencoded::parse;
+use crate::web::parse_form_urlencoded::parse;
 
 #[derive(Debug)]
 pub struct AuthenticationRequest {

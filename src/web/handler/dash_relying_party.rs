@@ -3,14 +3,14 @@ use serde_json::{from_str, to_string};
 
 use crate::dash::relying_party;
 use crate::dash::signin::validate_token;
-use crate::http::data::dash_rp_request::{
+use crate::web::data::dash_rp_request::{
     RelyingPartyAddRedirectUriRequest, RelyingPartyBindingRequest, RelyingPartyClientIdRequest,
 };
-use crate::http::data::dash_rp_response::{
+use crate::web::data::dash_rp_response::{
     RelyingPartiesResponse, RelyingPartyBindingResponse, RelyingPartyRawSecretResponse,
 };
-use crate::http::data::dash_standard_request::StandardRequest;
-use crate::http::parse_body::parse_body;
+use crate::web::data::dash_standard_request::StandardRequest;
+use crate::web::parse_body::parse_body;
 
 #[inline]
 fn response_unauthorized() -> Response<Body> {

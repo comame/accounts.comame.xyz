@@ -3,10 +3,10 @@ use serde_json::{from_str, to_string};
 
 use crate::dash::signin::validate_token;
 use crate::dash::user::{self, get_idtoken_issues};
-use crate::http::data::dash_standard_request::StandardRequest;
-use crate::http::data::dash_user_request::{UserIdPasswordRequest, UserIdRequest};
-use crate::http::data::dash_user_response::{IdTokenIssueResponse, ListUserRespnse};
-use crate::http::parse_body::parse_body;
+use crate::web::data::dash_standard_request::StandardRequest;
+use crate::web::data::dash_user_request::{UserIdPasswordRequest, UserIdRequest};
+use crate::web::data::dash_user_response::{IdTokenIssueResponse, ListUserRespnse};
+use crate::web::parse_body::parse_body;
 
 #[inline]
 fn response_unauthorized() -> Response<Body> {
