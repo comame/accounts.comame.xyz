@@ -69,7 +69,7 @@ fn moved_permanently(path: &str) -> Response<Body> {
 async fn service(req: Request<Body>) -> Result<Response<Body>, Infallible> {
     Ok(match web::uri::trim(req.uri().path()) {
         Some(path) => moved_permanently(path.as_str()),
-        None => web::routes::routes(req).await,
+        None => web::old_routes::routes(req).await,
     })
 }
 

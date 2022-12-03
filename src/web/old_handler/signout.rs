@@ -68,7 +68,7 @@ mod tests {
     use crate::db::_test_init::{init_mysql, init_redis};
     use crate::db::user::insert_user;
     use crate::web::data::password_sign_in_request::PasswordSignInRequest;
-    use crate::web::handler::signin::{sign_in_with_password, sign_in_with_session};
+    use crate::web::old_handler::signin::{sign_in_with_password, sign_in_with_session};
     use crate::web::parse_cookie::parse_cookie;
     use crate::web::set_header::set_header_req;
 
