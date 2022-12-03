@@ -7,7 +7,6 @@ use crate::data::authentication_failure::AuthenticationFailure;
 use crate::data::oidc_flow::authentication_flow_state::OidcFlow;
 use crate::data::oidc_flow::authentication_response::AuthenticationResponse;
 use crate::data::user_binding::UserBinding;
-use crate::enc::url::encode;
 use crate::oidc::authentication_request::{post_authentication, pronpt_none_fail_authentication};
 use crate::web::data::sign_in_continue_request::{
     SignInContinueNoSessionRequest, SignInContinueRequest,
@@ -149,10 +148,10 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
                 let mut hash = String::new();
                 hash.push_str(&format!(
                     "error={}",
-                    encode(error_body.error.to_string().as_str())
+                    http::enc::url_encode::encode(error_body.error.to_string().as_str())
                 ));
                 if let Some(state) = error_body.state {
-                    hash.push_str(&format!("&state={}", encode(&state)))
+                    hash.push_str(&format!("&state={}", http::enc::url_encode::encode(&state)))
                 }
                 return redirect_in_browser(&format!("{redirect_uri}#{hash}"));
             }
@@ -176,9 +175,12 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
         AuthenticationResponse::Implicit(res) => {
             let mut hash = String::new();
 
-            hash.push_str(&format!("id_token={}", encode(&res.id_token)));
+            hash.push_str(&format!(
+                "id_token={}",
+                http::enc::url_encode::encode(&res.id_token)
+            ));
             if let Some(ref state) = res.state {
-                hash.push_str(&format!("&state={}", encode(state)));
+                hash.push_str(&format!("&state={}", http::enc::url_encode::encode(state)));
             }
 
             let redirect_uri = format!("{}#{}", result.redirect_uri, hash);

@@ -7,7 +7,6 @@ use serde::{Deserialize, Serialize};
 use serde_json::{from_str, to_string};
 
 use crate::enc::base64::encode_base64_url;
-use crate::enc::url::encode;
 use crate::web::parse_body::parse_body;
 use crate::web::set_header::set_header_req;
 
@@ -123,9 +122,9 @@ impl Display for TokenRequest {
         write!(
             f,
             "client_id={}&client_secret={}&refresh_token={}&grant_type=refresh_token",
-            encode(&self.client_id),
-            encode(&self.client_secret),
-            encode(&self.refresh_token)
+            http::enc::url_encode::encode(&self.client_id),
+            http::enc::url_encode::encode(&self.client_secret),
+            http::enc::url_encode::encode(&self.refresh_token)
         )
     }
 }

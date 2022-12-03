@@ -1,7 +1,5 @@
 use std::collections::HashMap;
 
-use crate::enc::url::decode;
-
 #[deprecated]
 pub fn parse(body: &str) -> Result<HashMap<String, String>, ()> {
     let mut map: HashMap<String, String> = HashMap::new();
@@ -35,8 +33,8 @@ pub fn parse(body: &str) -> Result<HashMap<String, String>, ()> {
             }
 
             map.insert(
-                decode(&tmp_key.iter().collect::<String>()),
-                decode(&tmp_value.iter().collect::<String>()),
+                http::enc::url_encode::decode(&tmp_key.iter().collect::<String>()).unwrap(),
+                http::enc::url_encode::decode(&tmp_value.iter().collect::<String>()).unwrap(),
             );
             tmp_key = vec![];
             tmp_value = vec![];
@@ -49,7 +47,7 @@ pub fn parse(body: &str) -> Result<HashMap<String, String>, ()> {
             }
 
             map.insert(
-                decode(&tmp_key.iter().collect::<String>()),
+                http::enc::url_encode::decode(&tmp_key.iter().collect::<String>()).unwrap(),
                 String::from(""),
             );
 
@@ -65,8 +63,8 @@ pub fn parse(body: &str) -> Result<HashMap<String, String>, ()> {
     }
 
     map.insert(
-        decode(&tmp_key.iter().collect::<String>()),
-        decode(&tmp_value.iter().collect::<String>()),
+        http::enc::url_encode::decode(&tmp_key.iter().collect::<String>()).unwrap(),
+        http::enc::url_encode::decode(&tmp_value.iter().collect::<String>()).unwrap(),
     );
 
     Ok(map)

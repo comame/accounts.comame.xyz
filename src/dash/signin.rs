@@ -8,7 +8,6 @@ use crate::crypto::rand::random_str;
 use crate::data::oidc_flow::code_request::CodeRequest;
 use crate::data::oidc_flow::code_response::CodeResponse;
 use crate::db::redis;
-use crate::enc::url::encode;
 use crate::time::now;
 use crate::web::data::tools_id_token::{IdTokenRequest, IdTokenResponse};
 use crate::web::parse_body::parse_body;
@@ -51,7 +50,7 @@ pub async fn callback(state: &str, code: &str) -> Result<String, ()> {
         "grant_type={}&code={}&redirect_uri={}&client_id={}&client_secret={}",
         code_request.grant_type,
         code_request.code,
-        encode(&code_request.redirect_uri),
+        http::enc::url_encode::encode(&code_request.redirect_uri),
         code_request.client_id,
         code_request.client_secret.unwrap(),
     );

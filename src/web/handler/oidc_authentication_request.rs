@@ -6,7 +6,6 @@ use http::{request::Request, response::Response};
 
 use crate::data::oidc_flow::authentication_flow_state::LoginRequirement;
 use crate::data::oidc_flow::authentication_request::AuthenticationRequest;
-use crate::enc::url as percent_encoding;
 use crate::oidc::authentication_request::pre_authenticate;
 use crate::web::set_header::no_store;
 
@@ -80,7 +79,7 @@ pub fn handler(req: Request) -> Response {
     // 正常系
     let state = result.unwrap();
     let sid = &state.id();
-    let cid = percent_encoding::encode(&state.relying_party_id);
+    let cid = http::enc::url_encode::encode(&state.relying_party_id);
     let uri = match state.login_requirement {
         LoginRequirement::Consent => format!("/confirm?sid={sid}&cid={}", cid),
         LoginRequirement::ReAuthenticate => format!("/reauthenticate?sid={sid}&cid={}", cid),
