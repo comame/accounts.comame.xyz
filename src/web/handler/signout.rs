@@ -1,4 +1,5 @@
-use http::{request::Request, response::Response};
+use http::request::Request;
+use http::response::Response;
 
 use crate::auth::session::revoke_session_by_token;
 

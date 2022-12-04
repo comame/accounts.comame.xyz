@@ -1,5 +1,8 @@
+use std::borrow::BorrowMut;
+use std::collections::HashMap;
+use std::fmt::Display;
+
 use for_test::CookieOptions;
-use std::{borrow::BorrowMut, collections::HashMap, fmt::Display};
 
 pub fn parse(header_value: &str) -> Result<HashMap<String, String>, ()> {
     let mut map = HashMap::new();

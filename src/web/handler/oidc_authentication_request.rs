@@ -1,8 +1,8 @@
 use std::borrow::BorrowMut;
 
 use http::query_builder::QueryBuilder;
-use http::request::Method;
-use http::{request::Request, response::Response};
+use http::request::{Method, Request};
+use http::response::Response;
 
 use crate::data::oidc_flow::authentication_flow_state::LoginRequirement;
 use crate::data::oidc_flow::authentication_request::AuthenticationRequest;

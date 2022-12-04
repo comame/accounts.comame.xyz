@@ -1,6 +1,5 @@
 use std::ops::Not;
 
-
 use serde::Serialize;
 
 use crate::auth::password::calculate_password_hash;

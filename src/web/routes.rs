@@ -1,18 +1,13 @@
-use http::{
-    hyper::{from_hyper_request, from_hyper_request_without_body, to_hyper_response},
-    request::Method,
-    response::Response,
-};
+use http::hyper::{from_hyper_request, from_hyper_request_without_body, to_hyper_response};
+use http::request::Method;
+use http::response::Response;
 use hyper::{Body, Request as HyperRequest, Response as HyperResponse};
 
+use super::cachable_file::{self, CacheResult};
+use super::get_remote_addr::get_remote_addr;
+use super::mime_types::{extract_extension, get_mime_types};
+use super::static_file;
 use crate::web::handler;
-
-use super::{
-    cachable_file::{self, CacheResult},
-    get_remote_addr::get_remote_addr,
-    mime_types::{extract_extension, get_mime_types},
-    static_file,
-};
 
 pub async fn routes(hyper_request: HyperRequest<Body>) -> HyperResponse<Body> {
     let start_time = std::time::SystemTime::now();

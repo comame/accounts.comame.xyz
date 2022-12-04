@@ -1,4 +1,5 @@
-use std::{collections::HashMap, fmt::Display};
+use std::collections::HashMap;
+use std::fmt::Display;
 
 pub struct Request {
     pub method: Method,

@@ -1,4 +1,5 @@
-use http::{request::Request, response::Response};
+use http::request::Request;
+use http::response::Response;
 use serde_json::to_string;
 
 use crate::oidc::userinfo::{userinfo, ErrorReason};
