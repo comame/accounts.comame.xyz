@@ -80,6 +80,8 @@ impl CookieOptionBuilder {
         }
         cookie.push_str(&format!("; SameSite={}", self.opt.same_site));
 
+        cookie.push_str("; Path=/");
+
         cookie
     }
 
@@ -245,7 +247,7 @@ mod tests {
     #[test]
     fn basic_build() {
         let cookie = build("key", "value").build();
-        assert_eq!(cookie, "key=value; Secure; HttpOnly; SameSite=Lax");
+        assert_eq!(cookie, "key=value; Secure; HttpOnly; SameSite=Lax; Path=/");
     }
 
     #[test]
@@ -257,7 +259,7 @@ mod tests {
             .build();
         assert_eq!(
             cookie,
-            "key=value; MaxAge=100; Domain=example.com; Secure; HttpOnly; SameSite=Lax"
+            "key=value; MaxAge=100; Domain=example.com; Secure; HttpOnly; SameSite=Lax; Path=/"
         );
     }
 
@@ -268,13 +270,14 @@ mod tests {
             .http_only(false)
             .same_site(SameSite::None)
             .build();
-        assert_eq!(cookie, "key=value; SameSite=None");
+        assert_eq!(cookie, "key=value; SameSite=None; Path=/");
     }
 
     #[test]
     fn basic_set_cookie() {
         let result =
-            for_test::parse_set_cookie("key=value; Secure; HttpOnly; SameSite=Lax").unwrap();
+            for_test::parse_set_cookie("key=value; Secure; HttpOnly; SameSite=Lax; Path=/")
+                .unwrap();
         assert_eq!(result.0, "key");
         assert_eq!(result.1, "value");
         assert_eq!(result.2.domain, None);
@@ -299,7 +302,7 @@ mod tests {
     #[test]
     fn full_set_cookie() {
         let result = for_test::parse_set_cookie(
-            "key=value; Secure; HttpOnly; SameSite=Strict; Domain=example.com; MaxAge=100",
+            "key=value; Secure; HttpOnly; SameSite=Strict; Domain=example.com; MaxAge=100; Path=/",
         )
         .unwrap();
         assert_eq!(result.0, "key");
