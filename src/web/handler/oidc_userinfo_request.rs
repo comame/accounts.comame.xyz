@@ -1,32 +1,31 @@
-use hyper::http::HeaderValue;
-use hyper::{Body, Request, Response};
+use http::{request::Request, response::Response};
 use serde_json::to_string;
 
 use crate::oidc::userinfo::{userinfo, ErrorReason};
 
-fn response_error(error: &str) -> Response<Body> {
-    let mut response = Response::new(Body::empty());
-
-    let header_value = format!(r#"error="{}""#, error);
-
-    response.headers_mut().append(
-        "WWW-Authenticate",
-        HeaderValue::from_str(&header_value).unwrap(),
+fn response_error(error: &str) -> Response {
+    let mut response = Response::new();
+    response.headers.insert(
+        "WWW-Authenticate".to_string(),
+        format!(r#"error="{}""#, error),
     );
-
     response
 }
 
-pub async fn handle(req: Request<Body>) -> Response<Body> {
+pub fn handle(req: Request) -> Response {
     let mut token = String::new();
 
-    let authorization_header_value = req.headers().get("Authorization").cloned();
+    let authorization_header_value = req.headers.get("Authorization").cloned();
+    dbg!(req.headers);
+    dbg!(&authorization_header_value);
     if let Some(header) = authorization_header_value {
-        let value = header.to_str().unwrap();
+        let value = &header;
         if value.len() > "Bearer ".len() {
             token = value["Bearer ".len()..].to_string();
         }
     }
+
+    dbg!(&token);
 
     // TODO: クエリにも対応する
 
@@ -46,5 +45,7 @@ pub async fn handle(req: Request<Body>) -> Response<Body> {
 
     let result = result.unwrap();
 
-    Response::new(Body::from(to_string(&result).unwrap()))
+    let mut res = Response::new();
+    res.body = Some(to_string(&result).unwrap());
+    res
 }
