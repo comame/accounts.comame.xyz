@@ -1,5 +1,6 @@
 use std::env;
 
+use hyper::body::to_bytes;
 use hyper::{Body, Client, Method, Request};
 use hyper_tls::HttpsConnector;
 use serde_json::{from_str, to_string};
@@ -10,7 +11,6 @@ use crate::data::oidc_flow::code_response::CodeResponse;
 use crate::db::redis;
 use crate::time::now;
 use crate::web::data::tools_id_token::{IdTokenRequest, IdTokenResponse};
-use crate::web::parse_body::parse_body;
 
 const PREFIX_NONCE: &str = "DASH-SIGN";
 const PREFIX_TOKEN: &str = "DASH-TOKEN";
@@ -147,4 +147,22 @@ pub fn validate_token(token: &str) -> bool {
     let token_redis_key = format!("{PREFIX_TOKEN}:{token}");
     let token = redis::get(&token_redis_key);
     token.is_some()
+}
+
+async fn parse_body(body: Body) -> Result<String, ()> {
+    let bytes = to_bytes(body).await;
+    if let Err(err) = bytes {
+        eprintln!("{}", err);
+        return Err(());
+    }
+
+    let vec = bytes.unwrap().iter().cloned().collect::<Vec<u8>>();
+
+    let str = String::from_utf8(vec);
+    if let Err(err) = str {
+        eprintln!("{}", err);
+        return Err(());
+    }
+
+    Ok(str.unwrap())
 }

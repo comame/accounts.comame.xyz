@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt::Display};
 
 pub struct Request {
     pub method: Method,
@@ -13,4 +13,14 @@ pub struct Request {
 pub enum Method {
     Get,
     Post,
+}
+
+impl Display for Method {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let str = match self {
+            Self::Get => "Get",
+            Self::Post => "Post",
+        };
+        write!(f, "{str}")
+    }
 }

@@ -3,7 +3,6 @@ use serde_json::{from_str, to_string};
 
 use crate::external::verfy_id_token::verify_id_token;
 use crate::web::data::tools_id_token::{IdTokenRequest, IdTokenResponse};
-use crate::web::parse_body::parse_body;
 
 fn response_bad_request() -> Response {
     let mut res = Response::new();

@@ -4,9 +4,9 @@ use std::net::SocketAddr;
 
 use auth::password::calculate_password_hash;
 use data::user_binding::UserBinding;
+use hyper::http::HeaderValue;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request, Response, Server, StatusCode};
-use web::set_header::set_header;
 
 use crate::auth::password::set_password;
 use crate::data::rsa_keypair::RsaKeypair;
@@ -62,7 +62,8 @@ fn create_default_rp() {
 fn moved_permanently(path: &str) -> Response<Body> {
     let mut response = Response::new(Body::empty());
     *response.status_mut() = StatusCode::MOVED_PERMANENTLY;
-    set_header(&mut response, "Location", path);
+    let header_value = HeaderValue::from_str(path).unwrap();
+    response.headers_mut().append("Location", header_value);
     response
 }
 

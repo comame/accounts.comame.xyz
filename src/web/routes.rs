@@ -1,14 +1,22 @@
 use http::{
     hyper::{from_hyper_request, from_hyper_request_without_body, to_hyper_response},
     request::Method,
+    response::Response,
 };
 use hyper::{Body, Request as HyperRequest, Response as HyperResponse};
 
 use crate::web::handler;
 
-use super::get_remote_addr::get_remote_addr;
+use super::{
+    cachable_file::{self, CacheResult},
+    get_remote_addr::get_remote_addr,
+    mime_types::{extract_extension, get_mime_types},
+    static_file,
+};
 
 pub async fn routes(hyper_request: HyperRequest<Body>) -> HyperResponse<Body> {
+    let start_time = std::time::SystemTime::now();
+
     let remote_address = get_remote_addr(&hyper_request);
     let req = from_hyper_request_without_body(&hyper_request);
 
@@ -140,8 +148,68 @@ pub async fn routes(hyper_request: HyperRequest<Body>) -> HyperResponse<Body> {
             let req = from_hyper_request(hyper_request).await; // FIXME: 移行後に消す
             handler::dash_user::list_token_issues(req)
         }
-        _ => return crate::web::old_routes::routes(hyper_request).await,
+        _ => {
+            let file = cachable_file::read_with_etag(&req.path);
+
+            let extension = extract_extension(&req.path);
+            let content_type = get_mime_types(&extension);
+
+            let mut res = Response::new();
+
+            if let Some(content_type) = content_type {
+                res.headers.insert("Content-Type".to_string(), content_type);
+            }
+
+            if file.is_none() {
+                res.body = Some("Not Found".to_string());
+                res.status = 404;
+            } else {
+                let file = file.unwrap();
+
+                res.headers
+                    .insert("Cache-Control".to_string(), "no-cache".to_string());
+
+                match file {
+                    CacheResult::Etag(etag) => {
+                        let previous_etag = req.headers.get("If-None-Match").cloned();
+                        if !cfg!(not(debug_assertions)) || previous_etag.is_none() {
+                            res.headers.insert("Etag".into(), format!(r#""{}""#, etag));
+                            res.body = Some(
+                                String::from_utf8(static_file::read(&req.path).unwrap()).unwrap(),
+                            );
+                        } else {
+                            let previous_etag = previous_etag.unwrap();
+                            if previous_etag == format!("\"{}\"", etag) {
+                                res.status = 304; // NOT MODIFIED
+                            } else {
+                                res.headers.insert("Etag".into(), format!(r#""{}""#, etag));
+                                res.body = Some(
+                                    String::from_utf8(static_file::read(&req.path).unwrap())
+                                        .unwrap(),
+                                );
+                            }
+                        }
+                    }
+                    CacheResult::Value(value) => {
+                        res.headers
+                            .insert("Etag".into(), format!(r#""{}""#, value.etag));
+                        res.body =
+                            Some(String::from_utf8(static_file::read(&req.path).unwrap()).unwrap());
+                    }
+                }
+            }
+            res
+        }
     };
 
-    to_hyper_response(response)
+    let result = to_hyper_response(response);
+
+    let time = std::time::SystemTime::now()
+        .duration_since(start_time)
+        .unwrap()
+        .as_millis();
+
+    println!("REQ {} {} {time}", req.method, req.path);
+
+    result
 }

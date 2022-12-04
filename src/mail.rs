@@ -1,5 +1,6 @@
 use std::fmt::Display;
 
+use hyper::body::to_bytes;
 use hyper::client::HttpConnector;
 use hyper::{Body, Client, Method, Request, StatusCode};
 use hyper_tls::HttpsConnector;
@@ -7,7 +8,6 @@ use serde::{Deserialize, Serialize};
 use serde_json::{from_str, to_string};
 
 use crate::enc::base64::encode_base64_url;
-use crate::web::parse_body::parse_body;
 use crate::web::set_header::set_header_req;
 
 static mut ACCESS_TOKEN: Option<String> = None;
@@ -190,4 +190,22 @@ fn set_token(token: &str) {
 
 fn get_current_token() -> Option<String> {
     unsafe { ACCESS_TOKEN.clone() }
+}
+
+async fn parse_body(body: Body) -> Result<String, ()> {
+    let bytes = to_bytes(body).await;
+    if let Err(err) = bytes {
+        eprintln!("{}", err);
+        return Err(());
+    }
+
+    let vec = bytes.unwrap().iter().cloned().collect::<Vec<u8>>();
+
+    let str = String::from_utf8(vec);
+    if let Err(err) = str {
+        eprintln!("{}", err);
+        return Err(());
+    }
+
+    Ok(str.unwrap())
 }
