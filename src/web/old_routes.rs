@@ -15,23 +15,6 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
     let method = req.method().clone();
 
     match (req.method(), req.uri().path()) {
-        (&Method::GET, "/signin") => {
-            response = old_handler::signin::page("signin");
-        }
-        (&Method::GET, "/reauthenticate") => {
-            response = old_handler::signin::page("reauthenticate");
-        }
-        (&Method::GET, "/confirm") => {
-            response = old_handler::signin::page("confirm");
-        }
-        (&Method::POST, "/api/signin-password") => {
-            set_no_store_old(&mut response);
-            response = old_handler::signin::sign_in_with_password(req).await;
-        }
-        (&Method::POST, "/api/signin-session") => {
-            set_no_store_old(&mut response);
-            response = old_handler::signin::sign_in_with_session(req).await;
-        }
         (&Method::POST, "/api/signin-continue") => {
             set_no_store_old(&mut response);
             response = old_handler::signin_continue::handler(req).await;

@@ -6,10 +6,24 @@ use hyper::{Body, Request as HyperRequest, Response as HyperResponse};
 
 use crate::web::handler;
 
+use super::get_remote_addr::get_remote_addr;
+
 pub async fn routes(hyper_request: HyperRequest<Body>) -> HyperResponse<Body> {
+    let remote_address = get_remote_addr(&hyper_request);
     let req = from_hyper_request_without_body(&hyper_request);
 
     let response = match (req.method, req.path.as_ref()) {
+        (Method::Get, "/signin") => handler::signin::page("signin"),
+        (Method::Get, "/reauthenticate") => handler::signin::page("reauthenticate"),
+        (Method::Get, "/confirm") => handler::signin::page("confirm"),
+        (Method::Post, "/api/signin-password") => {
+            let req = from_hyper_request(hyper_request).await; // FIXME: 移行後に消す
+            handler::signin::sign_in_with_password(req, &remote_address)
+        }
+        (Method::Post, "/api/signin-session") => {
+            let req = from_hyper_request(hyper_request).await; // FIXME: 移行後に消す
+            handler::signin::sign_in_with_session(req)
+        }
         (Method::Get, "/signout") => {
             let req = from_hyper_request(hyper_request).await; // FIXME: 移行後に消す
             handler::signout::signout(req)
