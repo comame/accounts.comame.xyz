@@ -1,4 +1,4 @@
-use hyper::{Body, Request, Response, StatusCode};
+use http::{request::Request, response::Response};
 use serde_json::to_string;
 use url::Url;
 
@@ -17,50 +17,42 @@ use crate::web::parse_body::parse_body;
 use crate::web::set_header::set_header;
 
 #[inline]
-fn response_bad_request() -> Response<Body> {
-    let mut response = Response::new(Body::from(r#"{"error": "bad_request"}"#));
-    *response.status_mut() = StatusCode::BAD_REQUEST;
-    response
+fn response_bad_request() -> Response {
+    let mut res = Response::new();
+    res.body = Some(r#"{"error": "bad_request"}"#.to_string());
+    res.status = 403;
+    res
 }
 
 #[inline]
-fn response_no_permission() -> Response<Body> {
-    let mut response = Response::new(Body::from(r#"{"error": "no_permission"}"#));
-    *response.status_mut() = StatusCode::BAD_REQUEST;
-    response
+fn response_no_permission() -> Response {
+    let mut res = Response::new();
+    res.body = Some(r#"{"error": "no_permission"}"#.to_string());
+    res.status = 403;
+    res
 }
 
 #[inline]
-fn redirect_in_browser(url: &str) -> Response<Body> {
-    Response::new(Body::from(
+fn redirect_in_browser(url: &str) -> Response {
+    let mut res = Response::new();
+    res.body = Some(
         to_string(&SigninContinueSuccessResponse {
             location: url.to_string(),
         })
         .unwrap(),
-    ))
+    );
+    res
 }
 
-fn redirect(url: &str) -> Response<Body> {
-    let mut response = Response::new(Body::empty());
-    *response.status_mut() = StatusCode::FOUND;
-    set_header(&mut response, "location", url);
-    response
+fn redirect(url: &str) -> Response {
+    let mut res = Response::new();
+    res.status = 302;
+    res.headers.insert("Location".to_string(), url.to_string());
+    res
 }
 
-pub async fn handler(req: Request<Body>) -> Response<Body> {
-    let cookie = req.headers().get("Cookie");
-    if cookie.is_none() {
-        dbg!("invalid");
-        return response_bad_request();
-    }
-
-    let cookie = http::cookies::parse(cookie.unwrap().to_str().unwrap());
-    if cookie.is_err() {
-        dbg!("invalid");
-        return response_bad_request();
-    }
-
-    let cookie = cookie.unwrap();
+pub fn handler(req: Request, remote_addr: &str) -> Response {
+    let cookie = req.cookies;
     let session_token = cookie.get("Session");
     if session_token.is_none() {
         dbg!("invalid");
@@ -69,10 +61,8 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
 
     let session_token = session_token.unwrap().clone();
 
-    let remote_addr = get_remote_addr(&req);
-
-    let request_body = parse_body(req.into_body()).await;
-    if request_body.is_err() {
+    let request_body = req.body;
+    if request_body.is_none() {
         dbg!("invalid");
         return response_bad_request();
     }
@@ -108,7 +98,7 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
             &user.id,
             &crate::data::authentication::AuthenticationMethod::Session,
             &crate::data::authentication_failure::AuthenticationFailureReason::NoUserBinding,
-            &remote_addr,
+            remote_addr,
         );
         dbg!("invalid");
         return response_no_permission();
@@ -120,7 +110,7 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
         &request_body.relying_party_id,
         &request_body.user_agent_id,
         request_body.login_type,
-        &remote_addr,
+        remote_addr,
     );
 
     if let Err(err) = result {
@@ -188,9 +178,9 @@ pub async fn handler(req: Request<Body>) -> Response<Body> {
     }
 }
 
-pub async fn no_interaction_fail(req: Request<Body>) -> Response<Body> {
-    let request_body = parse_body(req.into_body()).await;
-    if request_body.is_err() {
+pub fn no_interaction_fail(req: Request) -> Response {
+    let request_body = req.body;
+    if request_body.is_none() {
         return response_bad_request();
     }
 

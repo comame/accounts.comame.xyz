@@ -28,6 +28,14 @@ pub async fn routes(hyper_request: HyperRequest<Body>) -> HyperResponse<Body> {
             let req = from_hyper_request(hyper_request).await; // FIXME: 移行後に消す
             handler::signout::signout(req)
         }
+        (Method::Post, "/api/signin-continue") => {
+            let req = from_hyper_request(hyper_request).await; // FIXME: 移行後に消す
+            handler::signin_continue::handler(req, &remote_address)
+        }
+        (Method::Post, "/api/signin-continue-nointeraction-fail") => {
+            let req = from_hyper_request(hyper_request).await; // FIXME: 移行後に消す
+            handler::signin_continue::no_interaction_fail(req)
+        }
         (Method::Get, "/authenticate") => {
             let req = from_hyper_request(hyper_request).await; // FIXME: 移行後に消す
             handler::oidc_authentication_request::handler(req)

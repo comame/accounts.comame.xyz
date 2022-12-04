@@ -15,14 +15,6 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
     let method = req.method().clone();
 
     match (req.method(), req.uri().path()) {
-        (&Method::POST, "/api/signin-continue") => {
-            set_no_store_old(&mut response);
-            response = old_handler::signin_continue::handler(req).await;
-        }
-        (&Method::POST, "/api/signin-continue-nointeraction-fail") => {
-            set_no_store_old(&mut response);
-            response = old_handler::signin_continue::no_interaction_fail(req).await;
-        }
         (&Method::GET, "/.well-known/openid-configuration") => {
             response = old_handler::discovery::handle_config(req).await;
         }
