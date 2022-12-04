@@ -1,7 +1,5 @@
 use std::collections::HashMap;
 
-use crate::web::parse_form_urlencoded::parse;
-
 #[derive(Debug)]
 pub struct CodeRequest {
     pub grant_type: String,
@@ -20,7 +18,7 @@ fn get_or_result<'a>(hash_map: &'a HashMap<String, String>, key: &str) -> Result
 
 impl CodeRequest {
     pub fn parse(str: &str, id: Option<&str>, secret: Option<&str>) -> Result<Self, ()> {
-        let map = parse(str)?;
+        let map = http::enc::form_urlencoded::parse(str)?;
 
         let grant_type = get_or_result(&map, "grant_type")?.clone();
         let code = get_or_result(&map, "code")?.clone();

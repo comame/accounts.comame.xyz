@@ -10,7 +10,6 @@ use crate::web::data::session_sign_in_request::SessionSignInRequest;
 use crate::web::data::session_sign_in_response::SessionSignInResponse;
 use crate::web::get_remote_addr::get_remote_addr;
 use crate::web::parse_body::parse_body;
-use crate::web::parse_cookie::parse_cookie;
 use crate::web::set_header::set_header;
 use crate::web::static_file;
 
@@ -107,7 +106,7 @@ pub async fn sign_in_with_session(req: Request<Body>) -> Response<Body> {
         return response_no_session();
     }
 
-    let cookie = parse_cookie(cookie.unwrap().to_str().unwrap());
+    let cookie = http::cookies::parse(cookie.unwrap().to_str().unwrap());
 
     if cookie.is_err() {
         return response_no_session();
@@ -275,7 +274,7 @@ mod tests {
         let set_cookie_value = &res.headers().get("Set-Cookie").unwrap().to_str().unwrap();
         let set_cookie_value =
             &set_cookie_value[..(set_cookie_value.len() - "; Secure; HttpOnly; Path=/".len())];
-        let cookie = parse_cookie(set_cookie_value).unwrap();
+        let cookie = http::cookies::parse(set_cookie_value).unwrap();
         let session = cookie.get("Session").unwrap().clone();
 
         let csrf_token = generate();

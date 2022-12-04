@@ -1,5 +1,4 @@
 use crate::data::authentication::AuthenticationMethod;
-use crate::web::parse_form_urlencoded::parse;
 
 #[derive(PartialEq, Eq, Debug)]
 pub struct SignInContinueRequest {
@@ -18,7 +17,7 @@ pub struct SignInContinueNoSessionRequest {
 
 impl SignInContinueRequest {
     pub fn parse_from(str: &str) -> Result<Self, ()> {
-        let map = parse(str)?;
+        let map = http::enc::form_urlencoded::parse(str)?;
 
         let token = map.get("csrf_token");
         if token.is_none() {
@@ -62,7 +61,7 @@ impl SignInContinueRequest {
 
 impl SignInContinueNoSessionRequest {
     pub fn parse_from(str: &str) -> Result<Self, ()> {
-        let map = parse(str)?;
+        let map = http::enc::form_urlencoded::parse(str)?;
 
         let token = map.get("csrf_token");
         if token.is_none() {

@@ -2,8 +2,6 @@ use hyper::{Body, Request, Response, StatusCode};
 use url::Url;
 
 use crate::auth::session::revoke_session_by_token;
-use crate::web::parse_cookie::parse_cookie;
-use crate::web::parse_form_urlencoded::parse;
 use crate::web::set_header;
 
 pub async fn signout(req: Request<Body>) -> Response<Body> {
@@ -16,7 +14,7 @@ pub async fn signout(req: Request<Body>) -> Response<Body> {
         return response;
     }
 
-    let cookie = parse_cookie(cookie.unwrap().to_str().unwrap());
+    let cookie = http::cookies::parse(cookie.unwrap().to_str().unwrap());
     if cookie.is_err() {
         return response;
     }
@@ -38,7 +36,7 @@ pub async fn signout(req: Request<Body>) -> Response<Body> {
     }
 
     let query = query.unwrap();
-    let query_map = parse(query);
+    let query_map = http::enc::form_urlencoded::parse(query);
 
     if query_map.is_err() {
         return response;
@@ -69,7 +67,6 @@ mod tests {
     use crate::db::user::insert_user;
     use crate::web::data::password_sign_in_request::PasswordSignInRequest;
     use crate::web::old_handler::signin::{sign_in_with_password, sign_in_with_session};
-    use crate::web::parse_cookie::parse_cookie;
     use crate::web::set_header::set_header_req;
 
     fn setup_user(user_id: &str) {
@@ -100,10 +97,8 @@ mod tests {
         let res = sign_in_with_password(req).await;
 
         let set_cookie_value = &res.headers().get("Set-Cookie").unwrap().to_str().unwrap();
-        let set_cookie_value =
-            &set_cookie_value[..(set_cookie_value.len() - "; Secure; HttpOnly".len())];
-        let cookie = parse_cookie(set_cookie_value).unwrap();
-        let session = cookie.get("Session").unwrap().clone();
+        let cookie = http::cookies::for_test::parse_set_cookie(&set_cookie_value).unwrap();
+        let session = cookie.1;
 
         let mut req = Request::new(Body::empty());
         set_header_req(&mut req, "Cookie", &format!("Session={}", session));

@@ -2,7 +2,6 @@ use hyper::{Body, Request, Response, StatusCode};
 use url::Url;
 
 use crate::dash::signin;
-use crate::web::parse_form_urlencoded::parse;
 use crate::web::{set_header, static_file};
 
 #[inline]
@@ -32,7 +31,7 @@ pub async fn callback(req: Request<Body>) -> Response<Body> {
         dbg!("invalid");
         return response_bad_request();
     }
-    let query = parse(query.unwrap()).unwrap();
+    let query = http::enc::form_urlencoded::parse(query.unwrap()).unwrap();
 
     let state = query.get("state");
     if state.is_none() {

@@ -1,6 +1,5 @@
 use super::oidc_scope::Scopes;
 use crate::data::authentication::LoginPrompt;
-use crate::web::parse_form_urlencoded::parse;
 
 #[derive(Debug)]
 pub struct AuthenticationRequest {
@@ -17,7 +16,7 @@ pub struct AuthenticationRequest {
 
 impl AuthenticationRequest {
     pub fn parse_query(query: &str) -> Result<AuthenticationRequest, ()> {
-        let map = parse(query)?;
+        let map = http::enc::form_urlencoded::parse(query)?;
 
         let scope = map.get("scope");
         let response_type = map.get("response_type");
