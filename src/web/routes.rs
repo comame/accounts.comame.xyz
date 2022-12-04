@@ -56,6 +56,8 @@ pub async fn routes(hyper_request: HyperRequest<Body>) -> HyperResponse<Body> {
             let req = from_hyper_request(hyper_request).await; // FIXME: 移行後に消す
             handler::oidc_userinfo_request::handle(req)
         }
+        (Method::Get, "/.well-known/openid-configuration") => handler::discovery::handle_config(),
+        (Method::Get, "/certs") => handler::discovery::handle_certs(),
         (Method::Get, "/dash") => {
             let req = from_hyper_request(hyper_request).await; // FIXME: 移行後に消す
             handler::dash::index(req)

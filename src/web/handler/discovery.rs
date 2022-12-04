@@ -1,20 +1,21 @@
+use http::response::Response;
 use std::env;
-
-use hyper::{Body, Request, Response};
 
 use crate::data::rsa_keypair::RsaKeypair;
 use crate::web::static_file;
 
-pub async fn handle_config(_req: Request<Body>) -> Response<Body> {
+pub fn handle_config() -> Response {
     let file = static_file::read("/openid-config.json").unwrap();
     let file = String::from_utf8(file).unwrap();
 
     let replaced = file.replace("$HOST", &env::var("HOST").unwrap());
 
-    Response::new(Body::from(replaced))
+    let mut res = Response::new();
+    res.body = Some(replaced);
+    res
 }
 
-pub async fn handle_certs(_req: Request<Body>) -> Response<Body> {
+pub fn handle_certs() -> Response {
     let file = static_file::read("/certs.json").unwrap();
     let file = String::from_utf8(file).unwrap();
 
@@ -28,5 +29,7 @@ pub async fn handle_certs(_req: Request<Body>) -> Response<Body> {
         .replace("$KID", &keypair.kid)
         .replace("$PUBKEY", &pubkey);
 
-    Response::new(Body::from(json))
+    let mut res = Response::new();
+    res.body = Some(json);
+    res
 }
