@@ -2,7 +2,7 @@ use std::borrow::BorrowMut;
 
 use http::response::Response;
 use hyper::http::HeaderValue;
-use hyper::{Request as HyperRequest, Response as HyperResponse};
+use hyper::{Request as HyperRequest};
 
 // Used in tests
 #[deprecated]

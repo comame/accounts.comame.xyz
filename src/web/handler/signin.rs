@@ -9,7 +9,7 @@ use crate::web::data::password_sign_in_request::PasswordSignInRequest;
 use crate::web::data::password_sign_in_response::PasswordSignInResponse;
 use crate::web::data::session_sign_in_request::SessionSignInRequest;
 use crate::web::data::session_sign_in_response::SessionSignInResponse;
-use crate::web::get_remote_addr::get_remote_addr;
+
 use crate::web::static_file;
 
 #[inline]
@@ -76,7 +76,7 @@ pub fn sign_in_with_password(req: Request, remote_addr: &str) -> Response {
         &audience,
         LoginPrompt::Login,
         &ua_id,
-        &remote_addr,
+        remote_addr,
     );
     let is_token_collect = csrf_token::validate_keep_token(&token);
 
