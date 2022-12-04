@@ -55,66 +55,6 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
         (&Method::POST, "/tools/session-revoke") => {
             todo!()
         }
-        (&Method::GET, "/dash") => {
-            response = old_handler::dash::index(req).await;
-        }
-        (&Method::GET, "/dash/signin") => {
-            response = old_handler::dash::signin(req).await;
-        }
-        (&Method::GET, "/dash/callback") => {
-            response = old_handler::dash::callback(req).await;
-        }
-        (&Method::POST, "/dash/rp/list") => {
-            response = old_handler::dash_relying_party::list_rp(req).await;
-        }
-        (&Method::POST, "/dash/rp/create") => {
-            response = old_handler::dash_relying_party::create_rp(req).await;
-        }
-        (&Method::POST, "/dash/rp/update_secret") => {
-            response = old_handler::dash_relying_party::update_secret(req).await;
-        }
-        (&Method::POST, "/dash/rp/delete") => {
-            response = old_handler::dash_relying_party::delete_rp(req).await;
-        }
-        (&Method::POST, "/dash/rp/redirect_uri/add") => {
-            response = old_handler::dash_relying_party::add_redirect_uri(req).await;
-        }
-        (&Method::POST, "/dash/rp/redirect_uri/remove") => {
-            response = old_handler::dash_relying_party::delete_redirect_uri(req).await;
-        }
-        (&Method::POST, "/dash/rp/binding/list") => {
-            response = old_handler::dash_relying_party::list_user_binding(req).await;
-        }
-        (&Method::POST, "/dash/rp/binding/add") => {
-            response = old_handler::dash_relying_party::add_user_binding(req).await;
-        }
-        (&Method::POST, "/dash/rp/binding/remove") => {
-            response = old_handler::dash_relying_party::remove_user_binding(req).await;
-        }
-        (&Method::POST, "/dash/user/list") => {
-            response = old_handler::dash_user::list_user(req).await;
-        }
-        (&Method::POST, "/dash/user/create") => {
-            response = old_handler::dash_user::create_user(req).await;
-        }
-        (&Method::POST, "/dash/user/delete") => {
-            response = old_handler::dash_user::delete_user(req).await;
-        }
-        (&Method::POST, "/dash/user/password/change") => {
-            response = old_handler::dash_user::insert_password(req).await;
-        }
-        (&Method::POST, "/dash/user/password/remove") => {
-            response = old_handler::dash_user::remove_password(req).await;
-        }
-        (&Method::POST, "/dash/user/session/list") => {
-            todo!()
-        }
-        (&Method::POST, "/dash/user/session/revoke") => {
-            todo!()
-        }
-        (&Method::POST, "/dash/user/authentication/list") => {
-            response = old_handler::dash_user::list_token_issues(req).await;
-        }
         _ => {
             let file = cachable_file::read_with_etag(req.uri().path());
 

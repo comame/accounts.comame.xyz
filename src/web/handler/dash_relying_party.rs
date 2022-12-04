@@ -1,4 +1,4 @@
-use hyper::{Body, Request, Response, StatusCode};
+use http::{request::Request, response::Response};
 use serde_json::{from_str, to_string};
 
 use crate::dash::relying_party;
@@ -10,29 +10,25 @@ use crate::web::data::dash_rp_response::{
     RelyingPartiesResponse, RelyingPartyBindingResponse, RelyingPartyRawSecretResponse,
 };
 use crate::web::data::dash_standard_request::StandardRequest;
-use crate::web::parse_body::parse_body;
 
 #[inline]
-fn response_unauthorized() -> Response<Body> {
-    let mut response = Response::new(Body::from(r#"{"message": "unauthorized"}"#));
-    *response.status_mut() = StatusCode::BAD_REQUEST;
-    response
+fn response_unauthorized() -> Response {
+    let mut res = Response::new();
+    res.body = Some(r#"{"message": "unauthorized"}"#.to_string());
+    res.status = 403;
+    res
 }
 
 #[inline]
-fn response_bad_request() -> Response<Body> {
-    let mut response = Response::new(Body::from(r#"{"message": "Bad Request"}"#));
-    *response.status_mut() = StatusCode::BAD_REQUEST;
-    response
+fn response_bad_request() -> Response {
+    let mut res = Response::new();
+    res.body = Some(r#"{"message": "Bad Request"}"#.to_string());
+    res.status = 403;
+    res
 }
 
-pub async fn list_rp(req: Request<Body>) -> Response<Body> {
-    let body = parse_body(req.into_body()).await;
-    if body.is_err() {
-        return response_bad_request();
-    }
-    let body = body.unwrap();
-    let body = from_str::<StandardRequest>(&body);
+pub fn list_rp(req: Request) -> Response {
+    let body = from_str::<StandardRequest>(&req.body.unwrap());
     if body.is_err() {
         return response_bad_request();
     }
@@ -46,16 +42,13 @@ pub async fn list_rp(req: Request<Body>) -> Response<Body> {
 
     let response = RelyingPartiesResponse { values: result };
 
-    Response::new(Body::from(to_string(&response).unwrap()))
+    let mut res = Response::new();
+    res.body = Some(to_string(&response).unwrap());
+    res
 }
 
-pub async fn create_rp(req: Request<Body>) -> Response<Body> {
-    let body = parse_body(req.into_body()).await;
-    if body.is_err() {
-        return response_bad_request();
-    }
-    let body = body.unwrap();
-    let body = from_str::<RelyingPartyClientIdRequest>(&body);
+pub fn create_rp(req: Request) -> Response {
+    let body = from_str::<RelyingPartyClientIdRequest>(&req.body.unwrap());
     if body.is_err() {
         return response_bad_request();
     }
@@ -76,16 +69,13 @@ pub async fn create_rp(req: Request<Body>) -> Response<Body> {
         client_secret: result.raw_secret,
     };
 
-    Response::new(Body::from(to_string(&response).unwrap()))
+    let mut res = Response::new();
+    res.body = Some(to_string(&response).unwrap());
+    res
 }
 
-pub async fn update_secret(req: Request<Body>) -> Response<Body> {
-    let body = parse_body(req.into_body()).await;
-    if body.is_err() {
-        return response_bad_request();
-    }
-    let body = body.unwrap();
-    let body = from_str::<RelyingPartyClientIdRequest>(&body);
+pub fn update_secret(req: Request) -> Response {
+    let body = from_str::<RelyingPartyClientIdRequest>(&req.body.unwrap());
     if body.is_err() {
         return response_bad_request();
     }
@@ -107,16 +97,13 @@ pub async fn update_secret(req: Request<Body>) -> Response<Body> {
         client_secret: result.raw_secret,
     };
 
-    Response::new(Body::from(to_string(&response).unwrap()))
+    let mut res = Response::new();
+    res.body = Some(to_string(&response).unwrap());
+    res
 }
 
-pub async fn delete_rp(req: Request<Body>) -> Response<Body> {
-    let body = parse_body(req.into_body()).await;
-    if body.is_err() {
-        return response_bad_request();
-    }
-    let body = body.unwrap();
-    let body = from_str::<RelyingPartyClientIdRequest>(&body);
+pub fn delete_rp(req: Request) -> Response {
+    let body = from_str::<RelyingPartyClientIdRequest>(&req.body.unwrap());
     if body.is_err() {
         return response_bad_request();
     }
@@ -128,16 +115,13 @@ pub async fn delete_rp(req: Request<Body>) -> Response<Body> {
 
     relying_party::delete(&body.client_id);
 
-    Response::new(Body::from("{}"))
+    let mut res = Response::new();
+    res.body = Some("{}".to_string());
+    res
 }
 
-pub async fn add_redirect_uri(req: Request<Body>) -> Response<Body> {
-    let body = parse_body(req.into_body()).await;
-    if body.is_err() {
-        return response_bad_request();
-    }
-    let body = body.unwrap();
-    let body = from_str::<RelyingPartyAddRedirectUriRequest>(&body);
+pub fn add_redirect_uri(req: Request) -> Response {
+    let body = from_str::<RelyingPartyAddRedirectUriRequest>(&req.body.unwrap());
     if body.is_err() {
         return response_bad_request();
     }
@@ -149,16 +133,13 @@ pub async fn add_redirect_uri(req: Request<Body>) -> Response<Body> {
 
     let _result = relying_party::add_redirect_uri(&body.client_id, &body.redirect_uri);
 
-    Response::new(Body::from("{}"))
+    let mut res = Response::new();
+    res.body = Some("{}".to_string());
+    res
 }
 
-pub async fn delete_redirect_uri(req: Request<Body>) -> Response<Body> {
-    let body = parse_body(req.into_body()).await;
-    if body.is_err() {
-        return response_bad_request();
-    }
-    let body = body.unwrap();
-    let body = from_str::<RelyingPartyAddRedirectUriRequest>(&body);
+pub fn delete_redirect_uri(req: Request) -> Response {
+    let body = from_str::<RelyingPartyAddRedirectUriRequest>(&req.body.unwrap());
     if body.is_err() {
         return response_bad_request();
     }
@@ -170,16 +151,13 @@ pub async fn delete_redirect_uri(req: Request<Body>) -> Response<Body> {
 
     relying_party::remove_redirect_uri(&body.client_id, &body.redirect_uri);
 
-    Response::new(Body::from("{}"))
+    let mut res = Response::new();
+    res.body = Some("{}".to_string());
+    res
 }
 
-pub async fn list_user_binding(req: Request<Body>) -> Response<Body> {
-    let body = parse_body(req.into_body()).await;
-    if body.is_err() {
-        return response_bad_request();
-    }
-    let body = body.unwrap();
-    let body = from_str::<RelyingPartyClientIdRequest>(&body);
+pub fn list_user_binding(req: Request) -> Response {
+    let body = from_str::<RelyingPartyClientIdRequest>(&req.body.unwrap());
     if body.is_err() {
         return response_bad_request();
     }
@@ -191,21 +169,18 @@ pub async fn list_user_binding(req: Request<Body>) -> Response<Body> {
 
     let result = relying_party::list_user_binding(&body.client_id);
 
-    Response::new(Body::from(
+    let mut res = Response::new();
+    res.body = Some(
         to_string(&RelyingPartyBindingResponse {
             values: result.unwrap(),
         })
         .unwrap(),
-    ))
+    );
+    res
 }
 
-pub async fn add_user_binding(req: Request<Body>) -> Response<Body> {
-    let body = parse_body(req.into_body()).await;
-    if body.is_err() {
-        return response_bad_request();
-    }
-    let body = body.unwrap();
-    let body = from_str::<RelyingPartyBindingRequest>(&body);
+pub fn add_user_binding(req: Request) -> Response {
+    let body = from_str::<RelyingPartyBindingRequest>(&req.body.unwrap());
     if body.is_err() {
         return response_bad_request();
     }
@@ -217,16 +192,13 @@ pub async fn add_user_binding(req: Request<Body>) -> Response<Body> {
 
     relying_party::add_user_binding(&body.client_id, &body.user_id);
 
-    Response::new(Body::from("{}"))
+    let mut res = Response::new();
+    res.body = Some("{}".to_string());
+    res
 }
 
-pub async fn remove_user_binding(req: Request<Body>) -> Response<Body> {
-    let body = parse_body(req.into_body()).await;
-    if body.is_err() {
-        return response_bad_request();
-    }
-    let body = body.unwrap();
-    let body = from_str::<RelyingPartyBindingRequest>(&body);
+pub fn remove_user_binding(req: Request) -> Response {
+    let body = from_str::<RelyingPartyBindingRequest>(&req.body.unwrap());
     if body.is_err() {
         return response_bad_request();
     }
@@ -238,5 +210,7 @@ pub async fn remove_user_binding(req: Request<Body>) -> Response<Body> {
 
     relying_party::remove_user_binding(&body.client_id, &body.user_id);
 
-    Response::new(Body::from("{}"))
+    let mut res = Response::new();
+    res.body = Some("{}".to_string());
+    res
 }

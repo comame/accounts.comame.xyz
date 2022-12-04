@@ -1,6 +1,3 @@
-pub mod dash;
-pub mod dash_relying_party;
-pub mod dash_user;
 pub mod discovery;
 pub mod rp_callback;
 pub mod signin;
