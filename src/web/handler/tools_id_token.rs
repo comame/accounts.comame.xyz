@@ -1,19 +1,20 @@
-use hyper::{Body, Request, Response, StatusCode};
+use http::{request::Request, response::Response};
 use serde_json::{from_str, to_string};
 
 use crate::external::verfy_id_token::verify_id_token;
 use crate::web::data::tools_id_token::{IdTokenRequest, IdTokenResponse};
 use crate::web::parse_body::parse_body;
 
-fn response_bad_request() -> Response<Body> {
-    let mut res = Response::new(Body::from(r#"{"error": "invalid_request"}"#));
-    *res.status_mut() = StatusCode::BAD_REQUEST;
+fn response_bad_request() -> Response {
+    let mut res = Response::new();
+    res.status = 403;
+    res.body = Some(r#"{"error": "invalid_request"}"#.to_string());
     res
 }
 
-pub async fn handle(req: Request<Body>) -> Response<Body> {
-    let body = parse_body(req.into_body()).await;
-    if body.is_err() {
+pub fn handle(req: Request) -> Response {
+    let body = req.body;
+    if body.is_none() {
         return response_bad_request();
     }
     let body = body.unwrap();
@@ -32,5 +33,7 @@ pub async fn handle(req: Request<Body>) -> Response<Body> {
 
     let response_body = to_string(&IdTokenResponse { claim }).unwrap();
 
-    Response::new(Body::from(response_body))
+    let mut res = Response::new();
+    res.body = Some(response_body);
+    res
 }

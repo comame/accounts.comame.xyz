@@ -15,9 +15,6 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
     let method = req.method().clone();
 
     match (req.method(), req.uri().path()) {
-        (&Method::POST, "/tools/id-token") => {
-            response = old_handler::tools_id_token::handle(req).await;
-        }
         (&Method::POST, "/tools/session-revoke") => {
             todo!()
         }
