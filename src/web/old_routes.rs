@@ -43,10 +43,6 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
             set_no_store_old(&mut response);
             response = old_handler::signin_continue::no_interaction_fail(req).await;
         }
-        (&Method::POST, "/code") => {
-            set_no_store_old(&mut response);
-            response = old_handler::oidc_code_request::handle(req).await;
-        }
         (&Method::GET, "/userinfo") => {
             set_no_store_old(&mut response);
             response = old_handler::oidc_userinfo_request::handle(req).await;

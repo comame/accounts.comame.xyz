@@ -18,6 +18,10 @@ pub async fn routes(hyper_request: HyperRequest<Body>) -> HyperResponse<Body> {
             let req = from_hyper_request(hyper_request).await; // FIXME: 移行後に消す
             handler::oidc_authentication_request::handler(req)
         }
+        (Method::Post, "/code") => {
+            let req = from_hyper_request(hyper_request).await; // FIXME: 移行後に消す
+            handler::oidc_code_request::handle(req)
+        }
         _ => return crate::web::old_routes::routes(hyper_request).await,
     };
 
