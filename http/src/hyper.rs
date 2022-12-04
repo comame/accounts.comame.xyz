@@ -9,6 +9,7 @@ use hyper::{
     StatusCode,
 };
 
+use crate::enc::normalize_header_key::normalize_header_key;
 use crate::request::{Method, Request};
 use crate::response::Response;
 
@@ -47,7 +48,7 @@ pub fn from_hyper_request_without_body(request: &HyperRequest<HyperBody>) -> Req
             .to_str()
             .unwrap()
             .to_string();
-        headers.insert(key.to_string(), value);
+        headers.insert(normalize_header_key(key.as_str()), value);
     }
 
     let uri = request.uri().clone();
