@@ -24,9 +24,6 @@ pub async fn routes(req: Request<Body>) -> Response<Body> {
         (&Method::GET, "/confirm") => {
             response = old_handler::signin::page("confirm");
         }
-        (&Method::GET, "/signout") => {
-            response = old_handler::signout::signout(req).await;
-        }
         (&Method::POST, "/api/signin-password") => {
             set_no_store_old(&mut response);
             response = old_handler::signin::sign_in_with_password(req).await;

@@ -10,6 +10,10 @@ pub async fn routes(hyper_request: HyperRequest<Body>) -> HyperResponse<Body> {
     let req = from_hyper_request_without_body(&hyper_request);
 
     let response = match (req.method, req.path.as_ref()) {
+        (Method::Get, "/signout") => {
+            let req = from_hyper_request(hyper_request).await; // FIXME: 移行後に消す
+            handler::signout::signout(req)
+        }
         (Method::Get, "/authenticate") => {
             let req = from_hyper_request(hyper_request).await; // FIXME: 移行後に消す
             handler::oidc_authentication_request::handler(req)
