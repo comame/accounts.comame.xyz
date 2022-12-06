@@ -9,7 +9,6 @@ use crate::web::data::password_sign_in_request::PasswordSignInRequest;
 use crate::web::data::password_sign_in_response::PasswordSignInResponse;
 use crate::web::data::session_sign_in_request::SessionSignInRequest;
 use crate::web::data::session_sign_in_response::SessionSignInResponse;
-
 use crate::web::static_file;
 
 #[inline]

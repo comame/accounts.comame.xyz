@@ -1,6 +1,5 @@
 use http::hyper::RequestAsync;
-use http::request::Method;
-use http::request::Request;
+use http::request::{Method, Request};
 use http::response::Response;
 use hyper::{Body, Request as HyperRequest, Response as HyperResponse};
 
