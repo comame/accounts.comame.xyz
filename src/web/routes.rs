@@ -1,5 +1,6 @@
-use http::hyper::{from_hyper_request, to_hyper_response};
+use http::hyper::RequestAsync;
 use http::request::Method;
+use http::request::Request;
 use http::response::Response;
 use hyper::{Body, Request as HyperRequest, Response as HyperResponse};
 
@@ -13,7 +14,7 @@ pub async fn routes(hyper_request: HyperRequest<Body>) -> HyperResponse<Body> {
     let start_time = std::time::SystemTime::now();
 
     let remote_address = get_remote_addr(&hyper_request);
-    let req = from_hyper_request(hyper_request).await;
+    let req = RequestAsync::from(hyper_request).get().await;
 
     let response = match (req.method, req.path.as_ref()) {
         (Method::Get, "/signin") => handler::signin::page("signin"),
@@ -130,7 +131,7 @@ pub async fn routes(hyper_request: HyperRequest<Body>) -> HyperResponse<Body> {
         }
     };
 
-    let result = to_hyper_response(response);
+    let result = response.into();
 
     let time = std::time::SystemTime::now()
         .duration_since(start_time)
