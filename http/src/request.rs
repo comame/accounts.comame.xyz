@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::fmt::Display;
 
+#[derive(Clone)]
 pub struct Request {
     pub method: Method,
     pub path: String,

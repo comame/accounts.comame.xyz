@@ -28,7 +28,8 @@ fn redirect(url: &str) -> Response {
     response
 }
 
-pub fn handler(req: Request) -> Response {
+pub fn handler(req: &Request) -> Response {
+    let req = req.clone();
     let method = req.method;
 
     let mut authentication_request: Result<AuthenticationRequest, ()> = Err(());

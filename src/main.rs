@@ -1,3 +1,4 @@
+#[allow(clippy::result_unit_err)]
 use std::convert::Infallible;
 use std::env;
 use std::net::SocketAddr;

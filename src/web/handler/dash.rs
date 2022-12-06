@@ -12,14 +12,14 @@ fn response_bad_request() -> Response {
     res
 }
 
-pub fn index(_req: Request) -> Response {
+pub fn index(_req: &Request) -> Response {
     let result = static_file::read("/dash.html").unwrap();
     let mut res = Response::new();
     res.body = Some(String::from_utf8(result).unwrap());
     res
 }
 
-pub fn signin(_req: Request) -> Response {
+pub fn signin(_req: &Request) -> Response {
     let redirect_url = signin::signin();
     let mut res = Response::new();
     res.status = 302;
@@ -27,8 +27,8 @@ pub fn signin(_req: Request) -> Response {
     res
 }
 
-pub async fn callback(req: Request) -> Response {
-    let query = req.query;
+pub async fn callback(req: &Request) -> Response {
+    let query = req.query.clone();
     if query.is_none() {
         return response_bad_request();
     }

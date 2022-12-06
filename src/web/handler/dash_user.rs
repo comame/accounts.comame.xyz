@@ -24,7 +24,8 @@ fn response_bad_request() -> Response {
     res
 }
 
-pub fn list_user(req: Request) -> Response {
+pub fn list_user(req: &Request) -> Response {
+    let req = req.clone();
     let body = from_str::<StandardRequest>(&req.body.unwrap());
     if body.is_err() {
         return response_bad_request();
@@ -44,7 +45,8 @@ pub fn list_user(req: Request) -> Response {
     res
 }
 
-pub fn create_user(req: Request) -> Response {
+pub fn create_user(req: &Request) -> Response {
+    let req = req.clone();
     let body = from_str::<UserIdRequest>(&req.body.unwrap());
     if body.is_err() {
         return response_bad_request();
@@ -62,7 +64,8 @@ pub fn create_user(req: Request) -> Response {
     res
 }
 
-pub fn delete_user(req: Request) -> Response {
+pub fn delete_user(req: &Request) -> Response {
+    let req = req.clone();
     let body = from_str::<UserIdRequest>(&req.body.unwrap());
     if body.is_err() {
         return response_bad_request();
@@ -80,7 +83,8 @@ pub fn delete_user(req: Request) -> Response {
     res
 }
 
-pub fn insert_password(req: Request) -> Response {
+pub fn insert_password(req: &Request) -> Response {
+    let req = req.clone();
     let body = from_str::<UserIdPasswordRequest>(&req.body.unwrap());
     if body.is_err() {
         return response_bad_request();
@@ -98,7 +102,8 @@ pub fn insert_password(req: Request) -> Response {
     res
 }
 
-pub fn remove_password(req: Request) -> Response {
+pub fn remove_password(req: &Request) -> Response {
+    let req = req.clone();
     let body = from_str::<UserIdRequest>(&req.body.unwrap());
     if body.is_err() {
         return response_bad_request();
@@ -116,7 +121,8 @@ pub fn remove_password(req: Request) -> Response {
     res
 }
 
-pub fn list_token_issues(req: Request) -> Response {
+pub fn list_token_issues(req: &Request) -> Response {
+    let req = req.clone();
     let body = from_str::<UserIdRequest>(&req.body.unwrap());
     if body.is_err() {
         return response_bad_request();

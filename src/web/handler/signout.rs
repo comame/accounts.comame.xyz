@@ -3,11 +3,11 @@ use http::response::Response;
 
 use crate::auth::session::revoke_session_by_token;
 
-pub fn signout(req: Request) -> Response {
+pub fn signout(req: &Request) -> Response {
     let mut response = Response::new();
     response.body = Some("{}".to_string());
 
-    let cookie_map = req.cookies;
+    let cookie_map = req.cookies.clone();
     let session_token = cookie_map.get("Session");
     if session_token.is_none() {
         return response;
@@ -16,7 +16,7 @@ pub fn signout(req: Request) -> Response {
     let session_token = session_token.unwrap().clone();
     revoke_session_by_token(&session_token);
 
-    let query = req.query;
+    let query = req.query.clone();
 
     if query.is_none() {
         return response;

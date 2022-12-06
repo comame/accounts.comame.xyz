@@ -12,8 +12,8 @@ fn response_bad_request() -> Response {
     res
 }
 
-pub fn handle(req: Request) -> Response {
-    let body = req.body;
+pub fn handle(req: &Request) -> Response {
+    let body = req.body.clone();
     if body.is_none() {
         return response_bad_request();
     }

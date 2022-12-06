@@ -13,20 +13,16 @@ fn response_error(error: &str) -> Response {
     response
 }
 
-pub fn handle(req: Request) -> Response {
+pub fn handle(req: &Request) -> Response {
     let mut token = String::new();
 
     let authorization_header_value = req.headers.get("Authorization").cloned();
-    dbg!(req.headers);
-    dbg!(&authorization_header_value);
     if let Some(header) = authorization_header_value {
         let value = &header;
         if value.len() > "Bearer ".len() {
             token = value["Bearer ".len()..].to_string();
         }
     }
-
-    dbg!(&token);
 
     // TODO: クエリにも対応する
 

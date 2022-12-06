@@ -37,7 +37,5 @@ pub fn userinfo(access_token: &str) -> Result<UserInfo, ErrorReason> {
         response.picture = userinfo.picture;
     }
 
-    dbg!(&response);
-
     Ok(response)
 }

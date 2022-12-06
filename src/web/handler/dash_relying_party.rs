@@ -28,7 +28,8 @@ fn response_bad_request() -> Response {
     res
 }
 
-pub fn list_rp(req: Request) -> Response {
+pub fn list_rp(req: &Request) -> Response {
+    let req = req.clone();
     let body = from_str::<StandardRequest>(&req.body.unwrap());
     if body.is_err() {
         return response_bad_request();
@@ -48,7 +49,8 @@ pub fn list_rp(req: Request) -> Response {
     res
 }
 
-pub fn create_rp(req: Request) -> Response {
+pub fn create_rp(req: &Request) -> Response {
+    let req = req.clone();
     let body = from_str::<RelyingPartyClientIdRequest>(&req.body.unwrap());
     if body.is_err() {
         return response_bad_request();
@@ -75,7 +77,8 @@ pub fn create_rp(req: Request) -> Response {
     res
 }
 
-pub fn update_secret(req: Request) -> Response {
+pub fn update_secret(req: &Request) -> Response {
+    let req = req.clone();
     let body = from_str::<RelyingPartyClientIdRequest>(&req.body.unwrap());
     if body.is_err() {
         return response_bad_request();
@@ -103,7 +106,8 @@ pub fn update_secret(req: Request) -> Response {
     res
 }
 
-pub fn delete_rp(req: Request) -> Response {
+pub fn delete_rp(req: &Request) -> Response {
+    let req = req.clone();
     let body = from_str::<RelyingPartyClientIdRequest>(&req.body.unwrap());
     if body.is_err() {
         return response_bad_request();
@@ -121,7 +125,8 @@ pub fn delete_rp(req: Request) -> Response {
     res
 }
 
-pub fn add_redirect_uri(req: Request) -> Response {
+pub fn add_redirect_uri(req: &Request) -> Response {
+    let req = req.clone();
     let body = from_str::<RelyingPartyAddRedirectUriRequest>(&req.body.unwrap());
     if body.is_err() {
         return response_bad_request();
@@ -139,7 +144,8 @@ pub fn add_redirect_uri(req: Request) -> Response {
     res
 }
 
-pub fn delete_redirect_uri(req: Request) -> Response {
+pub fn delete_redirect_uri(req: &Request) -> Response {
+    let req = req.clone();
     let body = from_str::<RelyingPartyAddRedirectUriRequest>(&req.body.unwrap());
     if body.is_err() {
         return response_bad_request();
@@ -157,7 +163,8 @@ pub fn delete_redirect_uri(req: Request) -> Response {
     res
 }
 
-pub fn list_user_binding(req: Request) -> Response {
+pub fn list_user_binding(req: &Request) -> Response {
+    let req = req.clone();
     let body = from_str::<RelyingPartyClientIdRequest>(&req.body.unwrap());
     if body.is_err() {
         return response_bad_request();
@@ -180,7 +187,8 @@ pub fn list_user_binding(req: Request) -> Response {
     res
 }
 
-pub fn add_user_binding(req: Request) -> Response {
+pub fn add_user_binding(req: &Request) -> Response {
+    let req = req.clone();
     let body = from_str::<RelyingPartyBindingRequest>(&req.body.unwrap());
     if body.is_err() {
         return response_bad_request();
@@ -198,7 +206,8 @@ pub fn add_user_binding(req: Request) -> Response {
     res
 }
 
-pub fn remove_user_binding(req: Request) -> Response {
+pub fn remove_user_binding(req: &Request) -> Response {
+    let req = req.clone();
     let body = from_str::<RelyingPartyBindingRequest>(&req.body.unwrap());
     if body.is_err() {
         return response_bad_request();

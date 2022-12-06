@@ -14,7 +14,6 @@ use crate::web::data::sign_in_continue_request::{
 };
 use crate::web::data::sign_in_continue_response::SigninContinueSuccessResponse;
 
-
 #[inline]
 fn response_bad_request() -> Response {
     let mut res = Response::new();
@@ -50,7 +49,8 @@ fn redirect(url: &str) -> Response {
     res
 }
 
-pub fn handler(req: Request, remote_addr: &str) -> Response {
+pub fn handler(req: &Request, remote_addr: &str) -> Response {
+    let req = req.clone();
     let cookie = req.cookies;
     let session_token = cookie.get("Session");
     if session_token.is_none() {
@@ -177,8 +177,8 @@ pub fn handler(req: Request, remote_addr: &str) -> Response {
     }
 }
 
-pub fn no_interaction_fail(req: Request) -> Response {
-    let request_body = req.body;
+pub fn no_interaction_fail(req: &Request) -> Response {
+    let request_body = req.body.clone();
     if request_body.is_none() {
         return response_bad_request();
     }

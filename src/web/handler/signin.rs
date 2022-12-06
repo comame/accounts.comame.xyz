@@ -51,8 +51,8 @@ pub fn page(name: &str) -> Response {
     response
 }
 
-pub fn sign_in_with_password(req: Request, remote_addr: &str) -> Response {
-    let body = req.body;
+pub fn sign_in_with_password(req: &Request, remote_addr: &str) -> Response {
+    let body = req.body.clone();
     if body.is_none() {
         return response_bad_request();
     }
@@ -99,7 +99,9 @@ pub fn sign_in_with_password(req: Request, remote_addr: &str) -> Response {
     res
 }
 
-pub fn sign_in_with_session(req: Request) -> Response {
+pub fn sign_in_with_session(req: &Request) -> Response {
+    let req = req.clone();
+
     let cookie_map = req.cookies;
     let session_token = cookie_map.get("Session");
 

@@ -14,7 +14,8 @@ fn response_bad_request() -> Response {
     response
 }
 
-pub fn handle(req: Request) -> Response {
+pub fn handle(req: &Request) -> Response {
+    let req = req.clone();
     let basic_auth_result = req.headers.get("Authorization").cloned();
     let mut user: Option<String> = None;
     let mut password: Option<String> = None;
