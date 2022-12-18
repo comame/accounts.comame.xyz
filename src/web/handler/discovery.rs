@@ -7,7 +7,6 @@ use crate::web::static_file;
 
 pub fn handle_config() -> Response {
     let file = static_file::read("/openid-config.json").unwrap();
-    let file = String::from_utf8(file).unwrap();
 
     let replaced = file.replace("$HOST", &env::var("HOST").unwrap());
 
@@ -18,7 +17,6 @@ pub fn handle_config() -> Response {
 
 pub fn handle_certs() -> Response {
     let file = static_file::read("/certs.json").unwrap();
-    let file = String::from_utf8(file).unwrap();
 
     let keypair = RsaKeypair::get();
 

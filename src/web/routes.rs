@@ -1,12 +1,9 @@
 use http::hyper::RequestAsync;
 use http::request::Method;
-use http::response::Response;
 use hyper::{Body, Request as HyperRequest, Response as HyperResponse};
 
-use super::cachable_file::{self, CacheResult};
 use super::get_remote_addr::get_remote_addr;
 use super::mime_types::{extract_extension, get_mime_types};
-use super::static_file;
 use crate::web::handler;
 
 pub async fn routes(hyper_request: HyperRequest<Body>) -> HyperResponse<Body> {
@@ -76,58 +73,7 @@ pub async fn routes(hyper_request: HyperRequest<Body>) -> HyperResponse<Body> {
         (Method::Post, "/dash/user/authentication/list") => {
             handler::dash_user::list_token_issues(&req)
         }
-        _ => {
-            let file = cachable_file::read_with_etag(&req.path);
-
-            let extension = extract_extension(&req.path);
-            let content_type = get_mime_types(&extension);
-
-            let mut res = Response::new();
-
-            if let Some(content_type) = content_type {
-                res.headers.insert("Content-Type".to_string(), content_type);
-            }
-
-            if file.is_none() {
-                res.body = Some("Not Found".to_string());
-                res.status = 404;
-            } else {
-                let file = file.unwrap();
-
-                res.headers
-                    .insert("Cache-Control".to_string(), "no-cache".to_string());
-
-                match file {
-                    CacheResult::Etag(etag) => {
-                        let previous_etag = req.headers.get("If-None-Match").cloned();
-                        if !cfg!(not(debug_assertions)) || previous_etag.is_none() {
-                            res.headers.insert("Etag".into(), format!(r#""{}""#, etag));
-                            res.body = Some(
-                                String::from_utf8(static_file::read(&req.path).unwrap()).unwrap(),
-                            );
-                        } else {
-                            let previous_etag = previous_etag.unwrap();
-                            if previous_etag == format!("\"{}\"", etag) {
-                                res.status = 304; // NOT MODIFIED
-                            } else {
-                                res.headers.insert("Etag".into(), format!(r#""{}""#, etag));
-                                res.body = Some(
-                                    String::from_utf8(static_file::read(&req.path).unwrap())
-                                        .unwrap(),
-                                );
-                            }
-                        }
-                    }
-                    CacheResult::Value(value) => {
-                        res.headers
-                            .insert("Etag".into(), format!(r#""{}""#, value.etag));
-                        res.body =
-                            Some(String::from_utf8(static_file::read(&req.path).unwrap()).unwrap());
-                    }
-                }
-            }
-            res
-        }
+        _ => handler::static_file::handler(&req),
     };
 
     let result = response.into();

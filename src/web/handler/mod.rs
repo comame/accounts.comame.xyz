@@ -8,4 +8,5 @@ pub mod oidc_userinfo_request;
 pub mod signin;
 pub mod signin_continue;
 pub mod signout;
+pub mod static_file;
 pub mod tools_id_token;

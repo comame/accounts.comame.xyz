@@ -1,8 +1,15 @@
 use std::fs::File;
 use std::io::prelude::*;
-use std::io::{BufReader, Result};
+use std::io::BufReader;
 
-fn internal_read(path: &str) -> Result<Vec<u8>> {
+use crate::crypto::sha;
+
+pub struct ValueWithEtag {
+    pub value: String,
+    pub etag: String,
+}
+
+fn read_file(path: &str) -> std::io::Result<String> {
     let f = File::open(path)?;
 
     let mut reader = BufReader::new(f);
@@ -10,19 +17,36 @@ fn internal_read(path: &str) -> Result<Vec<u8>> {
 
     reader.read_to_end(&mut buf)?;
 
-    Ok(buf)
+    let result = String::from_utf8(buf);
+
+    if let Err(err) = result {
+        Err(std::io::Error::new(
+            std::io::ErrorKind::InvalidData,
+            err.to_string(),
+        ))
+    } else {
+        Ok(result.unwrap())
+    }
 }
 
-pub fn read(path: &str) -> Result<Vec<u8>> {
+pub fn read(path: &str) -> std::io::Result<String> {
     let relative_path = format!("static{}", &path);
 
-    let buf = internal_read(relative_path.as_str());
+    let buf = read_file(relative_path.as_str());
 
     if buf.is_ok() {
         buf
     } else {
         // index.html でリトライ
         let path_with_index_html = format!("{}/index.html", relative_path);
-        internal_read(path_with_index_html.as_str())
+        read_file(path_with_index_html.as_str())
     }
+}
+
+pub fn read_with_etag(path: &str) -> std::io::Result<ValueWithEtag> {
+    let value = read(path)?;
+    Ok(ValueWithEtag {
+        value: value.clone(),
+        etag: sha::sha256(&value),
+    })
 }

@@ -15,7 +15,7 @@ fn response_bad_request() -> Response {
 pub fn index(_req: &Request) -> Response {
     let result = static_file::read("/dash.html").unwrap();
     let mut res = Response::new();
-    res.body = Some(String::from_utf8(result).unwrap());
+    res.body = Some(result);
     res
 }
 
