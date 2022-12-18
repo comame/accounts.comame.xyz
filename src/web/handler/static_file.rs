@@ -1,9 +1,8 @@
-use http::{request::Request, response::Response};
+use http::request::Request;
+use http::response::Response;
 
-use crate::web::{
-    mime_types::{extract_extension, get_mime_types},
-    static_file,
-};
+use crate::web::mime_types::{extract_extension, get_mime_types};
+use crate::web::static_file;
 
 pub fn handler(req: &Request) -> Response {
     let mut res = Response::new();
