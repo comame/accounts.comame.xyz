@@ -3,7 +3,7 @@ use http::request::Method;
 use hyper::{Body, Request as HyperRequest, Response as HyperResponse};
 
 use super::get_remote_addr::get_remote_addr;
-use super::mime_types::{extract_extension, get_mime_types};
+
 use crate::web::handler;
 
 pub async fn routes(hyper_request: HyperRequest<Body>) -> HyperResponse<Body> {
