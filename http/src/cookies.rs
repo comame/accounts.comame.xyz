@@ -4,6 +4,7 @@ use std::fmt::Display;
 
 use for_test::CookieOptions;
 
+/// Cookie ヘッダの値をパースする
 pub fn parse(header_value: &str) -> Result<HashMap<String, String>, ()> {
     let mut map = HashMap::new();
 
@@ -37,6 +38,7 @@ pub fn parse(header_value: &str) -> Result<HashMap<String, String>, ()> {
     Ok(map)
 }
 
+/// Set-Cookie ヘッダの値を生成する
 pub fn build(key: &str, value: &str) -> CookieOptionBuilder {
     assert!(!key.is_empty());
     assert!(!value.is_empty());
@@ -154,6 +156,7 @@ pub mod for_test {
         pub same_site: SameSite,
     }
 
+    /// Set-Cookie の値をパースして (key, value) を返す
     pub fn parse_set_cookie(header_value: &str) -> Result<(String, String, CookieOptions), ()> {
         let directives: Vec<&str> = header_value.split(';').map(|str| str.trim()).collect();
         if directives.is_empty() {
