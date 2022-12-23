@@ -1,3 +1,4 @@
+use serde::de::{self, Deserialize, Visitor};
 use std::fmt;
 
 use crate::db::authentication::{find_latest_authentication_by_user, insert_authentication};
@@ -72,6 +73,36 @@ impl AuthenticationMethod {
             "consent" => Ok(Self::Consent),
             _ => Err(()),
         }
+    }
+}
+
+struct AuthenticationMethodVisitor;
+
+impl<'de> Visitor<'de> for AuthenticationMethodVisitor {
+    type Value = AuthenticationMethod;
+
+    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        formatter.write_str("see AuthenticationMethod::parse")
+    }
+
+    fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+    where
+        E: de::Error,
+    {
+        let result = AuthenticationMethod::parse(v);
+        match result {
+            Ok(value) => Ok(value),
+            Err(_) => Err(E::custom("Invalid format.")),
+        }
+    }
+}
+
+impl<'de> Deserialize<'de> for AuthenticationMethod {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        deserializer.deserialize_str(AuthenticationMethodVisitor)
     }
 }
 

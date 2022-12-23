@@ -1,6 +1,8 @@
+use serde::Deserialize;
+
 use crate::data::authentication::AuthenticationMethod;
 
-#[derive(PartialEq, Eq, Debug)]
+#[derive(PartialEq, Eq, Debug, Deserialize)]
 pub struct SignInContinueRequest {
     pub csrf_token: String,
     pub login_type: AuthenticationMethod,
@@ -9,13 +11,14 @@ pub struct SignInContinueRequest {
     pub user_agent_id: String,
 }
 
-#[derive(PartialEq, Eq, Debug)]
+#[derive(PartialEq, Eq, Debug, Deserialize)]
 pub struct SignInContinueNoSessionRequest {
     pub csrf_token: String,
     pub state_id: String,
 }
 
 impl SignInContinueRequest {
+    #[deprecated]
     pub fn parse_from(str: &str) -> Result<Self, ()> {
         let map = http::enc::form_urlencoded::parse(str)?;
 
@@ -60,6 +63,7 @@ impl SignInContinueRequest {
 }
 
 impl SignInContinueNoSessionRequest {
+    #[deprecated]
     pub fn parse_from(str: &str) -> Result<Self, ()> {
         let map = http::enc::form_urlencoded::parse(str)?;
 
@@ -83,11 +87,13 @@ impl SignInContinueNoSessionRequest {
 
 #[cfg(test)]
 mod tests {
+    use serde_json::from_str;
+
     use super::SignInContinueRequest as Target;
     use crate::data::authentication::AuthenticationMethod;
 
     #[test]
-    fn test() {
+    fn old_test() {
         assert_eq!(
             Target::parse_from(
                 "csrf_token=abcde&login_type=password&state_id=xyz&relying_party_id=hoge&user_agent_id=ua"
@@ -101,5 +107,25 @@ mod tests {
                 user_agent_id: "ua".to_string(),
             }
         );
+    }
+
+    #[test]
+    fn test() {
+        let json_body = r#"{
+            "csrf_token": "abcde",
+            "login_type": "password",
+            "state_id": "xyz",
+            "relying_party_id": "hoge",
+            "user_agent_id": "ua"
+        }"#;
+        let result: Target = from_str(json_body).unwrap();
+        let expected = Target {
+            csrf_token: "abcde".to_string(),
+            login_type: AuthenticationMethod::Password,
+            state_id: "xyz".to_string(),
+            relying_party_id: "hoge".to_string(),
+            user_agent_id: "ua".to_string(),
+        };
+        assert_eq!(expected, result)
     }
 }
