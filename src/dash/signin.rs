@@ -149,6 +149,7 @@ pub fn validate_token(token: &str) -> bool {
     token.is_some()
 }
 
+#[deprecated]
 async fn parse_body(body: Body) -> Result<String, ()> {
     let bytes = to_bytes(body).await;
     if let Err(err) = bytes {
