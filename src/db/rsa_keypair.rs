@@ -11,13 +11,6 @@ pub fn insert_ignore(keypair: &RsaKeypair) {
     ).unwrap();
 }
 
-pub fn insert_force(keypair: &RsaKeypair) {
-    get_conn().unwrap().exec_drop(
-        "INSERT INTO rsa_keypair (public, private, kid) VALUES (:pub, :priv, :kid) ON DUPLICATE KEY UPDATE public=:pub, private=:priv",
-        params! { "pub" => keypair.public.clone(), "priv" => keypair.private.clone(), "kid" => keypair.kid.clone() }
-    ).unwrap();
-}
-
 /// 必ず存在することを仮定
 pub fn get() -> RsaKeypair {
     let result = get_conn()

@@ -38,24 +38,3 @@ impl RsaKeypair {
         base64::encode_base64_url(&pubkey.n().to_vec())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::RsaKeypair;
-    use crate::db::_test_init::init_mysql;
-    use crate::db::rsa_keypair::{insert_force, insert_ignore};
-
-    #[test]
-    fn test() {
-        init_mysql();
-        let keypair = RsaKeypair::new();
-        insert_force(&keypair);
-        let db_keypair = RsaKeypair::get();
-        assert_eq!(keypair.public, db_keypair.public);
-        assert_eq!(keypair.private, db_keypair.private);
-        insert_ignore(&RsaKeypair::get());
-        let db_keypair = RsaKeypair::get();
-        assert_eq!(keypair.public, db_keypair.public);
-        assert_eq!(keypair.private, db_keypair.private);
-    }
-}
