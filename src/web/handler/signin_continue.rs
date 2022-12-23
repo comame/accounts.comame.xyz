@@ -1,6 +1,6 @@
 use http::request::Request;
 use http::response::Response;
-use serde_json::to_string;
+use serde_json::{from_str, to_string};
 use url::Url;
 
 use crate::auth::{csrf_token, session};
@@ -66,7 +66,7 @@ pub fn handler(req: &Request, remote_addr: &str) -> Response {
         return response_bad_request();
     }
 
-    let request_body = SignInContinueRequest::parse_from(&request_body.unwrap());
+    let request_body = from_str::<SignInContinueRequest>(&request_body.unwrap());
     if request_body.is_err() {
         dbg!("invalid");
         return response_bad_request();

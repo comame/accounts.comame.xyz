@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react"
+import { fetchApi } from "./fetchApi"
 import { getUserAgentId } from "./getUserAgentId"
 
 export function useContinueForm(
@@ -23,34 +24,19 @@ export function useContinueForm(
             const stateId = ref.current?.state_id.value
             const userAgentId = getUserAgentId()
 
-            const body = `csrf_token=${encodeURIComponent(
-                csrfToken
-            )}&login_type=${encodeURIComponent(
-                loginType
-            )}&state_id=${encodeURIComponent(
-                stateId
-            )}&relying_party_id=${encodeURIComponent(
-                relyingPartyId!
-            )}&user_agent_id=${encodeURIComponent(userAgentId)}`
-
-            console.log("fetch")
-
-            fetch("/api/signin-continue", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                },
-                body,
-                credentials: "include",
+            fetchApi("/api/signin-continue", {
+                csrf_token: csrfToken,
+                login_type: loginType,
+                state_id: stateId,
+                relying_party_id: relyingPartyId!,
+                user_agent_id: userAgentId,
+            }).then((res) => {
+                if ("error" in res) {
+                    window.alert(res.error)
+                } else {
+                    location.replace(res.location)
+                }
             })
-                .then((res) => res.json())
-                .then((json) => {
-                    if (json.location) {
-                        location.replace(json.location)
-                    } else if (json.error) {
-                        alert(json.error)
-                    }
-                })
         }
     }, [next])
 

@@ -1,7 +1,7 @@
 export type apis = {
     "/api/signin-password": [passwordRequest, passwordResponse]
     "/api/signin-session": [requestBase, sessionResponse]
-    "/api/signin-continue": [continueRequest, continueErrorResponse]
+    "/api/signin-continue": [continueRequest, continueResponse]
 }
 
 export type request<T extends keyof apis> = apis[T][0]
@@ -24,8 +24,10 @@ type passwordResponse =
           user_id: string
       }
 
-type continueErrorResponse = {
+type continueResponse = {
     error: "bad_request" | "no_permission"
+} | {
+    location: string
 }
 
 type requestBase = {
