@@ -1,11 +1,11 @@
 use openssl::sha::sha256 as openssl_sha256;
 
-use crate::enc::hex::encode_hex;
+use http::enc::hex;
 
 pub fn sha256(msg: &str) -> String {
     let buf = msg.as_bytes();
     let hashed = openssl_sha256(buf);
-    encode_hex(hashed.to_vec())
+    hex::encode(hashed.to_vec())
 }
 
 #[cfg(test)]
