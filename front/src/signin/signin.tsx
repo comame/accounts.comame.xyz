@@ -28,8 +28,6 @@ const App = () => {
         []
     )
 
-    const failRef = useRef<HTMLFormElement>(null)
-
     const [loginType, setLoginType] = useState("")
     const [hidden, setHidden] = useState(true)
 
@@ -52,7 +50,18 @@ const App = () => {
 
             if (hash === "nointeraction") {
                 if ("error" in res && res.error === "no_session") {
-                    failRef.current?.submit()
+                    fetchApi("/api/signin-continue-nointeraction-fail", {
+                        csrf_token: csrfToken,
+                        relying_party_id: relyingPartyId,
+                        user_agent_id: getUserAgentId(),
+                        state_id: stateId!,
+                    }).then((res) => {
+                        if ("error" in res) {
+                            window.alert(res.error)
+                        } else {
+                            location.replace(res.location)
+                        }
+                    })
                 } else {
                     setLoginType("session")
                     next()
@@ -230,24 +239,6 @@ const App = () => {
                 </Layout>
             )}
             <ContinueForm />
-            <form
-                action="/api/signin-continue-nointeraction-fail"
-                method="POST"
-                encType="application/x-www-form-urlencoded"
-                target="_self"
-                ref={failRef}
-            >
-                <input
-                    name="csrf_token"
-                    type="hidden"
-                    value={csrfToken}
-                ></input>
-                <input
-                    name="state_id"
-                    type="hidden"
-                    value={stateId ?? ""}
-                ></input>
-            </form>
             <Global />
         </Themed>
     )

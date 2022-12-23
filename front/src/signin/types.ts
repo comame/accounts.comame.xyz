@@ -1,7 +1,8 @@
 export type apis = {
     "/api/signin-password": [passwordRequest, passwordResponse]
     "/api/signin-session": [requestBase, sessionResponse]
-    "/api/signin-continue": [continueRequest, continueResponse]
+    "/api/signin-continue": [continueRequest, continueResponse],
+    "/api/signin-continue-nointeraction-fail": [continueNoSessionRequest, continueNoSessionResponse],
 }
 
 export type request<T extends keyof apis> = apis[T][0]
@@ -47,3 +48,13 @@ type continueRequest = {
     login_type: authenticationMethod
     state_id: string
 } & requestBase
+
+type continueNoSessionRequest = {
+    state_id: string
+} & requestBase
+
+type continueNoSessionResponse = {
+    error: "bad_request"
+} | {
+    location: string
+}

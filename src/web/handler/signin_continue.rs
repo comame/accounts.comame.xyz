@@ -42,13 +42,6 @@ fn redirect_in_browser(url: &str) -> Response {
     res
 }
 
-fn redirect(url: &str) -> Response {
-    let mut res = Response::new();
-    res.status = 302;
-    res.headers.insert("Location".to_string(), url.to_string());
-    res
-}
-
 pub fn handler(req: &Request, remote_addr: &str) -> Response {
     let req = req.clone();
     let cookie = req.cookies;
@@ -180,23 +173,27 @@ pub fn handler(req: &Request, remote_addr: &str) -> Response {
 pub fn no_interaction_fail(req: &Request) -> Response {
     let request_body = req.body.clone();
     if request_body.is_none() {
+        dbg!("invalid");
         return response_bad_request();
     }
 
-    let request_body = SignInContinueNoSessionRequest::parse_from(&request_body.unwrap());
+    let request_body = from_str::<SignInContinueNoSessionRequest>(&request_body.unwrap());
     if request_body.is_err() {
+        dbg!("invalid");
         return response_bad_request();
     }
     let request_body = request_body.unwrap();
 
     let token_ok = csrf_token::validate_once(&request_body.csrf_token);
     if !token_ok {
+        dbg!("invalid");
         return response_bad_request();
     }
 
     let result = pronpt_none_fail_authentication(&request_body.state_id);
 
     if result.redirect_uri.is_none() {
+        dbg!("invalid");
         return response_bad_request();
     }
 
@@ -212,7 +209,7 @@ pub fn no_interaction_fail(req: &Request) -> Response {
                     .append_pair("state", state.as_str());
             }
 
-            redirect(redirect_uri.as_str())
+            redirect_in_browser(redirect_uri.as_str())
         }
         OidcFlow::Implicit => {
             let redirect_uri = result.redirect_uri.unwrap();
@@ -221,7 +218,7 @@ pub fn no_interaction_fail(req: &Request) -> Response {
             if let Some(state) = result.response.state {
                 hash.push_str(&format!("&state={state}"));
             }
-            redirect(&format!("{redirect_uri}#{hash}"))
+            redirect_in_browser(&format!("{redirect_uri}#{hash}"))
         }
     }
 }
