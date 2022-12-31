@@ -131,7 +131,7 @@ pub async fn callback(state: &str, code: &str) -> Result<String, ()> {
         return Err(());
     }
 
-    if now() - claim.auth_time > 60 {
+    if now() - claim.auth_time.unwrap() > 60 {
         dbg!("invalid");
         return Err(());
     }

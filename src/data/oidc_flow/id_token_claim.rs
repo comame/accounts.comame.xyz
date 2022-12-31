@@ -7,7 +7,10 @@ pub struct IdTokenClaim {
     pub aud: String,
     pub exp: u64,
     pub iat: u64,
-    pub auth_time: u64,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub auth_time: Option<u64>,
+
     #[serde(skip_serializing_if = "Option::is_none")]
     pub nonce: Option<String>,
 

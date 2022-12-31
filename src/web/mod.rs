@@ -1,4 +1,5 @@
 pub mod data;
+pub mod fetch;
 pub mod get_remote_addr;
 pub mod handler;
 pub mod mime_types;

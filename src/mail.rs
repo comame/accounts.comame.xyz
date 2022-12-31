@@ -138,9 +138,9 @@ async fn get_token() -> Result<(), ()> {
     let endpoint = "https://oauth2.googleapis.com/token";
     let client = get_client();
 
-    let client_id = std::env::var("GOOGLE_CLIENT_ID").unwrap();
-    let client_secret = std::env::var("GOOGLE_CLIENT_SECRET").unwrap();
-    let refresh_token = std::env::var("GOOGLE_REFRESH_TOKEN").unwrap();
+    let client_id = std::env::var("GOOGLE_GMAIL_CLIENT_ID").unwrap();
+    let client_secret = std::env::var("GOOGLE_GMAIL_CLIENT_SECRET").unwrap();
+    let refresh_token = std::env::var("GOOGLE_GMAIL_REFRESH_TOKEN").unwrap();
 
     let mut request = Request::builder()
         .uri(endpoint)

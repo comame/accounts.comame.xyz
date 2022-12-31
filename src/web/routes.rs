@@ -4,7 +4,7 @@ use hyper::{Body, Request as HyperRequest, Response as HyperResponse};
 
 use super::get_remote_addr::get_remote_addr;
 
-use crate::web::handler;
+use crate::{data::openid_provider::OpenIDProvider, web::handler};
 
 pub async fn routes(hyper_request: HyperRequest<Body>) -> HyperResponse<Body> {
     let start_time = std::time::SystemTime::now();
@@ -16,6 +16,7 @@ pub async fn routes(hyper_request: HyperRequest<Body>) -> HyperResponse<Body> {
         (Method::Get, "/signin") => handler::signin::page("signin"),
         (Method::Get, "/reauthenticate") => handler::signin::page("reauthenticate"),
         (Method::Get, "/confirm") => handler::signin::page("confirm"),
+        (Method::Get, "/signin/google") => handler::signin_google::handler(&req),
         (Method::Post, "/api/signin-password") => {
             handler::signin::sign_in_with_password(&req, &remote_address)
         }
@@ -32,6 +33,9 @@ pub async fn routes(hyper_request: HyperRequest<Body>) -> HyperResponse<Body> {
         (Method::Post, "/code") => handler::oidc_code_request::handle(&req),
         (Method::Get, "/userinfo") => handler::oidc_userinfo_request::handle(&req),
         (Method::Post, "/userinfo") => handler::oidc_userinfo_request::handle(&req),
+        (Method::Get, "/oidc-callback/google") => {
+            handler::oidc_callback::handler(&req, OpenIDProvider::Google).await
+        }
         (Method::Get, "/.well-known/openid-configuration") => handler::discovery::handle_config(),
         (Method::Get, "/certs") => handler::discovery::handle_certs(),
         (Method::Post, "/tools/id-token") => handler::tools_id_token::handle(&req),

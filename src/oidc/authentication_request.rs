@@ -285,7 +285,7 @@ pub fn post_authentication(
         aud: state.relying_party_id.clone(),
         exp: now() + 5 * 60,
         iat: now(),
-        auth_time: latest_auth.authenticated_at,
+        auth_time: Some(latest_auth.authenticated_at),
         nonce: state.nonce,
         email: None,
         email_verified: None,
