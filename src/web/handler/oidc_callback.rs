@@ -1,9 +1,9 @@
-use http::{enc::form_urlencoded, request::Request, response::Response};
+use http::enc::form_urlencoded;
+use http::request::Request;
+use http::response::Response;
 
 use crate::data::openid_provider::OpenIDProvider;
-
 use crate::oidc::relying_party::callback;
-use tokio::join;
 
 fn response_bad_request(msg: &str) -> Response {
     let mut res = Response::new();

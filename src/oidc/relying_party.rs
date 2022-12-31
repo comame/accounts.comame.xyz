@@ -1,21 +1,15 @@
-use http::{
-    query_builder::QueryBuilder,
-    request::{Method, Request},
-};
+use http::query_builder::QueryBuilder;
+use http::request::{Method, Request};
 use jsonwebtoken::{Algorithm, DecodingKey, Validation};
 use serde_json::from_str;
 
-use crate::{
-    crypto::rand,
-    data::{
-        jwk::{self, Jwk},
-        oidc_flow::{
-            code_request::CodeRequest, code_response::CodeResponse, id_token_claim::IdTokenClaim,
-        },
-        openid_provider::OpenIDProvider,
-    },
-    web::fetch::{self, fetch},
-};
+use crate::crypto::rand;
+use crate::data::jwk::Jwk;
+use crate::data::oidc_flow::code_request::CodeRequest;
+use crate::data::oidc_flow::code_response::CodeResponse;
+use crate::data::oidc_flow::id_token_claim::IdTokenClaim;
+use crate::data::openid_provider::OpenIDProvider;
+use crate::web::fetch::fetch;
 
 fn redirect_uri() -> String {
     format!("{}/oidc-callback/google", std::env::var("HOST").unwrap())

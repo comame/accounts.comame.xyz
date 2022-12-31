@@ -1,4 +1,5 @@
-use http::{request::Request, response::Response};
+use http::request::Request;
+use http::response::Response;
 
 use crate::oidc::relying_party::generate_authentication_endpoint_url;
 

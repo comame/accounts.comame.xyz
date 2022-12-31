@@ -1,4 +1,6 @@
-use http::{hyper::ResponseAsync, request::Request, response::Response};
+use http::hyper::ResponseAsync;
+use http::request::Request;
+use http::response::Response;
 use hyper::{Client, Request as HyperRequest};
 use hyper_tls::HttpsConnector;
 
@@ -24,9 +26,11 @@ pub async fn fetch(request: &Request) -> Result<Response, ()> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use http::request::{Method, Request};
     use std::collections::HashMap;
+
+    use http::request::{Method, Request};
+
+    use super::*;
 
     #[tokio::test]
     async fn test() {

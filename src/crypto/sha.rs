@@ -1,6 +1,5 @@
-use openssl::sha::sha256 as openssl_sha256;
-
 use http::enc::hex;
+use openssl::sha::sha256 as openssl_sha256;
 
 pub fn sha256(msg: &str) -> String {
     let buf = msg.as_bytes();

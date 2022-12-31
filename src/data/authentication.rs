@@ -1,5 +1,6 @@
-use serde::de::{self, Deserialize, Visitor};
 use std::fmt;
+
+use serde::de::{self, Deserialize, Visitor};
 
 use crate::db::authentication::{find_latest_authentication_by_user, insert_authentication};
 use crate::time::now;
