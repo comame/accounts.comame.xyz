@@ -3,6 +3,10 @@ use http::request::{Method, Request};
 use jsonwebtoken::{Algorithm, DecodingKey, Validation};
 use serde_json::from_str;
 
+use super::authentication_flow_state::get_state_keep;
+use super::authentication_request::{
+    post_authentication, AuthenticationError, PostAuthenticationResponse,
+};
 use crate::crypto::rand;
 use crate::data::authentication::{Authentication, AuthenticationMethod};
 use crate::data::jwk::Jwk;
@@ -16,11 +20,6 @@ use crate::data::oidc_flow::relying_party_state::RelyingPartyState;
 use crate::data::openid_provider::OpenIDProvider;
 use crate::time::now;
 use crate::web::fetch::fetch;
-
-use super::authentication_flow_state::get_state_keep;
-use super::authentication_request::{
-    post_authentication, AuthenticationError, PostAuthenticationResponse,
-};
 
 fn redirect_uri() -> String {
     format!("{}/oidc-callback/google", std::env::var("HOST").unwrap())
