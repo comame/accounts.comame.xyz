@@ -3,16 +3,16 @@ use http::request::Request;
 use http::response::Response;
 use url::Url;
 
-use crate::auth::session::create_session;
-use crate::dash::user;
-use crate::data::authentication::{Authentication, AuthenticationMethod};
+
+
+
 use crate::data::oidc_flow::authentication_flow_state::OidcFlow;
 use crate::data::oidc_flow::authentication_response::AuthenticationResponse;
 use crate::data::openid_provider::OpenIDProvider;
-use crate::oidc::authentication_flow_state::get_state_keep;
-use crate::oidc::authentication_request::post_authentication;
+
+
 use crate::oidc::relying_party::callback;
-use crate::time::now;
+
 
 fn response_bad_request(msg: &str) -> Response {
     let mut res = Response::new();
@@ -56,7 +56,7 @@ pub async fn handler(req: &Request, op: OpenIDProvider, remote_addr: &str) -> Re
     }
     let state_id = cookie.unwrap();
 
-    let result = callback(&state_id, &state, &code, op, &remote_addr).await;
+    let result = callback(&state_id, &state, &code, op, remote_addr).await;
 
     if let Err(err) = result {
         if err.redirect_uri.is_none() {

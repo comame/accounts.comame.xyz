@@ -1,11 +1,11 @@
 use serde::{Deserialize, Serialize};
 use serde_json::{from_str, to_string};
 
-use crate::crypto::rand;
+
 use crate::data::openid_provider::OpenIDProvider;
 use crate::db::redis;
 
-const REDIS_PREFIX: &'static str = "relying_party_state:";
+const REDIS_PREFIX: &str = "relying_party_state:";
 
 #[derive(Serialize, Deserialize)]
 pub struct RelyingPartyState {

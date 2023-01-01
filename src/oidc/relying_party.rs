@@ -10,7 +10,7 @@ use super::authentication_request::{
 use crate::crypto::rand;
 use crate::data::authentication::{Authentication, AuthenticationMethod};
 use crate::data::jwk::Jwk;
-use crate::data::oidc_flow::authentication_flow_state::AuthenticationFlowState;
+
 use crate::data::oidc_flow::authenticationi_error_response::AuthenticationErrorResponse;
 use crate::data::oidc_flow::code_request::CodeRequest;
 use crate::data::oidc_flow::code_response::CodeResponse;
@@ -232,7 +232,7 @@ pub async fn callback(
     jwk_request.origin = Some("https://www.googleapis.com".into());
     let jwk_response = fetch(&jwk_request).await;
 
-    if let Err(_) = jwk_response {
+    if jwk_response.is_err() {
         return Err(AuthenticationError {
             redirect_uri: None,
             flow: None,
@@ -365,7 +365,7 @@ pub async fn callback(
         });
     }
 
-    if claim.nonce.as_ref().unwrap().to_string() != saved_relying_party_state.nonce {
+    if *claim.nonce.as_ref().unwrap() != saved_relying_party_state.nonce {
         dbg!("invalid");
         return Err(AuthenticationError {
             redirect_uri: None,
@@ -382,7 +382,7 @@ pub async fn callback(
         OpenIDProvider::Google => AuthenticationMethod::Google,
     };
 
-    let saved_state = get_state_keep(&state_id);
+    let saved_state = get_state_keep(state_id);
     if saved_state.is_none() {
         dbg!("invalid");
         return Err(AuthenticationError {
@@ -408,9 +408,9 @@ pub async fn callback(
 
     // TODO: Google 連携の場合、ユーザー名に PREFIX をつける
     // TODO: ただし、アカウントの紐付けが存在するときはそうしない
-    let result = post_authentication(
+    let _result = post_authentication(
         &user_id,
-        &state_id,
+        state_id,
         &relying_party_id,
         &user_agent_id,
         login_type,
