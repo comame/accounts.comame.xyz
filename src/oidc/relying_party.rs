@@ -4,27 +4,58 @@ use jsonwebtoken::{Algorithm, DecodingKey, Validation};
 use serde_json::from_str;
 
 use crate::crypto::rand;
+use crate::data::authentication::{Authentication, AuthenticationMethod};
 use crate::data::jwk::Jwk;
+use crate::data::oidc_flow::authentication_flow_state::AuthenticationFlowState;
+use crate::data::oidc_flow::authenticationi_error_response::AuthenticationErrorResponse;
 use crate::data::oidc_flow::code_request::CodeRequest;
 use crate::data::oidc_flow::code_response::CodeResponse;
+use crate::data::oidc_flow::error_code::ErrorCode;
 use crate::data::oidc_flow::id_token_claim::IdTokenClaim;
+use crate::data::oidc_flow::relying_party_state::RelyingPartyState;
 use crate::data::openid_provider::OpenIDProvider;
+use crate::time::now;
 use crate::web::fetch::fetch;
+
+use super::authentication_flow_state::get_state_keep;
+use super::authentication_request::{
+    post_authentication, AuthenticationError, PostAuthenticationResponse,
+};
 
 fn redirect_uri() -> String {
     format!("{}/oidc-callback/google", std::env::var("HOST").unwrap())
 }
 
-/// リダイレクト先の URL を返す
-pub fn generate_authentication_endpoint_url() -> String {
+pub struct AuthorizationInitate {
+    pub redirect_url: String,
+    pub state_id: String,
+}
+
+pub fn generate_authentication_endpoint_url(
+    authorization_flow_state_id: &str,
+    op: OpenIDProvider,
+    user_agent_id: &str,
+) -> AuthorizationInitate {
+    // TODO: 他に必要な OpenID Connect のパラメータを引き渡す (prompt とか)
+
     // 現時点では Google にのみ対応しているので、適当にハードコードしておく
+    if op != OpenIDProvider::Google {
+        unimplemented!();
+    }
 
     let client_id = std::env::var("GOOGLE_OIDC_CLIENT_ID").unwrap();
     let redirect_uri = redirect_uri();
     let state = rand::random_str(16);
     let nonce = rand::random_str(16);
 
-    // TODO: ちゃんと状態を保存するようにする
+    let saved_state = RelyingPartyState {
+        state_id: authorization_flow_state_id.into(),
+        nonce: nonce.clone(),
+        state: state.clone(),
+        op,
+        user_agent_id: user_agent_id.into(),
+    };
+    RelyingPartyState::save(&saved_state);
 
     let endpoint = "https://accounts.google.com/o/oauth2/v2/auth";
 
@@ -37,10 +68,21 @@ pub fn generate_authentication_endpoint_url() -> String {
         .append("nonce", &nonce)
         .build();
 
-    format!("{endpoint}?{query}")
+    let redirect_url = format!("{endpoint}?{query}");
+
+    AuthorizationInitate {
+        redirect_url,
+        state_id: saved_state.state_id,
+    }
 }
 
-pub async fn callback(state: &str, code: &str, op: OpenIDProvider) -> Result<IdTokenClaim, ()> {
+pub async fn callback(
+    state_id: &str,
+    state: &str,
+    code: &str,
+    op: OpenIDProvider,
+    remote_addr: &str,
+) -> Result<PostAuthenticationResponse, AuthenticationError> {
     let client_id = match op {
         OpenIDProvider::Google => std::env::var("GOOGLE_OIDC_CLIENT_ID").unwrap(),
     };
@@ -48,13 +90,53 @@ pub async fn callback(state: &str, code: &str, op: OpenIDProvider) -> Result<IdT
         OpenIDProvider::Google => std::env::var("GOOGLE_OIDC_CLIENT_SECRET").unwrap(),
     };
 
-    // TODO: state, nonce を検証する
+    let saved_state = RelyingPartyState::get_consume(state_id);
+    if saved_state.is_none() {
+        dbg!("invalid");
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            flow: None,
+            response: AuthenticationErrorResponse {
+                error: ErrorCode::InvalidRequest,
+                state: None,
+            },
+        });
+    }
+    let saved_relying_party_state = saved_state.unwrap();
+
+    let user_agent_id = saved_relying_party_state.user_agent_id;
+
+    if saved_relying_party_state.state != state {
+        dbg!("invalid");
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            flow: None,
+            response: AuthenticationErrorResponse {
+                error: ErrorCode::InvalidRequest,
+                state: None,
+            },
+        });
+    }
+
+    let state = saved_relying_party_state.state;
+
+    if saved_relying_party_state.op != op {
+        dbg!("invalid");
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            flow: None,
+            response: AuthenticationErrorResponse {
+                error: ErrorCode::InvalidRequest,
+                state: Some(state),
+            },
+        });
+    }
 
     let body = CodeRequest {
         grant_type: "authorization_code".into(),
         code: code.into(),
         redirect_uri: redirect_uri(),
-        client_id,
+        client_id: client_id.clone(),
         client_secret: Some(client_secret),
     };
     // この辺は適当にハードコードしておく
@@ -68,18 +150,40 @@ pub async fn callback(state: &str, code: &str, op: OpenIDProvider) -> Result<IdT
 
     let res = fetch(&token_request).await;
     if res.is_err() {
-        return Err(());
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            flow: None,
+            response: AuthenticationErrorResponse {
+                error: ErrorCode::ServerError,
+                state: None,
+            },
+        });
     }
     let res = res.unwrap();
 
     if res.status != 200 {
-        return Err(());
+        dbg!("invalid");
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            flow: None,
+            response: AuthenticationErrorResponse {
+                error: ErrorCode::ServerError,
+                state: None,
+            },
+        });
     }
 
     let body = from_str::<CodeResponse>(&res.body.unwrap());
     if let Err(err) = body {
         dbg!(&err);
-        return Err(());
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            flow: None,
+            response: AuthenticationErrorResponse {
+                error: ErrorCode::ServerError,
+                state: None,
+            },
+        });
     }
     let body = body.unwrap();
 
@@ -88,18 +192,39 @@ pub async fn callback(state: &str, code: &str, op: OpenIDProvider) -> Result<IdT
     let id_token_header = jsonwebtoken::decode_header(&id_token);
     if let Err(err) = id_token_header {
         dbg!(&err);
-        return Err(());
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            flow: None,
+            response: AuthenticationErrorResponse {
+                error: ErrorCode::ServerError,
+                state: None,
+            },
+        });
     }
     let id_token_header = id_token_header.unwrap();
 
     if id_token_header.alg != Algorithm::RS256 {
         dbg!("unsupported JWT algorithm");
-        return Err(());
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            flow: None,
+            response: AuthenticationErrorResponse {
+                error: ErrorCode::ServerError,
+                state: None,
+            },
+        });
     }
 
     if id_token_header.kid.is_none() {
         dbg!("kid is none");
-        return Err(());
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            flow: None,
+            response: AuthenticationErrorResponse {
+                error: ErrorCode::ServerError,
+                state: None,
+            },
+        });
     }
     let kid = id_token_header.kid.unwrap();
 
@@ -109,28 +234,56 @@ pub async fn callback(state: &str, code: &str, op: OpenIDProvider) -> Result<IdT
     let jwk_response = fetch(&jwk_request).await;
 
     if let Err(_) = jwk_response {
-        return Err(());
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            flow: None,
+            response: AuthenticationErrorResponse {
+                error: ErrorCode::ServerError,
+                state: None,
+            },
+        });
     }
     let jwk_response = jwk_response.unwrap();
 
     let jwk = from_str::<Jwk>(&jwk_response.body.unwrap());
     if let Err(err) = jwk {
         dbg!(&err);
-        return Err(());
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            flow: None,
+            response: AuthenticationErrorResponse {
+                error: ErrorCode::ServerError,
+                state: None,
+            },
+        });
     }
     let jwk = jwk.unwrap();
 
     let jwk = jwk.keys.iter().find(|v| v.kid == kid).cloned();
     if jwk.is_none() {
         dbg!("target kid not found");
-        return Err(());
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            flow: None,
+            response: AuthenticationErrorResponse {
+                error: ErrorCode::ServerError,
+                state: None,
+            },
+        });
     }
     let jwk = jwk.unwrap();
 
     let decoding_key = DecodingKey::from_rsa_components(&jwk.n, &jwk.e);
     if let Err(e) = decoding_key {
         dbg!(&e);
-        return Err(());
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            flow: None,
+            response: AuthenticationErrorResponse {
+                error: ErrorCode::ServerError,
+                state: None,
+            },
+        });
     }
     let decoding_key = decoding_key.unwrap();
 
@@ -141,22 +294,139 @@ pub async fn callback(state: &str, code: &str, op: OpenIDProvider) -> Result<IdT
     );
     if let Err(err) = claim {
         dbg!(&err);
-        return Err(());
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            flow: None,
+            response: AuthenticationErrorResponse {
+                error: ErrorCode::ServerError,
+                state: None,
+            },
+        });
     }
 
     let claim = claim.unwrap().claims;
-    dbg!(&claim);
 
-    Ok(claim)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test() {
-        let url = generate_authentication_endpoint_url();
-        assert!(url.starts_with("https://accounts.google.com/o/oauth2/v2/auth?"));
+    if claim.iss != "https://accounts.google.com" {
+        dbg!("invalid");
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            flow: None,
+            response: AuthenticationErrorResponse {
+                error: ErrorCode::ServerError,
+                state: None,
+            },
+        });
     }
+
+    if now() > claim.exp {
+        dbg!("invalid");
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            flow: None,
+            response: AuthenticationErrorResponse {
+                error: ErrorCode::ServerError,
+                state: None,
+            },
+        });
+    }
+
+    if now() < claim.iat {
+        dbg!("invalid");
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            flow: None,
+            response: AuthenticationErrorResponse {
+                error: ErrorCode::ServerError,
+                state: None,
+            },
+        });
+    }
+
+    if claim.aud != client_id {
+        dbg!("invalid");
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            flow: None,
+            response: AuthenticationErrorResponse {
+                error: ErrorCode::ServerError,
+                state: None,
+            },
+        });
+    }
+
+    if claim.nonce.is_none() {
+        dbg!("invalid");
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            flow: None,
+            response: AuthenticationErrorResponse {
+                error: ErrorCode::ServerError,
+                state: None,
+            },
+        });
+    }
+
+    if claim.nonce.as_ref().unwrap().to_string() != saved_relying_party_state.nonce {
+        dbg!("invalid");
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            flow: None,
+            response: AuthenticationErrorResponse {
+                error: ErrorCode::InvalidRequest,
+                state: None,
+            },
+        });
+    }
+
+    let user_id = claim.sub;
+    let login_type = match op {
+        OpenIDProvider::Google => AuthenticationMethod::Google,
+    };
+
+    let saved_state = get_state_keep(&state_id);
+    if saved_state.is_none() {
+        dbg!("invalid");
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            flow: None,
+            response: AuthenticationErrorResponse {
+                error: ErrorCode::ServerError,
+                state: None,
+            },
+        });
+    }
+    let saved_authentication_flow_state = saved_state.unwrap();
+
+    let relying_party_id = saved_authentication_flow_state.relying_party_id;
+
+    Authentication::create(
+        now(),
+        &relying_party_id,
+        &user_id,
+        AuthenticationMethod::Google,
+        &user_agent_id,
+    );
+
+    // TODO: Google 連携の場合、ユーザー名に PREFIX をつける
+    // TODO: ただし、アカウントの紐付けが存在するときはそうしない
+    let result = post_authentication(
+        &user_id,
+        &state_id,
+        &relying_party_id,
+        &user_agent_id,
+        login_type,
+        remote_addr,
+    );
+
+    // TODO: 成功時にセッションを発行する
+    // ただし、ユーザーの存在確認をする必要はないかもしれない (外部アカウントなので)
+
+    Err(AuthenticationError {
+        redirect_uri: None,
+        flow: None,
+        response: AuthenticationErrorResponse {
+            error: ErrorCode::TemporarilyUnavailable,
+            state: None,
+        },
+    })
 }

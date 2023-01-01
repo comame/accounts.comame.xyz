@@ -157,7 +157,7 @@ pub fn pre_authenticate(
 
 /// prompt=none のとき、interaction_required を返す
 pub fn pronpt_none_fail_authentication(state_id: &str) -> AuthenticationError {
-    let state = authentication_flow_state::get_state(state_id);
+    let state = authentication_flow_state::get_state_consume(state_id);
     if state.is_none() {
         let response = AuthenticationErrorResponse {
             error: ErrorCode::InteractionRequired,
@@ -183,6 +183,7 @@ pub fn pronpt_none_fail_authentication(state_id: &str) -> AuthenticationError {
     }
 }
 
+#[derive(Debug)]
 pub struct PostAuthenticationResponse {
     pub response: AuthenticationResponse,
     pub redirect_uri: String,
@@ -197,7 +198,7 @@ pub fn post_authentication(
     login_type: AuthenticationMethod,
     remote_addr: &str,
 ) -> Result<PostAuthenticationResponse, AuthenticationError> {
-    let state = authentication_flow_state::get_state(state_id);
+    let state = authentication_flow_state::get_state_consume(state_id);
     if state.is_none() {
         let response = AuthenticationErrorResponse {
             error: ErrorCode::InvalidRequest,

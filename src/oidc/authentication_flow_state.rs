@@ -14,7 +14,13 @@ pub fn save_state(state: AuthenticationFlowState) {
     );
 }
 
-pub fn get_state(id: &str) -> Option<AuthenticationFlowState> {
+pub fn get_state_keep(id: &str) -> Option<AuthenticationFlowState> {
+    let key = format!("{PREFIX}{id}");
+    let result = redis::get(&key)?;
+    Some(from_str(&result).unwrap())
+}
+
+pub fn get_state_consume(id: &str) -> Option<AuthenticationFlowState> {
     let key = format!("{PREFIX}{id}");
     let result = redis::get(&key)?;
     redis::del(&key);

@@ -16,7 +16,7 @@ pub async fn routes(hyper_request: HyperRequest<Body>) -> HyperResponse<Body> {
         (Method::Get, "/signin") => handler::signin::page("signin"),
         (Method::Get, "/reauthenticate") => handler::signin::page("reauthenticate"),
         (Method::Get, "/confirm") => handler::signin::page("confirm"),
-        (Method::Get, "/signin/google") => handler::signin_google::handler(&req),
+        (Method::Post, "/signin/google") => handler::signin_google::handler(&req),
         (Method::Post, "/api/signin-password") => {
             handler::signin::sign_in_with_password(&req, &remote_address)
         }
@@ -34,7 +34,7 @@ pub async fn routes(hyper_request: HyperRequest<Body>) -> HyperResponse<Body> {
         (Method::Get, "/userinfo") => handler::oidc_userinfo_request::handle(&req),
         (Method::Post, "/userinfo") => handler::oidc_userinfo_request::handle(&req),
         (Method::Get, "/oidc-callback/google") => {
-            handler::oidc_callback::handler(&req, OpenIDProvider::Google).await
+            handler::oidc_callback::handler(&req, OpenIDProvider::Google, &remote_address).await
         }
         (Method::Get, "/.well-known/openid-configuration") => handler::discovery::handle_config(),
         (Method::Get, "/certs") => handler::discovery::handle_certs(),

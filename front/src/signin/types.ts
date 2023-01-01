@@ -3,6 +3,7 @@ export type apis = {
     "/api/signin-session": [requestBase, sessionResponse]
     "/api/signin-continue": [continueRequest, continueResponse],
     "/api/signin-continue-nointeraction-fail": [continueNoSessionRequest, continueNoSessionResponse],
+    "/signin/google": [signinRpRequest, continueResponse],
 }
 
 export type request<T extends keyof apis> = apis[T][0]
@@ -57,4 +58,9 @@ type continueNoSessionResponse = {
     error: "bad_request"
 } | {
     location: string
+}
+
+type signinRpRequest = {
+    state_id: string,
+    user_agent_id: string,
 }

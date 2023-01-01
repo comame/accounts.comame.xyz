@@ -167,6 +167,24 @@ const App = () => {
         next()
     }
 
+    const signinWithGoogle = async () => {
+        if (!stateId) {
+            throw "bad_request"
+        }
+
+        let result = await fetchApi("/signin/google", {
+            state_id: stateId,
+            user_agent_id: getUserAgentId(),
+        })
+
+        if ("error" in result) {
+            alert("Error!")
+            return
+        }
+
+        location.replace(result.location)
+    }
+
     return (
         <Themed>
             {!hidden && (
@@ -224,13 +242,21 @@ const App = () => {
                                 </InputContainer>
                                 <ButtonsContainer>
                                     <Button
-                                        variant="Primary"
+                                        variant="Default"
                                         fixed
                                         onClick={onSubmitPassword}
                                         type="submit"
                                         disabled={sendingPassword}
                                     >
                                         ログイン
+                                    </Button>
+                                    <Button
+                                        variant="Primary"
+                                        fixed
+                                        onClick={signinWithGoogle}
+                                        type="button"
+                                    >
+                                        Google でログイン
                                     </Button>
                                 </ButtonsContainer>
                             </form>
