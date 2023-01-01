@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
 use serde_json::{from_str, to_string};
 
-
 use crate::data::openid_provider::OpenIDProvider;
 use crate::db::redis;
 

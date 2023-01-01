@@ -3,16 +3,10 @@ use http::request::Request;
 use http::response::Response;
 use url::Url;
 
-
-
-
 use crate::data::oidc_flow::authentication_flow_state::OidcFlow;
 use crate::data::oidc_flow::authentication_response::AuthenticationResponse;
 use crate::data::openid_provider::OpenIDProvider;
-
-
 use crate::oidc::relying_party::callback;
-
 
 fn response_bad_request(msg: &str) -> Response {
     let mut res = Response::new();

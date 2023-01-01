@@ -10,7 +10,6 @@ use super::authentication_request::{
 use crate::crypto::rand;
 use crate::data::authentication::{Authentication, AuthenticationMethod};
 use crate::data::jwk::Jwk;
-
 use crate::data::oidc_flow::authenticationi_error_response::AuthenticationErrorResponse;
 use crate::data::oidc_flow::code_request::CodeRequest;
 use crate::data::oidc_flow::code_response::CodeResponse;
