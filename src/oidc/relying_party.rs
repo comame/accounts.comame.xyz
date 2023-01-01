@@ -407,7 +407,7 @@ pub async fn callback(
 
     // TODO: Google 連携の場合、ユーザー名に PREFIX をつける
     // TODO: ただし、アカウントの紐付けが存在するときはそうしない
-    let _result = post_authentication(
+    let result = post_authentication(
         &user_id,
         state_id,
         &relying_party_id,
