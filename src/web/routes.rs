@@ -63,6 +63,15 @@ pub async fn routes(hyper_request: HyperRequest<Body>) -> HyperResponse<Body> {
         (Method::Post, "/dash/rp/binding/remove") => {
             handler::dash_relying_party::remove_user_binding(&req)
         }
+        (Method::Post, "/dash/rp/federated_user_binding/list") => {
+            handler::dash_relying_party::list_federated_user_binding(&req)
+        }
+        (Method::Post, "/dash/rp/federated_user_binding/add") => {
+            handler::dash_relying_party::add_federated_user_binding(&req)
+        }
+        (Method::Post, "/dash/rp/federated_user_binding/remove") => {
+            handler::dash_relying_party::remove_federated_user_binding(&req)
+        }
         (Method::Post, "/dash/user/list") => handler::dash_user::list_user(&req),
         (Method::Post, "/dash/user/create") => handler::dash_user::create_user(&req),
         (Method::Post, "/dash/user/delete") => handler::dash_user::delete_user(&req),

@@ -16,7 +16,10 @@ export type apis = {
     "/dash/user/authentication/list": [
         userIdRequest,
         authenticationListResponse
-    ]
+    ],
+    "/dash/rp/federated_user_binding/list": [clientIdRequest, federatedUserBindingListResponse],
+    "/dash/rp/federated_user_binding/add": [federatedUserBindingRequest, empty],
+    "/dash/rp/federated_user_binding/remove": [federatedUserBindingRequest, empty],
 }
 
 export type request<T extends keyof apis> = apis[T][0]
@@ -82,4 +85,16 @@ type userBinding = {
 
 type bindingResponse = {
     values: userBinding[]
+}
+
+type federatedUserBindingRequest = {
+    client_id: string,
+    issuer: string,
+}
+
+type federatedUserBindingListResponse = {
+    values: {
+        relying_party_id: string,
+        issuer: string,
+    }[]
 }

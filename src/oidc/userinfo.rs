@@ -14,6 +14,8 @@ pub fn userinfo(access_token: &str) -> Result<UserInfo, ErrorReason> {
     }
     let access_token = access_token.unwrap();
 
+    // TODO: Google アカウントなら Google から取得する
+
     let userinfo =
         UserInfo::get(&access_token.sub).unwrap_or_else(|| UserInfo::empty(&access_token.sub));
 

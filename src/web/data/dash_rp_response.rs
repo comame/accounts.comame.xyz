@@ -1,5 +1,6 @@
 use serde::Serialize;
 
+use crate::data::federated_user_binding::FederatedUserBinding;
 use crate::data::oidc_relying_party::RelyingParty;
 use crate::data::user_binding::UserBinding;
 
@@ -17,4 +18,9 @@ pub struct RelyingPartiesResponse {
 #[derive(Serialize)]
 pub struct RelyingPartyBindingResponse {
     pub values: Vec<UserBinding>,
+}
+
+#[derive(Serialize)]
+pub struct RelyingPartyFederatedUserBindingResponse {
+    pub values: Vec<FederatedUserBinding>,
 }

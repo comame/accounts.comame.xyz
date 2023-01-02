@@ -9,6 +9,7 @@ use super::authentication_request::{
 };
 use crate::crypto::rand;
 use crate::data::authentication::{Authentication, AuthenticationMethod};
+use crate::data::federated_user_binding::FederatedUserBinding;
 use crate::data::jwk::Jwk;
 use crate::data::oidc_flow::authenticationi_error_response::AuthenticationErrorResponse;
 use crate::data::oidc_flow::code_request::CodeRequest;
@@ -397,6 +398,19 @@ pub async fn callback(
 
     let relying_party_id = saved_authentication_flow_state.relying_party_id;
 
+    let federated_user_binding_exists = FederatedUserBinding::exists(&relying_party_id, op);
+    if let Err(_) = federated_user_binding_exists {
+        dbg!("invalid");
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            flow: None,
+            response: AuthenticationErrorResponse {
+                error: ErrorCode::UnauthorizedClient,
+                state: None,
+            },
+        });
+    }
+
     Authentication::create(
         now(),
         &relying_party_id,
@@ -419,12 +433,5 @@ pub async fn callback(
     // TODO: 成功時にセッションを発行する
     // ただし、ユーザーの存在確認をする必要はないかもしれない (外部アカウントなので)
 
-    Err(AuthenticationError {
-        redirect_uri: None,
-        flow: None,
-        response: AuthenticationErrorResponse {
-            error: ErrorCode::TemporarilyUnavailable,
-            state: None,
-        },
-    })
+    result
 }

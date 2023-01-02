@@ -1,6 +1,7 @@
 pub mod access_token;
 pub mod authentication;
 pub mod authentication_failure;
+pub mod federated_user_binding;
 pub mod idtoken_issues;
 pub mod jwk;
 pub mod mail;

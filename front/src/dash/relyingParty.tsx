@@ -70,6 +70,7 @@ const RelyingPartyListItem = ({
     const editModalOpen = useState(false)
     const updateSecretModalOpen = useState(false)
     const bindingModalOpen = useState(false)
+    const federatedBindingModalOpen = useState(false)
 
     return (
         <div key={rp.client_id} className="p-8 mb-16 bg-surface3">
@@ -84,6 +85,11 @@ const RelyingPartyListItem = ({
                 client_id={rp.client_id}
             />
             <BindingModal open={bindingModalOpen} clientId={rp.client_id} />
+            <FederatedBindingModal
+                key={rp.client_id}
+                open={federatedBindingModalOpen}
+                clientId={rp.client_id}
+            />
             <h2 className="font-bold text-base">{rp.client_id}</h2>
             <div>
                 <div className="inline-block p-8 pl-0">
@@ -102,6 +108,15 @@ const RelyingPartyListItem = ({
                         onClick={() => bindingModalOpen[1](true)}
                     >
                         bindings
+                    </Button>
+                </div>
+                <div className="inline-block p-8 pl-0">
+                    <Button
+                        size="S"
+                        variant="Navigation"
+                        onClick={() => federatedBindingModalOpen[1](true)}
+                    >
+                        Federated User Binding
                     </Button>
                 </div>
                 <div className="inline-block p-8 pl-0">
@@ -343,6 +358,114 @@ const Bindings = ({ clientId, open }: { clientId: string; open: boolean }) => {
                 {users.values.map((user) => (
                     <div key={user.user_id} className="mb-4">
                         <Select value={user.user_id}>{user.user_id}</Select>
+                    </div>
+                ))}
+            </SelectGroup>
+            <Button onClick={onClick} fixed disabled={disabled}>
+                変更する
+            </Button>
+        </>
+    )
+}
+
+type federatedBindingModalProps = {
+    open: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
+    clientId: string
+}
+const FederatedBindingModal = ({
+    open,
+    clientId,
+}: federatedBindingModalProps) => {
+    return (
+        <Modal open={open}>
+            <ModalHeader>UserBinding</ModalHeader>
+            <ModalBody>
+                <Suspense fallback={<>Loading</>}>
+                    <div className="p-8">
+                        <FederatedBindings clientId={clientId} open={open[0]} />
+                    </div>
+                </Suspense>
+            </ModalBody>
+        </Modal>
+    )
+}
+
+const FederatedBindings = ({
+    clientId,
+    open,
+}: {
+    clientId: string
+    open: boolean
+}) => {
+    const { data: bindings, mutate: mutateA } = useSuspendApi(
+        useToken(),
+        "/dash/rp/federated_user_binding/list",
+        {
+            client_id: clientId,
+        },
+        `/dash/rp/federated_user_binding/list/${clientId}`
+    )
+    const issuers = ["google"]
+
+    const [selected, setSelected] = useState(
+        bindings.values.map((v) => v.issuer)
+    )
+
+    const [hasUpdate, setHasUpdate] = useState(false)
+    useEffect(() => {
+        if (open) {
+            mutateA()
+            setHasUpdate(true)
+        }
+    }, [open])
+
+    useEffect(() => {
+        if (hasUpdate) {
+            setSelected(bindings.values.map((v) => v.issuer))
+            setHasUpdate(false)
+        }
+    }, [hasUpdate])
+
+    const onClick = async () => {
+        setDisabled(true)
+        const diff = diffArray(
+            bindings.values.map((v) => v.issuer),
+            selected
+        )
+        for (const addUser of diff.add) {
+            await fetchApi(useToken(), "/dash/rp/federated_user_binding/add", {
+                client_id: clientId,
+                issuer: addUser,
+            })
+        }
+        for (const delUser of diff.del) {
+            await fetchApi(
+                useToken(),
+                "/dash/rp/federated_user_binding/remove",
+                {
+                    client_id: clientId,
+                    issuer: delUser,
+                }
+            )
+        }
+        setDisabled(false)
+    }
+
+    const [disabled, setDisabled] = useState(false)
+
+    return (
+        <>
+            <SelectGroup
+                name="user-binding"
+                ariaLabel="user-binding"
+                selected={selected}
+                onChange={setSelected}
+                disabled={disabled}
+                className="mb-16"
+            >
+                {issuers.map((issuer) => (
+                    <div key={issuer} className="mb-4">
+                        <Select value={issuer}>{issuer}</Select>
                     </div>
                 ))}
             </SelectGroup>

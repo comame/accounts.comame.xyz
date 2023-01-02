@@ -19,3 +19,10 @@ pub struct RelyingPartyBindingRequest {
     pub client_id: String,
     pub user_id: String,
 }
+
+#[derive(Deserialize)]
+pub struct RelyingPartyFederatedUserBindingRequest {
+    pub token: String,
+    pub client_id: String,
+    pub issuer: String,
+}

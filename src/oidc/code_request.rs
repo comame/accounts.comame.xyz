@@ -47,6 +47,7 @@ pub fn code_request(req: CodeRequest) -> Result<CodeResponse, ()> {
         return Err(());
     }
 
+    // TODO: Google アカウント連携のとき、当然ユーザーが存在しないのでコケる
     let access_token = AccessToken::new(&saved_state.sub, &saved_state.scope);
 
     Ok(CodeResponse {

@@ -4,11 +4,14 @@ use serde_json::{from_str, to_string};
 
 use crate::dash::relying_party;
 use crate::dash::signin::validate_token;
+use crate::data::openid_provider::OpenIDProvider;
 use crate::web::data::dash_rp_request::{
     RelyingPartyAddRedirectUriRequest, RelyingPartyBindingRequest, RelyingPartyClientIdRequest,
+    RelyingPartyFederatedUserBindingRequest,
 };
 use crate::web::data::dash_rp_response::{
-    RelyingPartiesResponse, RelyingPartyBindingResponse, RelyingPartyRawSecretResponse,
+    RelyingPartiesResponse, RelyingPartyBindingResponse, RelyingPartyFederatedUserBindingResponse,
+    RelyingPartyRawSecretResponse,
 };
 use crate::web::data::dash_standard_request::StandardRequest;
 
@@ -219,6 +222,76 @@ pub fn remove_user_binding(req: &Request) -> Response {
     }
 
     relying_party::remove_user_binding(&body.client_id, &body.user_id);
+
+    let mut res = Response::new();
+    res.body = Some("{}".to_string());
+    res
+}
+
+pub fn list_federated_user_binding(req: &Request) -> Response {
+    let req = req.clone();
+    let body = from_str::<RelyingPartyClientIdRequest>(&req.body.unwrap());
+    if body.is_err() {
+        return response_bad_request();
+    }
+    let body = body.unwrap();
+
+    if !validate_token(&body.token) {
+        return response_unauthorized();
+    }
+
+    let result = relying_party::list_federated_user_binding(&body.client_id);
+
+    let mut res = Response::new();
+    res.body =
+        Some(to_string(&RelyingPartyFederatedUserBindingResponse { values: result }).unwrap());
+    res
+}
+
+pub fn add_federated_user_binding(req: &Request) -> Response {
+    let req = req.clone();
+    let body = from_str::<RelyingPartyFederatedUserBindingRequest>(&req.body.unwrap());
+    if body.is_err() {
+        return response_bad_request();
+    }
+    let body = body.unwrap();
+
+    if !validate_token(&body.token) {
+        return response_unauthorized();
+    }
+
+    let issuer = OpenIDProvider::parse(&body.issuer);
+    if let Err(_) = issuer {
+        return response_bad_request();
+    }
+    let issuer = issuer.unwrap();
+
+    relying_party::add_federated_user_binding(&body.client_id, issuer);
+
+    let mut res = Response::new();
+    res.body = Some("{}".to_string());
+    res
+}
+
+pub fn remove_federated_user_binding(req: &Request) -> Response {
+    let req = req.clone();
+    let body = from_str::<RelyingPartyFederatedUserBindingRequest>(&req.body.unwrap());
+    if body.is_err() {
+        return response_bad_request();
+    }
+    let body = body.unwrap();
+
+    if !validate_token(&body.token) {
+        return response_unauthorized();
+    }
+
+    let issuer = OpenIDProvider::parse(&body.issuer);
+    if let Err(_) = issuer {
+        return response_bad_request();
+    }
+    let issuer = issuer.unwrap();
+
+    relying_party::remove_federated_user_bindng(&body.client_id, issuer);
 
     let mut res = Response::new();
     res.body = Some("{}".to_string());
