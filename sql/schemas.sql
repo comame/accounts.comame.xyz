@@ -25,6 +25,14 @@ authentications	CREATE TABLE `authentications` (
   `method` varchar(16) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+federated_user_binding	CREATE TABLE `federated_user_binding` (
+  `relying_party_id` varchar(100) NOT NULL,
+  `issuer` varchar(100) NOT NULL,
+  PRIMARY KEY (`relying_party_id`,`issuer`),
+  UNIQUE KEY `relying_party_id` (`relying_party_id`,`issuer`),
+  CONSTRAINT `federated_user_binding_ibfk_1` FOREIGN KEY (`relying_party_id`) REFERENCES `relying_parties` (`client_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 idtoken_issues	CREATE TABLE `idtoken_issues` (
   `sub` varchar(100) NOT NULL,
   `aud` varchar(100) NOT NULL,
