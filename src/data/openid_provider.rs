@@ -5,7 +5,7 @@ use serde::{
     Deserialize, Serialize,
 };
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum OpenIDProvider {
     Google,
 }

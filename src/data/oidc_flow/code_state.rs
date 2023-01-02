@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use super::oidc_scope::Scopes;
-use crate::crypto::rand::random_str;
+use crate::{crypto::rand::random_str, data::openid_provider::OpenIDProvider};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CodeState {
@@ -11,6 +11,7 @@ pub struct CodeState {
     pub scope: Scopes,
     pub redirect_uri: String,
     pub sub: String,
+    pub federated_rp: Option<OpenIDProvider>,
 }
 
 impl CodeState {
@@ -20,6 +21,7 @@ impl CodeState {
         scope: &Scopes,
         redirect_uri: &str,
         sub: &str,
+        federated_rp: Option<OpenIDProvider>,
     ) -> Self {
         let code = random_str(32);
         Self {
@@ -29,6 +31,7 @@ impl CodeState {
             scope: scope.to_owned(),
             redirect_uri: redirect_uri.to_owned(),
             sub: sub.to_string(),
+            federated_rp,
         }
     }
 }

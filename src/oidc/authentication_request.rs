@@ -17,6 +17,7 @@ use crate::data::oidc_flow::code_state::CodeState;
 use crate::data::oidc_flow::error_code::ErrorCode;
 use crate::data::oidc_flow::id_token_claim::IdTokenClaim;
 use crate::data::oidc_relying_party::RelyingParty;
+use crate::data::openid_provider::OpenIDProvider;
 use crate::data::rsa_keypair::RsaKeypair;
 use crate::time::now;
 
@@ -323,6 +324,11 @@ pub fn post_authentication(
     )
     .unwrap();
 
+    let federated_rp = if login_type == AuthenticationMethod::Google {
+        Some(OpenIDProvider::Google)
+    } else {
+        None
+    };
     if let OidcFlow::Code = state.flow {
         let code = CodeState::new(
             &jwt,
@@ -330,6 +336,7 @@ pub fn post_authentication(
             &state.scopes,
             &state.redirect_url,
             user_id,
+            federated_rp,
         );
         code_state::save_state(&code);
         Ok(PostAuthenticationResponse {
