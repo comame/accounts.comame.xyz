@@ -88,6 +88,6 @@ pub fn add_federated_user_binding(relying_party_id: &str, op: OpenIDProvider) {
 pub fn remove_federated_user_bindng(relying_party_id: &str, op: OpenIDProvider) {
     FederatedUserBinding::delete(&FederatedUserBinding {
         relying_party_id: relying_party_id.into(),
-        issuer: OpenIDProvider::Google,
+        issuer: op,
     });
 }
