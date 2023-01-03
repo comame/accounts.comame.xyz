@@ -23,10 +23,6 @@ pub fn userinfo(access_token: &str) -> Result<UserInfo, ErrorReason> {
 
     let mut response = UserInfo::empty(&access_token.sub);
 
-    if !scopes.has("email") && !scopes.has("profile") {
-        return Err(ErrorReason::InsufficientScope);
-    }
-
     if scopes.has("email") {
         response.email = userinfo.email;
         response.email_verified = userinfo.email_verified;
