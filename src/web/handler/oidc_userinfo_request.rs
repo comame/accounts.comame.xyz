@@ -7,10 +7,14 @@ use crate::oidc::userinfo::{userinfo, ErrorReason};
 fn response_error(error: &str) -> Response {
     let mut response = Response::new();
     response.status = 401;
+    response
+        .headers
+        .insert("Content-Type".into(), "application/json".into());
     response.headers.insert(
         "WWW-Authenticate".to_string(),
         format!(r#"error="{}""#, error),
     );
+    response.body = Some("{}".into());
     response
 }
 
@@ -44,6 +48,11 @@ pub fn handle(req: &Request) -> Response {
     let result = result.unwrap();
 
     let mut res = Response::new();
+    res.headers
+        .insert("Content-Type".into(), "application/json".into());
     res.body = Some(to_string(&result).unwrap());
+
+    dbg!(&res);
+
     res
 }
