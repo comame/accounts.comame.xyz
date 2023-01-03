@@ -6,6 +6,7 @@ use crate::oidc::userinfo::{userinfo, ErrorReason};
 
 fn response_error(error: &str) -> Response {
     let mut response = Response::new();
+    response.status = 401;
     response.headers.insert(
         "WWW-Authenticate".to_string(),
         format!(r#"error="{}""#, error),
