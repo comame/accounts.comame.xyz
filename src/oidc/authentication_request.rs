@@ -281,14 +281,9 @@ pub fn post_authentication(
         });
     }
 
-    let sub = match login_type {
-        AuthenticationMethod::Google => format!("google:{}", user_id),
-        _ => user_id.to_string(),
-    };
-
     let mut claim = IdTokenClaim {
         iss: env::var("HOST").unwrap(),
-        sub,
+        sub: user_id.into(),
         aud: state.relying_party_id.clone(),
         exp: now() + 5 * 60,
         iat: now(),

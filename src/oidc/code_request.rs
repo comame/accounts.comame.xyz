@@ -47,17 +47,7 @@ pub fn code_request(req: CodeRequest) -> Result<CodeResponse, ()> {
         return Err(());
     }
 
-    let access_token = if let Some(_) = saved_state.federated_rp {
-        // TODO: ちゃんとやる
-        AccessToken {
-            sub: saved_state.sub.clone(),
-            scopes: saved_state.scope.clone(),
-            token: crate::crypto::rand::random_str(32),
-            expires_in: 3600,
-        }
-    } else {
-        AccessToken::new(&saved_state.sub, &saved_state.scope)
-    };
+    let access_token = AccessToken::new(&saved_state.sub, &saved_state.scope);
 
     Ok(CodeResponse {
         access_token: access_token.token,

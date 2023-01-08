@@ -52,7 +52,5 @@ pub fn handle(req: &Request) -> Response {
         .insert("Content-Type".into(), "application/json".into());
     res.body = Some(to_string(&result).unwrap());
 
-    dbg!(&res);
-
     res
 }

@@ -18,6 +18,7 @@ use crate::data::oidc_flow::error_code::ErrorCode;
 use crate::data::oidc_flow::id_token_claim::IdTokenClaim;
 use crate::data::oidc_flow::relying_party_state::RelyingPartyState;
 use crate::data::openid_provider::OpenIDProvider;
+use crate::data::user::User;
 use crate::time::now;
 use crate::web::fetch::fetch;
 
@@ -382,6 +383,10 @@ pub async fn callback(
         OpenIDProvider::Google => AuthenticationMethod::Google,
     };
 
+    let user_id = match op {
+        OpenIDProvider::Google => format!("google:{user_id}"),
+    };
+
     let saved_state = get_state_keep(state_id);
     if saved_state.is_none() {
         dbg!("invalid");
@@ -411,6 +416,22 @@ pub async fn callback(
         });
     }
 
+    let user_exists = User::find(&user_id).is_some();
+    if !user_exists {
+        let result = User::new(&user_id);
+        if let Err(_) = result {
+            dbg!("invalid");
+            return Err(AuthenticationError {
+                redirect_uri: None,
+                flow: None,
+                response: AuthenticationErrorResponse {
+                    error: ErrorCode::ServerError,
+                    state: None,
+                },
+            });
+        }
+    }
+
     Authentication::create(
         now(),
         &relying_party_id,
@@ -419,8 +440,7 @@ pub async fn callback(
         &user_agent_id,
     );
 
-    // TODO: Google 連携の場合、ユーザー名に PREFIX をつける
-    // TODO: ただし、アカウントの紐付けが存在するときはそうしない
+    // TODO: ユーザーの紐づけを調べる
     let result = post_authentication(
         &user_id,
         state_id,

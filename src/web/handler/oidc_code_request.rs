@@ -12,6 +12,9 @@ fn response_bad_request() -> Response {
     response.body = Some(r#"{"error": "invalid_request"}"#.to_string());
     response.status = 403;
     response
+        .headers
+        .insert("Content-Type".into(), "application/json".into());
+    response
 }
 
 pub fn handle(req: &Request) -> Response {
@@ -48,6 +51,9 @@ pub fn handle(req: &Request) -> Response {
 
     let mut response = Response::new();
     response.body = Some(to_string(&result).unwrap());
+    response
+        .headers
+        .insert("Content-Type".into(), "application/json".into());
     no_store(&mut response);
     response
 }
