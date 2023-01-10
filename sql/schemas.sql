@@ -47,6 +47,15 @@ mails	CREATE TABLE `mails` (
   `created_at` timestamp NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+op_user	CREATE TABLE `op_user` (
+  `user_id` varchar(100) NOT NULL,
+  `op_user_id` varchar(100) NOT NULL,
+  `op` varchar(16) NOT NULL,
+  UNIQUE KEY `op_user_id` (`op_user_id`,`op`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `op_user_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 redirect_uris	CREATE TABLE `redirect_uris` (
   `client_id` varchar(100) NOT NULL,
   `redirect_uri` varchar(100) NOT NULL,
