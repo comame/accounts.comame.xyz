@@ -33,7 +33,7 @@ pub fn insert_userinfo(userinfo: &UserInfo) {
     get_conn()
         .unwrap()
         .exec_drop(
-            "INSERT IGNORE INTO userinfo (sub, value) VALUES (:sub, :values)",
+            "INSERT INTO userinfo (sub, value) VALUES (:sub, :values) ON DUPLICATE KEY UPDATE value = :values",
             params! {
                 "sub" => userinfo.sub.clone(),
                 "values" => str,
