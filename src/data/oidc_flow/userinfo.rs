@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::db::userinfo::get_userinfo;
+use crate::db::userinfo::{get_userinfo, insert_userinfo};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct UserInfo {
@@ -36,5 +36,9 @@ impl UserInfo {
             profile: None,
             picture: None,
         }
+    }
+
+    pub fn insert(value: &Self) {
+        insert_userinfo(value);
     }
 }

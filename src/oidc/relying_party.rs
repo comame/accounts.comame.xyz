@@ -17,6 +17,7 @@ use crate::data::oidc_flow::code_response::CodeResponse;
 use crate::data::oidc_flow::error_code::ErrorCode;
 use crate::data::oidc_flow::id_token_claim::IdTokenClaim;
 use crate::data::oidc_flow::relying_party_state::RelyingPartyState;
+use crate::data::oidc_flow::userinfo::UserInfo;
 use crate::data::openid_provider::OpenIDProvider;
 use crate::data::user::User;
 use crate::time::now;
@@ -187,6 +188,7 @@ pub async fn callback(
     }
     let body = body.unwrap();
 
+    let access_token = body.access_token;
     let id_token = body.id_token;
 
     let id_token_header = jsonwebtoken::decode_header(&id_token);
@@ -431,6 +433,41 @@ pub async fn callback(
             });
         }
     }
+
+    let mut userinfo_request = Request::new("/v1/userinfo".into(), None);
+    userinfo_request.origin = Some("https://openidconnect.googleapis.com".into());
+    userinfo_request
+        .headers
+        .insert("Authorization".into(), format!("Bearer {access_token}"));
+    let userinfo_response = fetch(&userinfo_request).await;
+
+    if let Err(_) = userinfo_response {
+        dbg!("invalid");
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            flow: None,
+            response: AuthenticationErrorResponse {
+                error: ErrorCode::ServerError,
+                state: None,
+            },
+        });
+    }
+    let userinfo_response = userinfo_response.unwrap();
+    let userinfo_response = from_str::<UserInfo>(&userinfo_response.body.unwrap());
+    if let Err(_) = userinfo_response {
+        dbg!("invalid");
+        return Err(AuthenticationError {
+            redirect_uri: None,
+            flow: None,
+            response: AuthenticationErrorResponse {
+                error: ErrorCode::ServerError,
+                state: None,
+            },
+        });
+    }
+    let mut userinfo_response = userinfo_response.unwrap();
+    userinfo_response.sub = user_id.clone(); // OP ごとの prefix 付きのものに差し替える
+    UserInfo::insert(&userinfo_response);
 
     Authentication::create(
         now(),
