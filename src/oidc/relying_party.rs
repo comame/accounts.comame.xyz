@@ -9,6 +9,7 @@ use super::authentication_request::{
 };
 use crate::crypto::rand;
 use crate::data::authentication::{Authentication, AuthenticationMethod};
+use crate::data::authentication_failure::AuthenticationFailure;
 use crate::data::federated_user_binding::FederatedUserBinding;
 use crate::data::jwk::Jwk;
 use crate::data::oidc_flow::authenticationi_error_response::AuthenticationErrorResponse;
@@ -18,8 +19,10 @@ use crate::data::oidc_flow::error_code::ErrorCode;
 use crate::data::oidc_flow::id_token_claim::IdTokenClaim;
 use crate::data::oidc_flow::relying_party_state::RelyingPartyState;
 use crate::data::oidc_flow::userinfo::UserInfo;
+use crate::data::op_user::OpUser;
 use crate::data::openid_provider::OpenIDProvider;
 use crate::data::user::User;
+use crate::data::user_binding::UserBinding;
 use crate::time::now;
 use crate::web::fetch::fetch;
 
@@ -380,7 +383,7 @@ pub async fn callback(
         });
     }
 
-    let user_id = claim.sub;
+    let user_id = claim.sub.clone();
     let login_type = match op {
         OpenIDProvider::Google => AuthenticationMethod::Google,
     };
@@ -404,35 +407,6 @@ pub async fn callback(
     let saved_authentication_flow_state = saved_state.unwrap();
 
     let relying_party_id = saved_authentication_flow_state.relying_party_id;
-
-    let federated_user_binding_exists = FederatedUserBinding::exists(&relying_party_id, op);
-    if let Err(_) = federated_user_binding_exists {
-        dbg!("invalid");
-        return Err(AuthenticationError {
-            redirect_uri: None,
-            flow: None,
-            response: AuthenticationErrorResponse {
-                error: ErrorCode::UnauthorizedClient,
-                state: None,
-            },
-        });
-    }
-
-    let user_exists = User::find(&user_id).is_some();
-    if !user_exists {
-        let result = User::new(&user_id);
-        if let Err(_) = result {
-            dbg!("invalid");
-            return Err(AuthenticationError {
-                redirect_uri: None,
-                flow: None,
-                response: AuthenticationErrorResponse {
-                    error: ErrorCode::ServerError,
-                    state: None,
-                },
-            });
-        }
-    }
 
     let mut userinfo_request = Request::new("/v1/userinfo".into(), None);
     userinfo_request.origin = Some("https://openidconnect.googleapis.com".into());
@@ -469,26 +443,97 @@ pub async fn callback(
     userinfo_response.sub = user_id.clone(); // OP ごとの prefix 付きのものに差し替える
     UserInfo::insert(&userinfo_response);
 
-    Authentication::create(
-        now(),
-        &relying_party_id,
-        &user_id,
-        AuthenticationMethod::Google,
-        &user_agent_id,
-    );
+    let op_user = OpUser::get(&claim.sub, OpenIDProvider::Google);
+    if let Some(op_user) = op_user {
+        // 既存のユーザーに対して紐づけがある場合
+        userinfo_response.sub = op_user.user_id.clone();
+        UserInfo::insert(&userinfo_response);
 
-    // TODO: ユーザーの紐づけを調べる
-    let result = post_authentication(
-        &user_id,
-        state_id,
-        &relying_party_id,
-        &user_agent_id,
-        login_type,
-        remote_addr,
-    );
+        let is_accessable_user = UserBinding::exists(&relying_party_id, &op_user.user_id);
+        if is_accessable_user.is_err() {
+            AuthenticationFailure::new(
+                &op_user.user_id,
+                &crate::data::authentication::AuthenticationMethod::Session,
+                &crate::data::authentication_failure::AuthenticationFailureReason::NoUserBinding,
+                remote_addr,
+            );
+            dbg!("invalid");
+            return Err(AuthenticationError {
+                redirect_uri: None,
+                flow: None,
+                response: AuthenticationErrorResponse {
+                    error: ErrorCode::UnauthorizedClient,
+                    state: None,
+                },
+            });
+        }
+        Authentication::create(
+            now(),
+            &relying_party_id,
+            &op_user.user_id,
+            AuthenticationMethod::Google,
+            &user_agent_id,
+        );
+        post_authentication(
+            &op_user.user_id,
+            state_id,
+            &relying_party_id,
+            &user_agent_id,
+            login_type,
+            remote_addr,
+        )
+    } else {
+        // 紐づけがない場合
+        let federated_user_binding_exists = FederatedUserBinding::exists(&relying_party_id, op);
+        if let Err(_) = federated_user_binding_exists {
+            dbg!("invalid");
+            return Err(AuthenticationError {
+                redirect_uri: None,
+                flow: None,
+                response: AuthenticationErrorResponse {
+                    error: ErrorCode::UnauthorizedClient,
+                    state: None,
+                },
+            });
+        }
 
-    // TODO: 成功時にセッションを発行する
-    // ただし、ユーザーの存在確認をする必要はないかもしれない (外部アカウントなので)
+        let user_exists = User::find(&user_id).is_some();
+        if !user_exists {
+            let result = User::new(&user_id);
+            if let Err(_) = result {
+                dbg!("invalid");
+                return Err(AuthenticationError {
+                    redirect_uri: None,
+                    flow: None,
+                    response: AuthenticationErrorResponse {
+                        error: ErrorCode::ServerError,
+                        state: None,
+                    },
+                });
+            }
+        }
 
-    result
+        Authentication::create(
+            now(),
+            &relying_party_id,
+            &user_id,
+            AuthenticationMethod::Google,
+            &user_agent_id,
+        );
+
+        // TODO: ユーザーの紐づけを調べる
+        let result = post_authentication(
+            &user_id,
+            state_id,
+            &relying_party_id,
+            &user_agent_id,
+            login_type,
+            remote_addr,
+        );
+
+        // TODO: 成功時にセッションを発行する
+        // ただし、ユーザーの存在確認をする必要はないかもしれない (外部アカウントなので)
+
+        result
+    }
 }

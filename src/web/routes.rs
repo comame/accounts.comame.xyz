@@ -30,11 +30,7 @@ pub async fn routes(hyper_request: HyperRequest<Body>) -> HyperResponse<Body> {
         }
         (Method::Get, "/authenticate") => handler::oidc_authentication_request::handler(&req),
         (Method::Post, "/authenticate") => handler::oidc_authentication_request::handler(&req),
-        (Method::Post, "/code") => {
-            let res = handler::oidc_code_request::handle(&req);
-            dbg!(&res);
-            res
-        }
+        (Method::Post, "/code") => handler::oidc_code_request::handle(&req),
         (Method::Get, "/userinfo") => handler::oidc_userinfo_request::handle(&req),
         (Method::Post, "/userinfo") => handler::oidc_userinfo_request::handle(&req),
         (Method::Get, "/oidc-callback/google") => {

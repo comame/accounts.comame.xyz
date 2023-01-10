@@ -6,6 +6,7 @@ pub mod federated_user_binding;
 pub mod idtoken_issues;
 pub mod mail;
 pub mod mysql;
+pub mod op_user;
 pub mod redis;
 pub mod relying_party;
 pub mod rsa_keypair;

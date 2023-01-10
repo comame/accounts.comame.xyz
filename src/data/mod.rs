@@ -7,6 +7,7 @@ pub mod jwk;
 pub mod mail;
 pub mod oidc_flow;
 pub mod oidc_relying_party;
+pub mod op_user;
 pub mod openid_provider;
 pub mod rsa_keypair;
 pub mod session;

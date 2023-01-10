@@ -58,6 +58,22 @@ fn create_default_rp() {
     if result.is_ok() {
         println!("UserBinding created.")
     }
+
+    if cfg!(debug_assertions) {
+        let client_secret = env::var("CLIENT_SECRET").unwrap();
+        let client_secret = calculate_password_hash(&client_secret, "demo.accounts.comame.dev");
+        let result = register_relying_party("demo.accounts.comame.dev", &client_secret);
+        if result.is_ok() {
+            println!("Debug RelyingParty created.")
+        }
+        let result = crate::db::relying_party::add_redirect_uri(
+            "demo.accounts.comame.dev",
+            "http://localhost:8080/dev/callback.html",
+        );
+        if result.is_ok() {
+            println!("redirect_uri added.")
+        }
+    }
 }
 
 fn moved_permanently(path: &str) -> Response<Body> {
