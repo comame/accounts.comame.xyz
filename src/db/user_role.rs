@@ -7,11 +7,11 @@ use super::mysql::get_conn;
 pub struct UserRoleDb;
 
 impl UserRoleDb {
-    pub fn new(user_role: &UserRole) {
+    pub fn insert_ignore(user_role: &UserRole) {
         get_conn()
             .unwrap()
             .exec_drop(
-                "INSERT INTO user_role (user_id, role) VALUES (:user_id, :role)",
+                "INSERT IGNORE INTO user_role (user_id, role) VALUES (:user_id, :role)",
                 params! {
                     "user_id" => user_role.user_id.to_string(),
                     "role" => user_role.role.to_string(),

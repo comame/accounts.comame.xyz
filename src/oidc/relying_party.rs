@@ -20,8 +20,10 @@ use crate::data::oidc_flow::relying_party_state::RelyingPartyState;
 use crate::data::oidc_flow::userinfo::UserInfo;
 use crate::data::op_user::OpUser;
 use crate::data::openid_provider::OpenIDProvider;
+use crate::data::role::Role;
 use crate::data::role_access::RoleAccess;
 use crate::data::user::User;
+use crate::data::user_role::UserRole;
 use crate::time::now;
 use crate::web::fetch::fetch;
 
@@ -497,6 +499,13 @@ pub async fn callback(
                     },
                 });
             }
+
+            let role_exists = Role::get(&op.to_string()).is_some();
+            if !role_exists {
+                Role::new(&op.to_string());
+            }
+
+            UserRole::new(&user_id, &op.to_string()).unwrap();
         }
 
         if !RoleAccess::is_accessible(&user_id, &relying_party_id) {
@@ -519,7 +528,6 @@ pub async fn callback(
             &user_agent_id,
         );
 
-        // TODO: ユーザーの紐づけを調べる
         let result = post_authentication(
             &user_id,
             state_id,

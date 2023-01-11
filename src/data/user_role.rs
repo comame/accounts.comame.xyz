@@ -17,7 +17,7 @@ impl UserRole {
             user_id: user_id.into(),
             role: role.into(),
         };
-        UserRoleDb::new(&v);
+        UserRoleDb::insert_ignore(&v);
         Ok(v)
     }
 
