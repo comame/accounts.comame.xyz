@@ -441,6 +441,30 @@ pub async fn callback(
         });
     }
     let mut userinfo_response = userinfo_response.unwrap();
+
+    let user_exists = User::find(&user_id).is_some();
+    if !user_exists {
+        let result = User::new(&user_id);
+        if let Err(_) = result {
+            dbg!("invalid");
+            return Err(AuthenticationError {
+                redirect_uri: None,
+                flow: None,
+                response: AuthenticationErrorResponse {
+                    error: ErrorCode::ServerError,
+                    state: None,
+                },
+            });
+        }
+
+        let role_exists = Role::get(&op.to_string()).is_some();
+        if !role_exists {
+            Role::new(&op.to_string());
+        }
+
+        UserRole::new(&user_id, &op.to_string()).unwrap();
+    }
+
     userinfo_response.sub = user_id.clone(); // OP ごとの prefix 付きのものに差し替える
     UserInfo::insert(&userinfo_response);
 
@@ -485,29 +509,6 @@ pub async fn callback(
         )
     } else {
         // 紐づけがない場合
-        let user_exists = User::find(&user_id).is_some();
-        if !user_exists {
-            let result = User::new(&user_id);
-            if let Err(_) = result {
-                dbg!("invalid");
-                return Err(AuthenticationError {
-                    redirect_uri: None,
-                    flow: None,
-                    response: AuthenticationErrorResponse {
-                        error: ErrorCode::ServerError,
-                        state: None,
-                    },
-                });
-            }
-
-            let role_exists = Role::get(&op.to_string()).is_some();
-            if !role_exists {
-                Role::new(&op.to_string());
-            }
-
-            UserRole::new(&user_id, &op.to_string()).unwrap();
-        }
-
         if !RoleAccess::is_accessible(&user_id, &relying_party_id) {
             dbg!("invalid");
             return Err(AuthenticationError {
