@@ -25,14 +25,6 @@ authentications	CREATE TABLE `authentications` (
   `method` varchar(16) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-federated_user_binding	CREATE TABLE `federated_user_binding` (
-  `relying_party_id` varchar(100) NOT NULL,
-  `issuer` varchar(100) NOT NULL,
-  PRIMARY KEY (`relying_party_id`,`issuer`),
-  UNIQUE KEY `relying_party_id` (`relying_party_id`,`issuer`),
-  CONSTRAINT `federated_user_binding_ibfk_1` FOREIGN KEY (`relying_party_id`) REFERENCES `relying_parties` (`client_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
 idtoken_issues	CREATE TABLE `idtoken_issues` (
   `sub` varchar(100) NOT NULL,
   `aud` varchar(100) NOT NULL,
@@ -69,6 +61,20 @@ relying_parties	CREATE TABLE `relying_parties` (
   PRIMARY KEY (`client_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+role	CREATE TABLE `role` (
+  `name` varchar(100) NOT NULL,
+  PRIMARY KEY (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+role_access	CREATE TABLE `role_access` (
+  `role` varchar(100) NOT NULL,
+  `relying_party_id` varchar(100) NOT NULL,
+  UNIQUE KEY `role` (`role`,`relying_party_id`),
+  KEY `relying_party_id` (`relying_party_id`),
+  CONSTRAINT `role_access_ibfk_1` FOREIGN KEY (`role`) REFERENCES `role` (`name`) ON DELETE CASCADE,
+  CONSTRAINT `role_access_ibfk_2` FOREIGN KEY (`relying_party_id`) REFERENCES `relying_parties` (`client_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 rsa_keypair	CREATE TABLE `rsa_keypair` (
   `id` enum('1') NOT NULL DEFAULT '1',
   `public` text NOT NULL,
@@ -86,21 +92,20 @@ sessions	CREATE TABLE `sessions` (
   CONSTRAINT `sessions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-user_bindings	CREATE TABLE `user_bindings` (
-  `relying_party_id` varchar(100) NOT NULL,
-  `user_id` varchar(100) NOT NULL,
-  PRIMARY KEY (`relying_party_id`,`user_id`),
-  UNIQUE KEY `relying_party_id` (`relying_party_id`,`user_id`),
-  KEY `user_id` (`user_id`),
-  CONSTRAINT `user_bindings_ibfk_1` FOREIGN KEY (`relying_party_id`) REFERENCES `relying_parties` (`client_id`) ON DELETE CASCADE,
-  CONSTRAINT `user_bindings_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
 user_passwords	CREATE TABLE `user_passwords` (
   `user_id` varchar(100) NOT NULL,
   `hashed_password` text NOT NULL,
   PRIMARY KEY (`user_id`),
   CONSTRAINT `user_passwords_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+user_role	CREATE TABLE `user_role` (
+  `user_id` varchar(100) NOT NULL,
+  `role` varchar(100) NOT NULL,
+  UNIQUE KEY `user_id` (`user_id`,`role`),
+  KEY `role` (`role`),
+  CONSTRAINT `user_role_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `user_role_ibfk_2` FOREIGN KEY (`role`) REFERENCES `role` (`name`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 userinfo	CREATE TABLE `userinfo` (
