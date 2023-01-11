@@ -1,7 +1,5 @@
-use crate::data::federated_user_binding::FederatedUserBinding;
 use crate::data::oidc_relying_party::RelyingParty;
 use crate::data::openid_provider::OpenIDProvider;
-use crate::data::user_binding::UserBinding;
 
 pub fn list() -> Vec<RelyingParty> {
     RelyingParty::list_all()
@@ -63,31 +61,4 @@ pub fn remove_redirect_uri(client_id: &str, redirect_uri: &str) {
     if let Some(rp) = rp {
         rp.remove_redirect_uri(redirect_uri);
     }
-}
-
-pub fn list_user_binding(relying_party_id: &str) -> Result<Vec<UserBinding>, ()> {
-    Ok(UserBinding::list(relying_party_id))
-}
-
-pub fn add_user_binding(relying_party_id: &str, user_id: &str) {
-    UserBinding::create(relying_party_id, user_id).unwrap();
-}
-
-pub fn remove_user_binding(relying_party_id: &str, user_id: &str) {
-    UserBinding::remove(relying_party_id, user_id);
-}
-
-pub fn list_federated_user_binding(relying_party_id: &str) -> Vec<FederatedUserBinding> {
-    FederatedUserBinding::list(relying_party_id)
-}
-
-pub fn add_federated_user_binding(relying_party_id: &str, op: OpenIDProvider) {
-    FederatedUserBinding::new(relying_party_id, op);
-}
-
-pub fn remove_federated_user_bindng(relying_party_id: &str, op: OpenIDProvider) {
-    FederatedUserBinding::delete(&FederatedUserBinding {
-        relying_party_id: relying_party_id.into(),
-        issuer: op,
-    });
 }

@@ -54,24 +54,6 @@ pub async fn routes(hyper_request: HyperRequest<Body>) -> HyperResponse<Body> {
         (Method::Post, "/dash/rp/redirect_uri/remove") => {
             handler::dash_relying_party::delete_redirect_uri(&req)
         }
-        (Method::Post, "/dash/rp/binding/list") => {
-            handler::dash_relying_party::list_user_binding(&req)
-        }
-        (Method::Post, "/dash/rp/binding/add") => {
-            handler::dash_relying_party::add_user_binding(&req)
-        }
-        (Method::Post, "/dash/rp/binding/remove") => {
-            handler::dash_relying_party::remove_user_binding(&req)
-        }
-        (Method::Post, "/dash/rp/federated_user_binding/list") => {
-            handler::dash_relying_party::list_federated_user_binding(&req)
-        }
-        (Method::Post, "/dash/rp/federated_user_binding/add") => {
-            handler::dash_relying_party::add_federated_user_binding(&req)
-        }
-        (Method::Post, "/dash/rp/federated_user_binding/remove") => {
-            handler::dash_relying_party::remove_federated_user_binding(&req)
-        }
         (Method::Post, "/dash/user/list") => handler::dash_user::list_user(&req),
         (Method::Post, "/dash/user/create") => handler::dash_user::create_user(&req),
         (Method::Post, "/dash/user/delete") => handler::dash_user::delete_user(&req),

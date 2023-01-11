@@ -7,7 +7,7 @@ use crate::auth::{csrf_token, session};
 use crate::data::authentication_failure::AuthenticationFailure;
 use crate::data::oidc_flow::authentication_flow_state::OidcFlow;
 use crate::data::oidc_flow::authentication_response::AuthenticationResponse;
-use crate::data::user_binding::UserBinding;
+use crate::data::role_access::RoleAccess;
 use crate::oidc::authentication_request::{post_authentication, pronpt_none_fail_authentication};
 use crate::web::data::sign_in_continue_request::{
     SignInContinueNoSessionRequest, SignInContinueRequest,
@@ -84,8 +84,8 @@ pub fn handler(req: &Request, remote_addr: &str) -> Response {
     }
 
     let user = user.unwrap();
-    let binding_exists = UserBinding::exists(&request_body.relying_party_id, &user.id);
-    if binding_exists.is_err() {
+    let is_accessible = RoleAccess::is_accessible(&user.id, &request_body.relying_party_id);
+    if !is_accessible {
         AuthenticationFailure::new(
             &user.id,
             &crate::data::authentication::AuthenticationMethod::Session,

@@ -10,7 +10,6 @@ use super::authentication_request::{
 use crate::crypto::rand;
 use crate::data::authentication::{Authentication, AuthenticationMethod};
 use crate::data::authentication_failure::AuthenticationFailure;
-use crate::data::federated_user_binding::FederatedUserBinding;
 use crate::data::jwk::Jwk;
 use crate::data::oidc_flow::authenticationi_error_response::AuthenticationErrorResponse;
 use crate::data::oidc_flow::code_request::CodeRequest;
@@ -21,8 +20,8 @@ use crate::data::oidc_flow::relying_party_state::RelyingPartyState;
 use crate::data::oidc_flow::userinfo::UserInfo;
 use crate::data::op_user::OpUser;
 use crate::data::openid_provider::OpenIDProvider;
+use crate::data::role_access::RoleAccess;
 use crate::data::user::User;
-use crate::data::user_binding::UserBinding;
 use crate::time::now;
 use crate::web::fetch::fetch;
 
@@ -449,8 +448,8 @@ pub async fn callback(
         userinfo_response.sub = op_user.user_id.clone();
         UserInfo::insert(&userinfo_response);
 
-        let is_accessable_user = UserBinding::exists(&relying_party_id, &op_user.user_id);
-        if is_accessable_user.is_err() {
+        let is_accessable_user = RoleAccess::is_accessible(&op_user.user_id, &relying_party_id);
+        if !is_accessable_user {
             AuthenticationFailure::new(
                 &op_user.user_id,
                 &crate::data::authentication::AuthenticationMethod::Session,
@@ -484,19 +483,6 @@ pub async fn callback(
         )
     } else {
         // 紐づけがない場合
-        let federated_user_binding_exists = FederatedUserBinding::exists(&relying_party_id, op);
-        if let Err(_) = federated_user_binding_exists {
-            dbg!("invalid");
-            return Err(AuthenticationError {
-                redirect_uri: None,
-                flow: None,
-                response: AuthenticationErrorResponse {
-                    error: ErrorCode::UnauthorizedClient,
-                    state: None,
-                },
-            });
-        }
-
         let user_exists = User::find(&user_id).is_some();
         if !user_exists {
             let result = User::new(&user_id);
@@ -511,6 +497,18 @@ pub async fn callback(
                     },
                 });
             }
+        }
+
+        if !RoleAccess::is_accessible(&user_id, &relying_party_id) {
+            dbg!("invalid");
+            return Err(AuthenticationError {
+                redirect_uri: None,
+                flow: None,
+                response: AuthenticationErrorResponse {
+                    error: ErrorCode::UnauthorizedClient,
+                    state: None,
+                },
+            });
         }
 
         Authentication::create(

@@ -4,7 +4,9 @@ use std::env;
 use std::net::SocketAddr;
 
 use auth::password::calculate_password_hash;
-use data::user_binding::UserBinding;
+use data::role::Role;
+use data::role_access::RoleAccess;
+use data::user_role::UserRole;
 use hyper::http::HeaderValue;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request, Response, Server, StatusCode};
@@ -54,9 +56,25 @@ fn create_default_rp() {
     }
 
     let user_id = env::var("ADMIN_USER").unwrap();
-    let result = UserBinding::create("accounts.comame.xyz", &user_id);
-    if result.is_ok() {
-        println!("UserBinding created.")
+
+    let role_exists = Role::get("admin").is_some();
+    if !role_exists {
+        Role::new("admin");
+        println!("admin role created.");
+    }
+
+    let user_role = UserRole {
+        user_id: user_id.clone(),
+        role: "admin".into(),
+    };
+    if !user_role.exists() {
+        UserRole::new("admin", "admin").unwrap();
+        println!("user admin is roled as admin.");
+    }
+
+    if !RoleAccess::is_accessible(&user_id, "accounts.comame.xyz") {
+        RoleAccess::new("admin", "accounts.comame.xyz");
+        println!("admin role is authorized to login accounts.comame.xyz.");
     }
 
     if cfg!(debug_assertions) {
