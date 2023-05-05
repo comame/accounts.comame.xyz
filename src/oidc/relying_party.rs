@@ -3,14 +3,15 @@ use http::request::{Method, Request};
 use jsonwebtoken::{Algorithm, DecodingKey, Validation};
 use serde_json::from_str;
 
-use super::authentication_flow_state::get_state_keep;
+use super::authentication_flow_state::{self, get_state_keep};
 use super::authentication_request::{
     post_authentication, AuthenticationError, PostAuthenticationResponse,
 };
 use crate::crypto::rand;
-use crate::data::authentication::{Authentication, AuthenticationMethod};
+use crate::data::authentication::{Authentication, AuthenticationMethod, LoginPrompt};
 use crate::data::authentication_failure::AuthenticationFailure;
 use crate::data::jwk::Jwk;
+use crate::data::oidc_flow::authentication_flow_state::LoginRequirement;
 use crate::data::oidc_flow::authenticationi_error_response::AuthenticationErrorResponse;
 use crate::data::oidc_flow::code_request::CodeRequest;
 use crate::data::oidc_flow::code_response::CodeResponse;
@@ -41,8 +42,6 @@ pub fn generate_authentication_endpoint_url(
     op: OpenIDProvider,
     user_agent_id: &str,
 ) -> AuthorizationInitate {
-    // TODO: 他に必要な OpenID Connect のパラメータを引き渡す (prompt とか)
-
     // 現時点では Google にのみ対応しているので、適当にハードコードしておく
     if op != OpenIDProvider::Google {
         unimplemented!();
@@ -62,18 +61,36 @@ pub fn generate_authentication_endpoint_url(
     };
     RelyingPartyState::save(&saved_state);
 
+    let authentication_flow_state =
+        authentication_flow_state::get_state_keep(&authorization_flow_state_id).unwrap();
+    let login_requirement = authentication_flow_state.login_requirement;
+    let login_prompt = match login_requirement {
+        LoginRequirement::Consent => Some(LoginPrompt::Consent),
+        LoginRequirement::ReAuthenticate => Some(LoginPrompt::Login),
+        _ => None,
+    };
+
     let endpoint = "https://accounts.google.com/o/oauth2/v2/auth";
 
-    let query = QueryBuilder::new()
+    let mut query = QueryBuilder::new();
+    query
         .append("client_id", &client_id)
         .append("response_type", "code")
         .append("scope", "openid email profile")
         .append("redirect_uri", &redirect_uri)
         .append("state", &state)
-        .append("nonce", &nonce)
-        .build();
+        .append("nonce", &nonce);
+    if let Some(prompt) = login_prompt {
+        query.append("prompt", &prompt.to_string());
+    }
+    if let Some(max_age) = authentication_flow_state.max_age {
+        query.append("max_age", &max_age.to_string());
+    }
+    let query = query.build();
 
     let redirect_url = format!("{endpoint}?{query}");
+
+    dbg!(&redirect_url);
 
     AuthorizationInitate {
         redirect_url,

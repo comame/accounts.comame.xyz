@@ -28,7 +28,6 @@ pub fn handler(req: &Request) -> Response {
     }
     let body = body.unwrap();
 
-    // TODO: ブラウザから AuthenticationFlowstate を受け取る
     let result = generate_authentication_endpoint_url(
         &body.state_id,
         OpenIDProvider::Google,
