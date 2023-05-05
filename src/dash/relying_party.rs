@@ -1,5 +1,4 @@
 use crate::data::oidc_relying_party::RelyingParty;
-use crate::data::openid_provider::OpenIDProvider;
 
 pub fn list() -> Vec<RelyingParty> {
     RelyingParty::list_all()

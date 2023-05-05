@@ -4,7 +4,7 @@ use std::env;
 use std::net::SocketAddr;
 
 use auth::password::calculate_password_hash;
-use data::role::Role;
+use data::role::{self, Role};
 use data::role_access::RoleAccess;
 use data::user_role::UserRole;
 use hyper::http::HeaderValue;
@@ -32,12 +32,12 @@ fn create_admin_user() {
     let user_id = env::var("ADMIN_USER").unwrap();
     let password = env::var("ADMIN_PASSWORD").unwrap();
 
-    let user = data::user::User { id: user_id };
-    let create_user = db::user::insert_user(&user);
+    let create_user = data::user::User::new(&user_id);
+
     if create_user.is_ok() {
         println!("User created.");
     }
-    set_password(&user.id, &password);
+    set_password(&user_id, &password);
 }
 
 fn create_default_rp() {
@@ -94,6 +94,14 @@ fn create_default_rp() {
     }
 }
 
+fn create_everyone_role() {
+    let exists = role::Role::get("everyone").is_some();
+    if !exists {
+        role::Role::new("everyone");
+        println!("role everyone created");
+    }
+}
+
 fn moved_permanently(path: &str) -> Response<Body> {
     let mut response = Response::new(Body::empty());
     *response.status_mut() = StatusCode::MOVED_PERMANENTLY;
@@ -123,6 +131,8 @@ async fn main() {
     create_admin_user();
 
     create_default_rp();
+
+    create_everyone_role();
 
     insert_ignore(&RsaKeypair::new());
 

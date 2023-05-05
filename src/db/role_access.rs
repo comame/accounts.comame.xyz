@@ -15,7 +15,7 @@ impl RoleAccessDb {
         ).unwrap()
     }
 
-    pub fn is_accessible(user_id: &str, relying_party_id: &str) -> bool {
+    pub fn is_accessable(user_id: &str, relying_party_id: &str) -> bool {
         let result: (usize,) = get_conn().unwrap().exec_first(
             "SELECT COUNT(*) FROM user_role INNER JOIN role_access ON user_role.role = role_access.role WHERE user_id = :user_id AND relying_party_id = :relying_party_id",
             params! {
