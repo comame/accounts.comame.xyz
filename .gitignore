@@ -3,3 +3,4 @@ target/
 .env.google
 node_modules
 static/front
+dashboard/out
