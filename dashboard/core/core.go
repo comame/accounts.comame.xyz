@@ -22,26 +22,26 @@ func CalculatePasswordHash(password string, salt string) string {
 
 // src/data/Authentication.rs
 type Authentication struct {
-	AuthenticatedAt uint64
-	CreatedAt       uint64
-	Audience        string
-	Subject         string
-	UserAgentId     string
+	AuthenticatedAt uint64 `json:"authenticated_at"`
+	CreatedAt       uint64 `json:"created_at"`
+	Audience        string `json:"audience"`
+	Subject         string `json:"subject"`
+	UserAgentId     string `json:"user_agent_id"`
 	// method       omitted
 }
 
 // src/data/oidc_relying_party.rs
 type RelyingParty struct {
-	ClientId           string
-	RedirectUris       []string
-	HashedClientSecret string
+	ClientId           string   `json:"client_id"`
+	RedirectUris       []string `json:"redirect_uris"`
+	HashedClientSecret string   `json:"hashed_client_secret"`
 }
 
 // src/data/op_user.rs
 type OpUser struct {
-	UserId   string
-	OpUserId string
-	Op       OpenidProvider
+	UserId   string         `json:"user_id"`
+	OpUserId string         `json:"op_user_id"`
+	Op       OpenidProvider `json:"op"`
 }
 
 // src/data/openid_provider.rs
@@ -54,28 +54,28 @@ const (
 
 // src/data/role_access.rs
 type RoleAccess struct {
-	Role           string
-	RelyingPartyId string
+	Role           string `json:"role"`
+	RelyingPartyId string `json:"relying_party_id"`
 }
 
 // src/data/role.rs
 type Role struct {
-	Name string
+	Name string `json:"name"`
 }
 
 // src/data/user_password.rs
 type UserPassword struct {
-	UserId         string
-	HashedPassword string
+	UserId         string `json:"user_id"`
+	HashedPassword string `json:"hashed_password"`
 }
 
 // src/data/user_role.rs
 type UserRole struct {
-	UserId string
-	Role   string
+	UserId string `json:"user_id"`
+	Role   string `json:"role"`
 }
 
 // src/data/user.rs
 type User struct {
-	Id string
+	Id string `json:"id"`
 }

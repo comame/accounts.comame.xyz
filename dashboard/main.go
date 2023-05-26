@@ -8,12 +8,8 @@ import (
 )
 
 type env_t struct {
-	Host          string `env:"HOST"`
-	ClientSecret  string `env:"CLIENT_SECRET"`
-	MySQLUser     string `env:"MYSQL_USER"`
-	MySQLPassword string `env:"MYSQL_PASSWORD"`
-	MySQLDatabase string `env:"MYSQL_DATABASE"`
-	MySQLHost     string `env:"MYSQL_HOST"`
+	Host         string `env:"HOST"`
+	ClientSecret string `env:"CLIENT_SECRET"`
 }
 
 var env env_t
