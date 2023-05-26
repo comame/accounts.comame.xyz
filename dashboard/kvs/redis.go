@@ -13,7 +13,8 @@ type env_t struct {
 	Host string `env:"REDIS_HOST"`
 }
 
-var prefix = "dash.accounts.comame.xyz:"
+const prefix = "dash.accounts.comame.xyz:"
+
 var client *redis.Client
 var env env_t
 

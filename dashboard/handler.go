@@ -8,6 +8,10 @@ import (
 	"net/http"
 )
 
+type tokenRequest struct {
+	Token string `json:"token"`
+}
+
 func handleIndex(w http.ResponseWriter, r *http.Request) {
 	responseJsonData(w, r, nil, fmt.Errorf("unimplemented"))
 }
@@ -45,6 +49,15 @@ func handleRpRedirecturiRemove(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleUserList(w http.ResponseWriter, r *http.Request) {
+	var body tokenRequest
+	if !parseBody(w, r, &body) {
+		return
+	}
+
+	if !authorized(w, body.Token) {
+		return
+	}
+
 	users, err := listUser(r.Context())
 	responseJsonData(w, r, users, err)
 }
@@ -82,6 +95,32 @@ func handleNotFound(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, "not found\n")
 }
 
+// data は json.Unmarshal の第 2 引数
+func parseBody(w http.ResponseWriter, r *http.Request, data interface{}) (ok bool) {
+	bytes, err := io.ReadAll(r.Body)
+	if err != nil {
+		responseError(w, err)
+		return false
+	}
+
+	if err := json.Unmarshal(bytes, data); err != nil {
+		responseError(w, err)
+		return false
+	}
+
+	return true
+}
+
+func authorized(w http.ResponseWriter, token string) bool {
+	// TODO: 実装する
+	if false {
+		responseError(w, fmt.Errorf("unauthorized"))
+		return false
+	}
+
+	return true
+}
+
 func responseJsonData(w http.ResponseWriter, r *http.Request, data interface{}, err error) {
 	if err != nil {
 		responseError(w, err)
@@ -94,11 +133,7 @@ func responseJsonData(w http.ResponseWriter, r *http.Request, data interface{}, 
 		return
 	}
 
-	// TODO: 認可ができるようになったら、正しくレスポンスを返す
-
-	log.Println(string(json))
-
-	io.WriteString(w, "unimplemented\n")
+	fmt.Fprintln(w, string(json))
 }
 
 func responseError(w http.ResponseWriter, err error) {
