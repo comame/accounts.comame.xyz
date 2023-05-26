@@ -1,17 +1,47 @@
 package main
 
 import (
-	"io"
 	"log"
-	"net/http"
 
+	"github.com/comame/readenv-go"
 	router "github.com/comame/router-go"
 )
 
+type env_t struct {
+	Host          string `env:"HOST"`
+	ClientSecret  string `env:"CLIENT_SECRET"`
+	MySQLUser     string `env:"MYSQL_USER"`
+	MySQLPassword string `env:"MYSQL_PASSWORD"`
+	MySQLDatabase string `env:"MYSQL_DATABASE"`
+	MySQLHost     string `env:"MYSQL_HOST"`
+}
+
+var env env_t
+
 func main() {
-	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		io.WriteString(w, "hello")
-	})
+	readenv.Read(&env)
+
+	router.Get("/dash", handleIndex)
+	router.Get("/dash/signin", handleSignin)
+	router.Get("/dash/callback", handleCallback)
+
+	router.Post("/dash/rp/list", handleRpList)
+	router.Post("/dash/rp/create", handleRpCreate)
+	router.Post("/dash/rp/update_secret", handleRpUpdatesecret)
+	router.Post("/dash/rp/delete", handleRpDelete)
+	router.Post("/dash/rp/redirect_uri/add", handleRpRedirecturiAdd)
+	router.Post("/dash/rp/redirect_uri/remove", handleRpRedirecturiRemove)
+
+	router.Post("/dash/user/list", handleUserList)
+	router.Post("/dash/user/create", handleUserCreate)
+	router.Post("/dash/user/delete", handleUserDelete)
+	router.Post("/dash/user/password/change", handleUserPasswordChange)
+	router.Post("/dash/user/password/remove", handleUserPasswordRemove)
+	router.Post("/dash/user/session/list", handleUserSessionList)
+	router.Post("/dash/user/session/revoke", handleUserSessionRevoke)
+	router.Post("/dash/user/authentication/list", handleUserAuthenticationList)
+
+	router.All("/*", handleNotFound)
 
 	log.Println("Start http://localhost:8081")
 
