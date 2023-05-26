@@ -54,7 +54,7 @@ func handleUserList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !authorized(w, body.Token) {
+	if !authorizedOrReturn(w, body.Token) {
 		return
 	}
 
@@ -111,13 +111,16 @@ func parseBody(w http.ResponseWriter, r *http.Request, data interface{}) (ok boo
 	return true
 }
 
-func authorized(w http.ResponseWriter, token string) bool {
+func authorized(token string) bool {
 	// TODO: 実装する
-	if false {
+	return true
+}
+
+func authorizedOrReturn(w http.ResponseWriter, token string) (ok bool) {
+	if !authorized(token) {
 		responseError(w, fmt.Errorf("unauthorized"))
 		return false
 	}
-
 	return true
 }
 
