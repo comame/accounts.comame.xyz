@@ -1,12 +1,17 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 )
+
+type errorResponse struct {
+	Error string `json:"error"`
+}
 
 type tokenRequest struct {
 	Token string `json:"token"`
@@ -35,9 +40,8 @@ func handleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: 実装
-	log.Println(token)
-	responseJsonData(w, r, nil, fmt.Errorf("unimplemented"))
+	w.Header().Add("Location", env.Host+"/dash#"+token)
+	w.WriteHeader(http.StatusFound)
 }
 
 func handleRpList(w http.ResponseWriter, r *http.Request) {
@@ -70,7 +74,7 @@ func handleUserList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !authorizedOrReturn(w, body.Token) {
+	if !authorizedOrReturn(r.Context(), w, body.Token) {
 		return
 	}
 
@@ -127,9 +131,10 @@ func parseBody(w http.ResponseWriter, r *http.Request, data interface{}) (ok boo
 	return true
 }
 
-func authorizedOrReturn(w http.ResponseWriter, token string) (ok bool) {
-	if !authorized(token) {
-		responseError(w, fmt.Errorf("unauthorized"))
+func authorizedOrReturn(ctx context.Context, w http.ResponseWriter, token string) (ok bool) {
+	if !authorized(ctx, token) {
+		w.WriteHeader(http.StatusUnauthorized)
+		io.WriteString(w, `{ "error": "unauthorized" }`)
 		return false
 	}
 	return true
@@ -153,6 +158,16 @@ func responseJsonData(w http.ResponseWriter, r *http.Request, data interface{}, 
 func responseError(w http.ResponseWriter, err error) {
 	log.Println(err)
 
+	res := errorResponse{
+		Error: "error",
+	}
+	bytes, err := json.Marshal(res)
+	if err != nil {
+		// 通常起こりえないので panic
+		panic(err)
+	}
+
 	// TODO: エラーレスポンスを実装する
 	w.WriteHeader(http.StatusBadRequest)
+	io.WriteString(w, string(bytes))
 }

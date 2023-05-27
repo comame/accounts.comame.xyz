@@ -229,7 +229,8 @@ func getJwkPublicKey() (*rsa.PublicKey, error) {
 	return pubkey, nil
 }
 
-func authorized(token string) bool {
-	// TODO: 実装する
-	return true
+func authorized(ctx context.Context, token string) bool {
+	key := fmt.Sprintf("token:%s", token)
+	_, err := kvs.Get(ctx, key)
+	return err == nil
 }
