@@ -28,6 +28,15 @@ func handleSignin(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleCallback(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query()
+	token, err := callbackAndIssueToken(r.Context(), q.Get("state"), q.Get("code"))
+	if err != nil {
+		responseError(w, err)
+		return
+	}
+
+	// TODO: 実装
+	log.Println(token)
 	responseJsonData(w, r, nil, fmt.Errorf("unimplemented"))
 }
 
@@ -115,11 +124,6 @@ func parseBody(w http.ResponseWriter, r *http.Request, data interface{}) (ok boo
 		return false
 	}
 
-	return true
-}
-
-func authorized(token string) bool {
-	// TODO: 実装する
 	return true
 }
 

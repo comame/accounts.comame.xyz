@@ -14,9 +14,13 @@ type env_t struct {
 
 var env env_t
 
-func main() {
+func init() {
 	readenv.Read(&env)
+	log.SetPrefix("[ADMIN] ")
+	log.SetFlags(log.Lshortfile)
+}
 
+func main() {
 	router.Get("/dash", handleIndex)
 	router.Get("/dash/signin", handleSignin)
 	router.Get("/dash/callback", handleCallback)

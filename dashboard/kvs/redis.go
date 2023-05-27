@@ -63,3 +63,7 @@ func Get(ctx context.Context, key string) (string, error) {
 	}
 	return v, nil
 }
+
+func Del(ctx context.Context, key string) {
+	client.Del(ctx, prefix+key)
+}
