@@ -1,4 +1,4 @@
-package vks
+package kvs
 
 import (
 	"context"

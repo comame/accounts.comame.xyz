@@ -17,7 +17,14 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleSignin(w http.ResponseWriter, r *http.Request) {
-	responseJsonData(w, r, nil, fmt.Errorf("unimplemented"))
+	url, err := createAuthUrl(r.Context())
+	if err != nil {
+		responseError(w, err)
+		return
+	}
+
+	w.Header().Add("Location", url)
+	w.WriteHeader(http.StatusFound)
 }
 
 func handleCallback(w http.ResponseWriter, r *http.Request) {
