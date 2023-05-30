@@ -1,4 +1,4 @@
-import { Button, TextField, SelectGroup, Select } from "@charcoal-ui/react"
+import { Button, TextField } from "@charcoal-ui/react"
 import React, { Suspense, useEffect, useRef, useState } from "react"
 import { diffArray } from "../lib"
 import { Modal, ModalBody, ModalHeader } from "./modal"
@@ -69,8 +69,6 @@ const RelyingPartyListItem = ({
     const deleteModalOpen = useState(false)
     const editModalOpen = useState(false)
     const updateSecretModalOpen = useState(false)
-    const bindingModalOpen = useState(false)
-    const federatedBindingModalOpen = useState(false)
 
     return (
         <div key={rp.client_id} className="p-8 mb-16 bg-surface3">
@@ -84,12 +82,6 @@ const RelyingPartyListItem = ({
                 open={updateSecretModalOpen}
                 client_id={rp.client_id}
             />
-            <BindingModal open={bindingModalOpen} clientId={rp.client_id} />
-            <FederatedBindingModal
-                key={rp.client_id}
-                open={federatedBindingModalOpen}
-                clientId={rp.client_id}
-            />
             <h2 className="font-bold text-base">{rp.client_id}</h2>
             <div>
                 <div className="inline-block p-8 pl-0">
@@ -99,24 +91,6 @@ const RelyingPartyListItem = ({
                         onClick={() => editModalOpen[1](true)}
                     >
                         redirect_uris
-                    </Button>
-                </div>
-                <div className="inline-block p-8 pl-0">
-                    <Button
-                        size="S"
-                        variant="Navigation"
-                        onClick={() => bindingModalOpen[1](true)}
-                    >
-                        bindings
-                    </Button>
-                </div>
-                <div className="inline-block p-8 pl-0">
-                    <Button
-                        size="S"
-                        variant="Navigation"
-                        onClick={() => federatedBindingModalOpen[1](true)}
-                    >
-                        Federated User Binding
                     </Button>
                 </div>
                 <div className="inline-block p-8 pl-0">
@@ -265,214 +239,6 @@ const DeleteRPModal = ({ open, clientId, updateView }: deleteRPModalProps) => {
                 </Button>
             </ModalBody>
         </Modal>
-    )
-}
-
-type bindingModalProps = {
-    open: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
-    clientId: string
-}
-const BindingModal = ({ open, clientId }: bindingModalProps) => {
-    return (
-        <Modal open={open}>
-            <ModalHeader>UserBinding</ModalHeader>
-            <ModalBody>
-                <Suspense fallback={<>Loading</>}>
-                    <div className="p-8">
-                        <Bindings clientId={clientId} open={open[0]} />
-                    </div>
-                </Suspense>
-            </ModalBody>
-        </Modal>
-    )
-}
-
-const Bindings = ({ clientId, open }: { clientId: string; open: boolean }) => {
-    const { data: bindings, mutate: mutateA } = useSuspendApi(
-        useToken(),
-        "/dash/rp/binding/list",
-        {
-            client_id: clientId,
-        },
-        `/dash/rp/binding/list/${clientId}`
-    )
-    const { data: users, mutate: mutateB } = useSuspendApi(
-        useToken(),
-        "/dash/user/list",
-        {}
-    )
-
-    const [selected, setSelected] = useState(
-        bindings.values.map((v) => v.user_id)
-    )
-
-    const [hasUpdate, setHasUpdate] = useState(false)
-    useEffect(() => {
-        if (open) {
-            mutateA()
-            mutateB()
-            setHasUpdate(true)
-        }
-    }, [open])
-
-    useEffect(() => {
-        if (hasUpdate) {
-            setSelected(bindings.values.map((v) => v.user_id))
-            setHasUpdate(false)
-        }
-    }, [hasUpdate])
-
-    const onClick = async () => {
-        setDisabled(true)
-        const diff = diffArray(
-            bindings.values.map((v) => v.user_id),
-            selected
-        )
-        for (const addUser of diff.add) {
-            await fetchApi(useToken(), "/dash/rp/binding/add", {
-                client_id: clientId,
-                user_id: addUser,
-            })
-        }
-        for (const delUser of diff.del) {
-            await fetchApi(useToken(), "/dash/rp/binding/remove", {
-                client_id: clientId,
-                user_id: delUser,
-            })
-        }
-        setDisabled(false)
-    }
-
-    const [disabled, setDisabled] = useState(false)
-
-    return (
-        <>
-            <SelectGroup
-                name="user-binding"
-                ariaLabel="user-binding"
-                selected={selected}
-                onChange={setSelected}
-                disabled={disabled}
-                className="mb-16"
-            >
-                {users.values.map((user) => (
-                    <div key={user.user_id} className="mb-4">
-                        <Select value={user.user_id}>{user.user_id}</Select>
-                    </div>
-                ))}
-            </SelectGroup>
-            <Button onClick={onClick} fixed disabled={disabled}>
-                変更する
-            </Button>
-        </>
-    )
-}
-
-type federatedBindingModalProps = {
-    open: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
-    clientId: string
-}
-const FederatedBindingModal = ({
-    open,
-    clientId,
-}: federatedBindingModalProps) => {
-    return (
-        <Modal open={open}>
-            <ModalHeader>UserBinding</ModalHeader>
-            <ModalBody>
-                <Suspense fallback={<>Loading</>}>
-                    <div className="p-8">
-                        <FederatedBindings clientId={clientId} open={open[0]} />
-                    </div>
-                </Suspense>
-            </ModalBody>
-        </Modal>
-    )
-}
-
-const FederatedBindings = ({
-    clientId,
-    open,
-}: {
-    clientId: string
-    open: boolean
-}) => {
-    const { data: bindings, mutate: mutateA } = useSuspendApi(
-        useToken(),
-        "/dash/rp/federated_user_binding/list",
-        {
-            client_id: clientId,
-        },
-        `/dash/rp/federated_user_binding/list/${clientId}`
-    )
-    const issuers = ["google"]
-
-    const [selected, setSelected] = useState(
-        bindings.values.map((v) => v.issuer)
-    )
-
-    const [hasUpdate, setHasUpdate] = useState(false)
-    useEffect(() => {
-        if (open) {
-            mutateA()
-            setHasUpdate(true)
-        }
-    }, [open])
-
-    useEffect(() => {
-        if (hasUpdate) {
-            setSelected(bindings.values.map((v) => v.issuer))
-            setHasUpdate(false)
-        }
-    }, [hasUpdate])
-
-    const onClick = async () => {
-        setDisabled(true)
-        const diff = diffArray(
-            bindings.values.map((v) => v.issuer),
-            selected
-        )
-        for (const addUser of diff.add) {
-            await fetchApi(useToken(), "/dash/rp/federated_user_binding/add", {
-                client_id: clientId,
-                issuer: addUser,
-            })
-        }
-        for (const delUser of diff.del) {
-            await fetchApi(
-                useToken(),
-                "/dash/rp/federated_user_binding/remove",
-                {
-                    client_id: clientId,
-                    issuer: delUser,
-                }
-            )
-        }
-        setDisabled(false)
-    }
-
-    const [disabled, setDisabled] = useState(false)
-
-    return (
-        <>
-            <SelectGroup
-                name="user-binding"
-                ariaLabel="user-binding"
-                selected={selected}
-                onChange={setSelected}
-                disabled={disabled}
-                className="mb-16"
-            >
-                {issuers.map((issuer) => (
-                    <div key={issuer} className="mb-4">
-                        <Select value={issuer}>{issuer}</Select>
-                    </div>
-                ))}
-            </SelectGroup>
-            <Button onClick={onClick} fixed disabled={disabled}>
-                変更する
-            </Button>
-        </>
     )
 }
 
