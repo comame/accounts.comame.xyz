@@ -1,5 +1,8 @@
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-    base: '/dash'
+    base: '/dash',
+    build: {
+        sourcemap: 'inline'
+    }
 })

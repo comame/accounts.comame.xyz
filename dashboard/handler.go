@@ -11,7 +11,7 @@ import (
 )
 
 type errorResponse struct {
-	Error string `json:"error"`
+	Error string `json:"message"`
 }
 
 type tokenRequest struct {
@@ -19,8 +19,6 @@ type tokenRequest struct {
 }
 
 func handleStatic(w http.ResponseWriter, r *http.Request) {
-	log.Println("handleIndex")
-
 	public, err := fs.Sub(static, "web/dist")
 	if err != nil {
 		panic(err)
@@ -55,7 +53,17 @@ func handleCallback(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleRpList(w http.ResponseWriter, r *http.Request) {
-	responseJsonData(w, r, nil, fmt.Errorf("unimplemented"))
+	var body tokenRequest
+	if !parseBody(w, r, &body) {
+		return
+	}
+
+	if !authorizedOrReturn(r.Context(), w, body.Token) {
+		return
+	}
+
+	rps, err := listRp(r.Context())
+	responseJsonData(w, r, rps, err)
 }
 
 func handleRpCreate(w http.ResponseWriter, r *http.Request) {
@@ -120,11 +128,6 @@ func handleUserAuthenticationList(w http.ResponseWriter, r *http.Request) {
 	responseJsonData(w, r, nil, fmt.Errorf("unimplemented"))
 }
 
-func handleNotFound(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotFound)
-	io.WriteString(w, "not found\n")
-}
-
 // data は json.Unmarshal の第 2 引数
 func parseBody(w http.ResponseWriter, r *http.Request, data interface{}) (ok bool) {
 	bytes, err := io.ReadAll(r.Body)
@@ -144,7 +147,7 @@ func parseBody(w http.ResponseWriter, r *http.Request, data interface{}) (ok boo
 func authorizedOrReturn(ctx context.Context, w http.ResponseWriter, token string) (ok bool) {
 	if !authorized(ctx, token) {
 		w.WriteHeader(http.StatusUnauthorized)
-		io.WriteString(w, `{ "error": "unauthorized" }`)
+		io.WriteString(w, `{ "message": "unauthorized" }`)
 		return false
 	}
 	return true

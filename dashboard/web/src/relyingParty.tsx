@@ -1,6 +1,5 @@
-import { Button, TextField, SelectGroup, Select } from "@charcoal-ui/react";
+import { Button, TextField } from "@charcoal-ui/react";
 import React, { Suspense, useEffect, useRef, useState } from "react";
-import { diffArray } from "./lib";
 import { Modal, ModalBody, ModalHeader } from "./modal";
 import { relyingParty } from "./types";
 import { useSuspendApi, fetchApi } from "./useApi";

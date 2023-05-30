@@ -6,6 +6,8 @@ import { RelyingParty } from "./relyingParty";
 import { User } from "./user";
 import { useSideMenu } from "./useSideMenu";
 
+import "../main.css";
+
 const Loading = () => <div>Loading</div>;
 
 const App = () => {
