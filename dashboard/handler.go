@@ -197,6 +197,11 @@ func responseJsonData(w http.ResponseWriter, r *http.Request, data interface{}, 
 		return
 	}
 
+	if data == nil {
+		fmt.Fprintln(w, "{}")
+		return
+	}
+
 	json, err := json.Marshal(data)
 	if err != nil {
 		responseError(w, err)
