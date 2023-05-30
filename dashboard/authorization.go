@@ -81,12 +81,12 @@ func callbackAndIssueToken(ctx context.Context, state, code string) (string, err
 		strings.NewReader(codeRequest.Encode()),
 	)
 	if err != nil {
-		return "", err
+		return "", logErr(err)
 	}
 
 	bytes, err := io.ReadAll(res.Body)
 	if err != nil {
-		return "", err
+		return "", logErr(err)
 	}
 
 	type codeResponse_t struct {
@@ -94,7 +94,7 @@ func callbackAndIssueToken(ctx context.Context, state, code string) (string, err
 	}
 	var codeResponse codeResponse_t
 	if err := json.Unmarshal(bytes, &codeResponse); err != nil {
-		return "", err
+		return "", logErr(err)
 	}
 
 	idToken := codeResponse.IdToken
@@ -106,13 +106,13 @@ func callbackAndIssueToken(ctx context.Context, state, code string) (string, err
 
 		pubkey, err := getJwkPublicKey()
 		if err != nil {
-			return nil, err
+			return nil, logErr(err)
 		}
 
 		return pubkey, nil
 	})
 	if err != nil {
-		return "", err
+		return "", logErr(err)
 	}
 
 	claims, ok := jwtToken.Claims.(jwt.MapClaims)
@@ -185,16 +185,16 @@ func getJwkPublicKey() (*rsa.PublicKey, error) {
 
 	res, err := http.Get("https://accounts.comame.xyz/certs")
 	if err != nil {
-		return nil, err
+		return nil, logErr(err)
 	}
 	bytes, err := io.ReadAll(res.Body)
 	if err != nil {
-		return nil, err
+		return nil, logErr(err)
 	}
 
 	var jwk jwk_t
 	if err := json.Unmarshal(bytes, &jwk); err != nil {
-		return nil, err
+		return nil, logErr(err)
 	}
 
 	var key *jwkKey_t = nil
