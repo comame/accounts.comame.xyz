@@ -4,3 +4,4 @@ target/
 node_modules
 static/front
 dashboard/out
+dashboard/web/dist

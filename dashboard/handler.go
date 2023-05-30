@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/fs"
 	"log"
 	"net/http"
 )
@@ -17,8 +18,17 @@ type tokenRequest struct {
 	Token string `json:"token"`
 }
 
-func handleIndex(w http.ResponseWriter, r *http.Request) {
-	responseJsonData(w, r, nil, fmt.Errorf("unimplemented"))
+func handleStatic(w http.ResponseWriter, r *http.Request) {
+	log.Println("handleIndex")
+
+	public, err := fs.Sub(static, "web/dist")
+	if err != nil {
+		panic(err)
+	}
+
+	server := http.FileServer(http.FS(public))
+	strip := http.StripPrefix("/dash", server)
+	strip.ServeHTTP(w, r)
 }
 
 func handleSignin(w http.ResponseWriter, r *http.Request) {

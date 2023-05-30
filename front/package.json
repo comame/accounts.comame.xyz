@@ -20,7 +20,7 @@
     },
     "homepage": "https://github.com/comame/id#readme",
     "devDependencies": {
-        "@charcoal-ui/tailwind-config": "^1.0.0",
+        "@charcoal-ui/tailwind-config": "2.8.0",
         "@types/react": "^18.0.21",
         "@types/react-dom": "^18.0.6",
         "@types/styled-components": "^5.1.26",
@@ -32,11 +32,11 @@
         "webpack-cli": "^4.10.0"
     },
     "dependencies": {
-        "@charcoal-ui/react": "^2.0.0-alpha.22",
-        "@charcoal-ui/react-sandbox": "^2.0.0-alpha.11",
-        "@charcoal-ui/styled": "^2.0.0-alpha.5",
-        "@charcoal-ui/theme": "^2.0.0-alpha.7",
-        "@charcoal-ui/utils": "^1.1.0-alpha.2",
+        "@charcoal-ui/react": "2.8.0",
+        "@charcoal-ui/react-sandbox": "2.8.0",
+        "@charcoal-ui/styled": "2.8.0",
+        "@charcoal-ui/theme": "2.8.0",
+        "@charcoal-ui/utils": "2.8.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "styled-components": "^5.3.6"

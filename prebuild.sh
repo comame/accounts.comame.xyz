@@ -1,8 +1,12 @@
 #! /bin/bash
 
-npm run build -w front
+pushd front
+    npm ci
+    npm run build
+popd
 
 cargo build -r
 
-cd dashboard
-go build -o out
+pushd dashboard
+    go build -o out
+popd

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"log"
 
 	"github.com/comame/readenv-go"
@@ -14,6 +15,9 @@ type env_t struct {
 
 var env env_t
 
+//go:embed web/dist/*
+var static embed.FS
+
 func init() {
 	readenv.Read(&env)
 	log.SetPrefix("[ADMIN] ")
@@ -21,7 +25,7 @@ func init() {
 }
 
 func main() {
-	router.Get("/dash", handleIndex)
+	router.Get("/dash", handleStatic)
 	router.Get("/dash/signin", handleSignin)
 	router.Get("/dash/callback", handleCallback)
 
@@ -41,7 +45,7 @@ func main() {
 	router.Post("/dash/user/session/revoke", handleUserSessionRevoke)
 	router.Post("/dash/user/authentication/list", handleUserAuthenticationList)
 
-	router.All("/*", handleNotFound)
+	router.All("/*", handleStatic)
 
 	log.Println("Start http://localhost:8081")
 
