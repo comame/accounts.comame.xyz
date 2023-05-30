@@ -17,7 +17,8 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-const accountOrigin = "https://accounts.comame.xyz"
+// const accountOrigin = "https://accounts.comame.xyz"
+const accountOrigin = "http://localhost:8080"
 
 func randomStr(length uint) (string, error) {
 	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -124,7 +125,7 @@ func callbackAndIssueToken(ctx context.Context, state, code string) (string, err
 		return "", fmt.Errorf("invalid JWT claims")
 	}
 
-	if !claims.VerifyIssuer("https://accounts.comame.xyz", true) {
+	if !claims.VerifyIssuer(accountOrigin, true) {
 		return "", fmt.Errorf("invalid JWT iss field")
 	}
 
@@ -183,7 +184,7 @@ func getJwkPublicKey() (*rsa.PublicKey, error) {
 		Keys []jwkKey_t `json:"keys"`
 	}
 
-	res, err := http.Get("https://accounts.comame.xyz/certs")
+	res, err := http.Get(accountOrigin + "/certs")
 	if err != nil {
 		return nil, logErr(err)
 	}
