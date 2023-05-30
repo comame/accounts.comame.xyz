@@ -21,7 +21,7 @@ var static embed.FS
 func init() {
 	readenv.Read(&env)
 	log.SetPrefix("[ADMIN] ")
-	log.SetFlags(log.Lshortfile)
+	log.SetFlags(log.Lshortfile | log.LstdFlags)
 }
 
 func main() {

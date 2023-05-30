@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"runtime"
+	"strings"
 )
 
 func mapValues[K comparable, V any](m map[K]V) []V {
@@ -27,12 +28,14 @@ func derefSlice[T any](s []*T) []T {
 
 func logErr(err error) error {
 	_, file, line, ok := runtime.Caller(1)
+	logger := log.New(log.Default().Writer(), log.Default().Prefix(), log.LstdFlags)
 
 	if !ok {
-		log.Printf("no_file_info:L0 %s", err)
+		logger.Printf("no_file_info:L0: %s", err)
 		return err
 	}
 
-	log.Printf("%s:L%d %s", file, line, err)
+	paths := strings.Split(file, "/")
+	logger.Printf("%s:%d: %s", paths[len(paths)-1], line, err)
 	return err
 }
