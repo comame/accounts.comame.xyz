@@ -3,6 +3,7 @@ package core
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"strings"
 )
 
 // 認証基盤のコアになっているコード。ベースになっている型や重要なロジックをここに置く。
@@ -17,7 +18,7 @@ func CalculatePasswordHash(password string, salt string) string {
 		bytes = sha256.Sum256([]byte(withSalt))
 	}
 
-	return hex.EncodeToString(bytes[:])
+	return strings.ToUpper(hex.EncodeToString(bytes[:]))
 }
 
 // src/data/Authentication.rs

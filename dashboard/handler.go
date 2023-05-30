@@ -66,16 +66,54 @@ func handleRpList(w http.ResponseWriter, r *http.Request) {
 	responseJsonData(w, r, rps, err)
 }
 
-func handleRpCreate(w http.ResponseWriter, r *http.Request) {
-	responseJsonData(w, r, nil, fmt.Errorf("unimplemented"))
+type createRpRequest struct {
+	ClientId string `json:"client_id"`
+	tokenRequest
 }
 
-func handleRpUpdatesecret(w http.ResponseWriter, r *http.Request) {
-	responseJsonData(w, r, nil, fmt.Errorf("unimplemented"))
+func handleRpCreate(w http.ResponseWriter, r *http.Request) {
+	var body createRpRequest
+	if !parseBody(w, r, &body) {
+		return
+	}
+
+	if !authorizedOrReturn(r.Context(), w, body.Token) {
+		return
+	}
+
+	res, err := createRp(r.Context(), body.ClientId)
+	responseJsonData(w, r, res, err)
+}
+
+func handleRpUpdateSecret(w http.ResponseWriter, r *http.Request) {
+	var body createRpRequest
+	if !parseBody(w, r, &body) {
+		return
+	}
+
+	if !authorizedOrReturn(r.Context(), w, body.Token) {
+		return
+	}
+
+	res, err := changeRpSecret(r.Context(), body.ClientId)
+	responseJsonData(w, r, res, err)
 }
 
 func handleRpDelete(w http.ResponseWriter, r *http.Request) {
-	responseJsonData(w, r, nil, fmt.Errorf("unimplemented"))
+	var body createRpRequest
+	if !parseBody(w, r, &body) {
+		return
+	}
+
+	if !authorizedOrReturn(r.Context(), w, body.Token) {
+		return
+	}
+
+	if err := deleteRp(r.Context(), body.ClientId); err != nil {
+		responseJsonData(w, r, nil, err)
+	}
+
+	responseJsonData(w, r, nil, nil)
 }
 
 func handleRpRedirecturiAdd(w http.ResponseWriter, r *http.Request) {

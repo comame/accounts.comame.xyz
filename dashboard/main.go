@@ -31,7 +31,7 @@ func main() {
 
 	router.Post("/dash/rp/list", handleRpList)
 	router.Post("/dash/rp/create", handleRpCreate)
-	router.Post("/dash/rp/update_secret", handleRpUpdatesecret)
+	router.Post("/dash/rp/update_secret", handleRpUpdateSecret)
 	router.Post("/dash/rp/delete", handleRpDelete)
 	router.Post("/dash/rp/redirect_uri/add", handleRpRedirecturiAdd)
 	router.Post("/dash/rp/redirect_uri/remove", handleRpRedirecturiRemove)
