@@ -10,6 +10,7 @@ import (
 
 type env_t struct {
 	Host         string `env:"HOST"`
+	DashHost     string `env:"DASH_HOST"`
 	ClientSecret string `env:"CLIENT_SECRET"`
 }
 

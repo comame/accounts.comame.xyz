@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"strings"
 
 	"github.com/comame/accounts.comame.xyz/dashboard/core"
 	"github.com/comame/accounts.comame.xyz/dashboard/db"
@@ -131,6 +133,47 @@ func deleteRp(ctx context.Context, clientId string) error {
 	`, clientId)
 
 	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func addRedirectUri(ctx context.Context, clientId string, redirectUri string) error {
+	allowedPrefixes := []string{
+		"https://",
+		"http://localhost:808",
+	}
+
+	allowed := false
+	for _, p := range allowedPrefixes {
+		if strings.HasPrefix(redirectUri, p) {
+			allowed = true
+		}
+	}
+	if !allowed {
+		return fmt.Errorf("redirect_uri prefix is not allowed")
+	}
+
+	db := db.DB
+	if _, err := db.ExecContext(ctx, `
+		INSERT INTO redirect_uris
+			(client_id, redirect_uri)
+		VALUES
+			(?, ?)
+	`, clientId, redirectUri); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func removeRedirectUri(ctx context.Context, clientId string, redirectUri string) error {
+	db := db.DB
+	if _, err := db.ExecContext(ctx, `
+		DELETE FROM redirect_uris
+		WHERE client_id=? AND redirect_uri=?
+	`, clientId, redirectUri); err != nil {
 		return err
 	}
 

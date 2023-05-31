@@ -17,9 +17,6 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-// const accountOrigin = "https://accounts.comame.xyz"
-const accountOrigin = "http://localhost:8080"
-
 func randomStr(length uint) (string, error) {
 	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
@@ -47,7 +44,7 @@ func createAuthUrl(ctx context.Context) (string, error) {
 		return "", nil
 	}
 
-	origin := env.Host
+	origin := env.DashHost
 
 	key := fmt.Sprintf("nonce:%s:%s", state, nonce)
 	if err := kvs.Set(ctx, key, "_", 60); err != nil {
@@ -56,13 +53,12 @@ func createAuthUrl(ctx context.Context) (string, error) {
 
 	redirectUri := origin + "/dash/callback"
 
-	authUrl := fmt.Sprintf("%s/authenticate?client_id=accounts.comame.xyz&redirect_uri=%s&scope=openid&response_type=code&state=%s&nonce=%s&prompt=login", accountOrigin, redirectUri, state, nonce)
+	authUrl := fmt.Sprintf("%s/authenticate?client_id=accounts.comame.xyz&redirect_uri=%s&scope=openid&response_type=code&state=%s&nonce=%s&prompt=login", env.Host, redirectUri, state, nonce)
 	return authUrl, nil
 }
 
 func callbackAndIssueToken(ctx context.Context, state, code string) (string, error) {
-	origin := env.Host
-	redirectUri := origin + "/dash/callback"
+	redirectUri := env.DashHost + "/dash/callback"
 
 	clientId := "accounts.comame.xyz"
 
@@ -77,7 +73,7 @@ func callbackAndIssueToken(ctx context.Context, state, code string) (string, err
 	}
 
 	res, err := http.Post(
-		accountOrigin+"/code",
+		env.Host+"/code",
 		"application/x-www-form-urlencoded",
 		strings.NewReader(codeRequest.Encode()),
 	)
@@ -125,7 +121,7 @@ func callbackAndIssueToken(ctx context.Context, state, code string) (string, err
 		return "", fmt.Errorf("invalid JWT claims")
 	}
 
-	if !claims.VerifyIssuer(accountOrigin, true) {
+	if !claims.VerifyIssuer(env.Host, true) {
 		return "", fmt.Errorf("invalid JWT iss field")
 	}
 
@@ -184,7 +180,7 @@ func getJwkPublicKey() (*rsa.PublicKey, error) {
 		Keys []jwkKey_t `json:"keys"`
 	}
 
-	res, err := http.Get(accountOrigin + "/certs")
+	res, err := http.Get(env.Host + "/certs")
 	if err != nil {
 		return nil, logErr(err)
 	}

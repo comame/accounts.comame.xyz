@@ -48,7 +48,7 @@ func handleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Add("Location", env.Host+"/dash#"+token)
+	w.Header().Add("Location", env.DashHost+"/dash#"+token)
 	w.WriteHeader(http.StatusFound)
 }
 
@@ -116,12 +116,44 @@ func handleRpDelete(w http.ResponseWriter, r *http.Request) {
 	responseJsonData(w, r, nil, nil)
 }
 
+type addRpRedirectUriRequest struct {
+	ClientId    string `json:"client_id"`
+	RedirectUri string `json:"redirect_uri"`
+	tokenRequest
+}
+
 func handleRpRedirecturiAdd(w http.ResponseWriter, r *http.Request) {
-	responseJsonData(w, r, nil, fmt.Errorf("unimplemented"))
+	var body addRpRedirectUriRequest
+	if !parseBody(w, r, &body) {
+		return
+	}
+
+	if !authorizedOrReturn(r.Context(), w, body.Token) {
+		return
+	}
+
+	if err := addRedirectUri(r.Context(), body.ClientId, body.RedirectUri); err != nil {
+		responseJsonData(w, r, nil, err)
+	}
+
+	responseJsonData(w, r, nil, nil)
 }
 
 func handleRpRedirecturiRemove(w http.ResponseWriter, r *http.Request) {
-	responseJsonData(w, r, nil, fmt.Errorf("unimplemented"))
+	var body addRpRedirectUriRequest
+	if !parseBody(w, r, &body) {
+		return
+	}
+
+	if !authorizedOrReturn(r.Context(), w, body.Token) {
+		return
+	}
+
+	if err := removeRedirectUri(r.Context(), body.ClientId, body.RedirectUri); err != nil {
+		responseJsonData(w, r, nil, err)
+	}
+
+	responseJsonData(w, r, nil, nil)
 }
 
 func handleUserList(w http.ResponseWriter, r *http.Request) {
