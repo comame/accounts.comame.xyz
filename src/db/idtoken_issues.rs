@@ -19,21 +19,3 @@ pub fn insert(claim: &IdTokenIssue) {
         )
         .unwrap()
 }
-
-pub fn list_by_sub(subject: &str) -> Vec<IdTokenIssue> {
-    get_conn()
-        .unwrap()
-        .exec_map(
-            "SELECT * FROM idtoken_issues WHERE sub=:sub ORDER BY iat DESC",
-            params! {
-                "sub" => subject.to_string()
-            },
-            |(sub, aud, iat, remote_addr)| IdTokenIssue {
-                sub,
-                aud,
-                iat: mysqldate_to_unixtime(iat),
-                remote_addr,
-            },
-        )
-        .unwrap()
-}

@@ -1,7 +1,7 @@
 use serde::Serialize;
 
 use super::oidc_flow::id_token_claim::IdTokenClaim;
-use crate::db::idtoken_issues::{insert, list_by_sub};
+use crate::db::idtoken_issues::insert;
 
 #[derive(Serialize)]
 pub struct IdTokenIssue {
@@ -19,9 +19,5 @@ impl IdTokenIssue {
             iat: claim.iat,
             remote_addr: remote_addr.to_string(),
         });
-    }
-
-    pub fn list_by_sub(subject: &str) -> Vec<Self> {
-        list_by_sub(subject)
     }
 }

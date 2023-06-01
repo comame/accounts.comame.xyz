@@ -5,7 +5,6 @@ module.exports = {
         signin: "./src/signin/signin.tsx",
         reauthenticate: "./src/signin/reauthenticate.tsx",
         confirm: "./src/signin/confirm.tsx",
-        dash: "./src/dash/dash.tsx",
     },
     mode: "development",
     devtool: "source-map",

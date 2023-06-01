@@ -18,7 +18,6 @@ use crate::db::rsa_keypair::insert_ignore;
 
 mod auth;
 mod crypto;
-mod dash;
 mod data;
 mod db;
 mod enc;
