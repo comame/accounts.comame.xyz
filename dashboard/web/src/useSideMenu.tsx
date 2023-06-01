@@ -1,8 +1,8 @@
 import { LeftMenu } from "@charcoal-ui/react-sandbox"
 import React, { useEffect, useState } from "react"
 
-type pages = "relying-party" | "user"
-const pages: pages[] = ["relying-party", "user"]
+type pages = "relying-party" | "user" | "role"
+const pages: pages[] = ["relying-party", "user", "role"]
 function isPage(arg: any): arg is pages {
     return pages.includes(arg)
 }

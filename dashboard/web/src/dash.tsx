@@ -7,6 +7,7 @@ import { User } from "./user";
 import { useSideMenu } from "./useSideMenu";
 
 import "../main.css";
+import { Role } from "./role";
 
 const Loading = () => <div>Loading</div>;
 
@@ -33,6 +34,7 @@ const App = () => {
                 <Suspense fallback={<Loading />}>
                   {currentPage == "relying-party" && <RelyingParty />}
                   {currentPage == "user" && <User />}
+                  {currentPage == "role" && <Role />}
                 </Suspense>
               </LayoutItemBody>
             </LayoutItem>

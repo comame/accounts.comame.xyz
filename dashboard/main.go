@@ -50,6 +50,10 @@ func main() {
 	router.Post("/dash/user/role/list", handleListUserRole)
 	router.Post("/dash/user/role/set", handleSetUserRole)
 
+	router.Post("/dash/role/list", handleListRole)
+	router.Post("/dash/role/create", handleCreateRole)
+	router.Post("/dash/role/delete", handleDeleteRole)
+
 	router.All("/*", handleStatic)
 
 	log.Println("Start http://localhost:8081")

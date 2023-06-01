@@ -23,7 +23,10 @@ export type apis = {
     "/dash/user/role/list": [userIdRequest, rolesResponse],
     "/dash/user/role/set": [rolesRequest, empty],
     "/dash/rp/role/set": [setRoleAccessResponse, empty],
-    "/dash/rp/role/list": [clientIdRequest, setRoleAccessResponse]
+    "/dash/rp/role/list": [clientIdRequest, setRoleAccessResponse],
+    "/dash/role/list": [empty, listRoleResponse],
+    "/dash/role/create": [roleNameRequest, empty],
+    "/dash/role/delete": [roleNameRequest, empty],
 }
 
 export type request<T extends keyof apis> = apis[T][0]
@@ -116,4 +119,12 @@ type rolesResponse = {
 type setRoleAccessResponse = {
     client_id: string,
     roles: string[],
+}
+
+type listRoleResponse = {
+    values: string[],
+}
+
+type roleNameRequest = {
+    name: string,
 }

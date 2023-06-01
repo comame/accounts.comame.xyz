@@ -327,6 +327,53 @@ func handleSetRoleAccess(w http.ResponseWriter, r *http.Request) {
 	responseJsonData(w, r, nil, err)
 }
 
+type createRoleRequest struct {
+	Name string `json:"name"`
+	tokenRequest
+}
+
+func handleCreateRole(w http.ResponseWriter, r *http.Request) {
+	var body createRoleRequest
+	if !parseBody(w, r, &body) {
+		return
+	}
+
+	if !authorizedOrReturn(r.Context(), w, body.Token) {
+		return
+	}
+
+	err := createRole(r.Context(), body.Name)
+	responseJsonData(w, r, nil, err)
+}
+
+func handleDeleteRole(w http.ResponseWriter, r *http.Request) {
+	var body createRoleRequest
+	if !parseBody(w, r, &body) {
+		return
+	}
+
+	if !authorizedOrReturn(r.Context(), w, body.Token) {
+		return
+	}
+
+	err := deleteRole(r.Context(), body.Name)
+	responseJsonData(w, r, nil, err)
+}
+
+func handleListRole(w http.ResponseWriter, r *http.Request) {
+	var body tokenRequest
+	if !parseBody(w, r, &body) {
+		return
+	}
+
+	if !authorizedOrReturn(r.Context(), w, body.Token) {
+		return
+	}
+
+	data, err := listRole(r.Context())
+	responseJsonData(w, r, data, err)
+}
+
 // data は json.Unmarshal の第 2 引数
 func parseBody(w http.ResponseWriter, r *http.Request, data interface{}) (ok bool) {
 	bytes, err := io.ReadAll(r.Body)
