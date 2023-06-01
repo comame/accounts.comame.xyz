@@ -160,7 +160,7 @@ func callbackAndIssueToken(ctx context.Context, state, code string) (string, err
 	}
 
 	key = fmt.Sprintf("token:%s", token)
-	if err := kvs.Set(ctx, key, "_", 5*60); err != nil {
+	if err := kvs.Set(ctx, key, "_", 60*60); err != nil {
 		return "", err
 	}
 

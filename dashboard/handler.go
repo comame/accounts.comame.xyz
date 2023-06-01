@@ -170,20 +170,71 @@ func handleUserList(w http.ResponseWriter, r *http.Request) {
 	responseJsonData(w, r, users, err)
 }
 
+type createUserRequest struct {
+	UserId string `json:"user_id"`
+	tokenRequest
+}
+
 func handleUserCreate(w http.ResponseWriter, r *http.Request) {
-	responseJsonData(w, r, nil, fmt.Errorf("unimplemented"))
+	var body createUserRequest
+	if !parseBody(w, r, &body) {
+		return
+	}
+
+	if !authorizedOrReturn(r.Context(), w, body.Token) {
+		return
+	}
+
+	err := createUser(r.Context(), body.UserId)
+	responseJsonData(w, r, nil, err)
 }
 
 func handleUserDelete(w http.ResponseWriter, r *http.Request) {
-	responseJsonData(w, r, nil, fmt.Errorf("unimplemented"))
+	var body createUserRequest
+	if !parseBody(w, r, &body) {
+		return
+	}
+
+	if !authorizedOrReturn(r.Context(), w, body.Token) {
+		return
+	}
+
+	err := deleteUser(r.Context(), body.UserId)
+	responseJsonData(w, r, nil, err)
+}
+
+type changeUserPasswordRequest struct {
+	UserId   string `json:"user_id"`
+	Password string `json:"password"`
+	tokenRequest
 }
 
 func handleUserPasswordChange(w http.ResponseWriter, r *http.Request) {
-	responseJsonData(w, r, nil, fmt.Errorf("unimplemented"))
+	var body changeUserPasswordRequest
+	if !parseBody(w, r, &body) {
+		return
+	}
+
+	if !authorizedOrReturn(r.Context(), w, body.Token) {
+		return
+	}
+
+	err := changeUserPassword(r.Context(), body.UserId, body.Password)
+	responseJsonData(w, r, nil, err)
 }
 
 func handleUserPasswordRemove(w http.ResponseWriter, r *http.Request) {
-	responseJsonData(w, r, nil, fmt.Errorf("unimplemented"))
+	var body createUserRequest
+	if !parseBody(w, r, &body) {
+		return
+	}
+
+	if !authorizedOrReturn(r.Context(), w, body.Token) {
+		return
+	}
+
+	err := deleteUserPassword(r.Context(), body.UserId)
+	responseJsonData(w, r, nil, err)
 }
 
 func handleUserSessionList(w http.ResponseWriter, r *http.Request) {
@@ -195,7 +246,17 @@ func handleUserSessionRevoke(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleUserAuthenticationList(w http.ResponseWriter, r *http.Request) {
-	responseJsonData(w, r, nil, fmt.Errorf("unimplemented"))
+	var body createUserRequest
+	if !parseBody(w, r, &body) {
+		return
+	}
+
+	if !authorizedOrReturn(r.Context(), w, body.Token) {
+		return
+	}
+
+	data, err := listUserAuthentication(r.Context(), body.UserId)
+	responseJsonData(w, r, data, err)
 }
 
 // data は json.Unmarshal の第 2 引数
