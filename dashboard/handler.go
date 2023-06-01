@@ -273,14 +273,14 @@ func handleListUserRole(w http.ResponseWriter, r *http.Request) {
 	responseJsonData(w, r, data, err)
 }
 
-type listUserRoleRequest struct {
+type setUserRoleRequest struct {
 	Roles  []string `json:"roles"`
 	UserId string   `json:"user_id"`
 	tokenRequest
 }
 
 func handleSetUserRole(w http.ResponseWriter, r *http.Request) {
-	var body listUserRoleRequest
+	var body setUserRoleRequest
 	if !parseBody(w, r, &body) {
 		return
 	}
@@ -290,6 +290,40 @@ func handleSetUserRole(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := setUserRole(r.Context(), body.UserId, body.Roles)
+	responseJsonData(w, r, nil, err)
+}
+
+func handleListRoleAccess(w http.ResponseWriter, r *http.Request) {
+	var body createRpRequest
+	if !parseBody(w, r, &body) {
+		return
+	}
+
+	if !authorizedOrReturn(r.Context(), w, body.Token) {
+		return
+	}
+
+	data, err := listRoleAccess(r.Context(), body.ClientId)
+	responseJsonData(w, r, data, err)
+}
+
+type setRoleAccessRequest struct {
+	Roles    []string `json:"roles"`
+	ClientId string   `json:"client_id"`
+	tokenRequest
+}
+
+func handleSetRoleAccess(w http.ResponseWriter, r *http.Request) {
+	var body setRoleAccessRequest
+	if !parseBody(w, r, &body) {
+		return
+	}
+
+	if !authorizedOrReturn(r.Context(), w, body.Token) {
+		return
+	}
+
+	err := setRoleAccess(r.Context(), body.ClientId, body.Roles)
 	responseJsonData(w, r, nil, err)
 }
 

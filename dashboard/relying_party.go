@@ -179,3 +179,66 @@ func removeRedirectUri(ctx context.Context, clientId string, redirectUri string)
 
 	return nil
 }
+
+type listRoleAccessResponse struct {
+	Values   []string `json:"roles"`
+	ClientId string   `json:"client_id"`
+}
+
+func listRoleAccess(ctx context.Context, clientId string) (*listRoleAccessResponse, error) {
+	db := db.DB
+
+	rows, err := db.QueryContext(ctx, `
+		SELECT role FROM role_access WHERE relying_party_id=?
+	`, clientId)
+	if err != nil {
+		return nil, err
+	}
+
+	roles := make([]string, 0)
+
+	for rows.Next() {
+		var role string
+		if err := rows.Scan(&role); err != nil {
+			return nil, err
+		}
+
+		roles = append(roles, role)
+	}
+
+	return &listRoleAccessResponse{
+		Values:   roles,
+		ClientId: clientId,
+	}, nil
+}
+
+func setRoleAccess(ctx context.Context, clientId string, roles []string) error {
+	db := db.DB
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if _, err := db.ExecContext(ctx, `
+		DELETE FROM role_access WHERE relying_party_id=?
+	`, clientId); err != nil {
+		return err
+	}
+
+	// 遅いかもしれないが、そこまで大量の行を追加するわけではないので OK とする
+	for _, role := range roles {
+		if _, err := db.ExecContext(ctx, `
+			INSERT IGNORE INTO role_access (relying_party_id, role) VALUES (?, ?)
+		`, clientId, role); err != nil {
+			return err
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
+}

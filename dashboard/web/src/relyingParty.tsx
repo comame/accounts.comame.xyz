@@ -6,16 +6,16 @@ import { useSuspendApi, fetchApi } from "./useApi";
 import { useToken } from "./useToken";
 
 export function RelyingParty() {
-  const { data: relyingPartiesResponse, mutate: updateView } = useSuspendApi(
+  const { data: relyingPartiesResponse } = useSuspendApi(
     useToken(),
     "/dash/rp/list",
     {}
   );
   const relyingParties = relyingPartiesResponse.values;
 
-  useEffect(() => {
-    updateView();
-  }, []);
+  const updateView = () => {
+    location.reload()
+  }
 
   const createModalOpen = useState(false);
 
@@ -64,6 +64,9 @@ const RelyingPartyListItem = ({
   const deleteModalOpen = useState(false);
   const editModalOpen = useState(false);
   const updateSecretModalOpen = useState(false);
+  const setRoleAccessModalOpen = useState(false);
+
+  const rolesRes = useSuspendApi(useToken(), '/dash/rp/role/list', { client_id: rp.client_id }, '/dash/rp/role/list' + rp.client_id)
 
   return (
     <div key={rp.client_id} className="p-8 mb-16 bg-surface3">
@@ -74,8 +77,21 @@ const RelyingPartyListItem = ({
       />
       <EditModal open={editModalOpen} rp={rp} updateView={updateView} />
       <NewSecretModal open={updateSecretModalOpen} client_id={rp.client_id} />
+      <SetRoleAccessModal clientId={rp.client_id} open={ setRoleAccessModalOpen} updateView={updateView}  />
       <h2 className="font-bold text-base">{rp.client_id}</h2>
+      <div className='mb-8'>
+        ロール {rolesRes.data.roles.join(", ")}
+      </div>
       <div>
+      <div className="inline-block p-8 pl-0">
+          <Button
+            size="S"
+            variant="Navigation"
+            onClick={() => setRoleAccessModalOpen[1](true)}
+          >
+            roles
+          </Button>
+        </div>
         <div className="inline-block p-8 pl-0">
           <Button
             size="S"
@@ -318,3 +334,48 @@ const EditModal = ({ open, rp, updateView }: editModalProps) => {
     </Modal>
   );
 };
+
+type setSetRoleAccessProps = {
+  open: [boolean, React.Dispatch<React.SetStateAction<boolean>>],
+  clientId: string,
+  updateView: () => void,
+}
+function SetRoleAccessModal({ open, clientId, updateView }: setSetRoleAccessProps) {
+  const rolesRes = useSuspendApi(useToken(), '/dash/rp/role/list', {
+    client_id: clientId
+  }, '/dash/rp/role/list/' + clientId)
+
+  const [roles, setRoles] = useState(rolesRes.data.roles)
+
+  const onSubmit = async () => {
+    await fetchApi(useToken(), '/dash/rp/role/set', {
+      client_id: clientId,
+      roles
+    })
+    updateView()
+    open[1](false)
+  }
+
+  return <Modal open={open} isDissmissable={false}>
+    <ModalHeader>アクセス許可</ModalHeader>
+    <ModalBody>
+      <div className='mb-24'>
+        <span className="font-bold">{clientId}</span>{" "}
+                へのログインを許可するロール
+      </div>
+      <TextField
+                label="ロール"
+                placeholder="ロール"
+                multiline
+                className="mb-24"
+                value={roles.join('\n')}
+                onChange={(v) => {
+                    setRoles(v.split(/\s+/))
+                }}
+            ></TextField>
+            <Button variant="Primary" fixed onClick={onSubmit}>
+                変更する
+            </Button>
+    </ModalBody>
+  </Modal>
+}

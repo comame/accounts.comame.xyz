@@ -36,6 +36,8 @@ func main() {
 	router.Post("/dash/rp/delete", handleRpDelete)
 	router.Post("/dash/rp/redirect_uri/add", handleRpRedirecturiAdd)
 	router.Post("/dash/rp/redirect_uri/remove", handleRpRedirecturiRemove)
+	router.Post("/dash/rp/role/list", handleListRoleAccess)
+	router.Post("/dash/rp/role/set", handleSetRoleAccess)
 
 	router.Post("/dash/user/list", handleUserList)
 	router.Post("/dash/user/create", handleUserCreate)

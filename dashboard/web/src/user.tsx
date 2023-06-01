@@ -1,7 +1,7 @@
 import { Button, TextField } from "@charcoal-ui/react"
 import React, { Suspense, useEffect, useState } from "react"
 import { Modal, ModalBody, ModalHeader } from "./modal"
-import { fetchApi, mutateAll, useSuspendApi } from "./useApi"
+import { fetchApi, useSuspendApi } from "./useApi"
 import { useToken } from "./useToken"
 
 type user = {
@@ -19,12 +19,8 @@ export function User() {
 
     const createModalOpen = useState(false)
 
-    useEffect(() => {
-        mutate()
-    }, [])
-
     const updateView = () => {
-        mutateAll()
+        location.reload()
     }
 
     return (
