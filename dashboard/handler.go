@@ -374,6 +374,20 @@ func handleListRole(w http.ResponseWriter, r *http.Request) {
 	responseJsonData(w, r, data, err)
 }
 
+func handleGetUserinfo(w http.ResponseWriter, r *http.Request) {
+	var body createUserRequest
+	if !parseBody(w, r, &body) {
+		return
+	}
+
+	if !authorizedOrReturn(r.Context(), w, body.Token) {
+		return
+	}
+
+	res, err := getUserInfo(r.Context(), body.UserId)
+	responseJsonData(w, r, res, err)
+}
+
 // data は json.Unmarshal の第 2 引数
 func parseBody(w http.ResponseWriter, r *http.Request, data interface{}) (ok bool) {
 	bytes, err := io.ReadAll(r.Body)

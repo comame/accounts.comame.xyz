@@ -49,6 +49,7 @@ func main() {
 	router.Post("/dash/user/authentication/list", handleUserAuthenticationList)
 	router.Post("/dash/user/role/list", handleListUserRole)
 	router.Post("/dash/user/role/set", handleSetUserRole)
+	router.Post("/dash/user/userinfo/get", handleGetUserinfo)
 
 	router.Post("/dash/role/list", handleListRole)
 	router.Post("/dash/role/create", handleCreateRole)

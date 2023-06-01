@@ -264,6 +264,29 @@ func setUserRole(ctx context.Context, userId string, roles []string) error {
 	return nil
 }
 
+type userinfoResponse struct {
+	Value string `json:"value"`
+}
+
+func getUserInfo(ctx context.Context, userId string) (*userinfoResponse, error) {
+	db := db.DB
+
+	row := db.QueryRowContext(ctx, `
+		SELECT value FROM userinfo WHERE sub=?
+	`, userId)
+
+	var value string
+
+	if err := row.Scan(&value); err != nil {
+		if err == sql.ErrNoRows {
+			return &userinfoResponse{Value: "{}"}, nil
+		}
+		return nil, err
+	}
+
+	return &userinfoResponse{Value: value}, nil
+}
+
 func revokeSessionInTransaction(ctx context.Context, tx *sql.Tx, userId string) error {
 	if _, err := tx.ExecContext(ctx, `
 		DELETE FROM sessions WHERE user_id=?
