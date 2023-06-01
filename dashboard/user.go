@@ -201,6 +201,69 @@ func listUserAuthentication(ctx context.Context, userId string) (*listUserAuthen
 	return &listUserAuthenticationResponse{Values: s}, nil
 }
 
+type listUserRoleResponse struct {
+	Values []string `json:"roles"`
+	UserId string   `json:"user_id"`
+}
+
+func listUserRole(ctx context.Context, userId string) (*listUserRoleResponse, error) {
+	db := db.DB
+
+	rows, err := db.QueryContext(ctx, `
+		SELECT ROLE FROM user_role WHERE user_id=?
+	`, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	roles := make([]string, 0)
+
+	for rows.Next() {
+		var role string
+		if err := rows.Scan(&role); err != nil {
+			return nil, err
+		}
+
+		roles = append(roles, role)
+	}
+
+	return &listUserRoleResponse{
+		Values: roles,
+		UserId: userId,
+	}, nil
+}
+
+func setUserRole(ctx context.Context, userId string, roles []string) error {
+	db := db.DB
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if _, err := db.ExecContext(ctx, `
+		DELETE FROM user_role WHERE user_id=?
+	`, userId); err != nil {
+		return err
+	}
+
+	// 遅いかもしれないが、そこまで大量の行を追加するわけではないので OK とする
+	for _, role := range roles {
+		if _, err := db.ExecContext(ctx, `
+			INSERT IGNORE INTO user_role (user_id, role) VALUES (?, ?)
+		`, userId, role); err != nil {
+			return err
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func revokeSessionInTransaction(ctx context.Context, tx *sql.Tx, userId string) error {
 	if _, err := tx.ExecContext(ctx, `
 		DELETE FROM sessions WHERE user_id=?

@@ -45,6 +45,8 @@ func main() {
 	router.Post("/dash/user/session/list", handleUserSessionList)
 	router.Post("/dash/user/session/revoke", handleUserSessionRevoke)
 	router.Post("/dash/user/authentication/list", handleUserAuthenticationList)
+	router.Post("/dash/user/role/list", handleListUserRole)
+	router.Post("/dash/user/role/set", handleSetUserRole)
 
 	router.All("/*", handleStatic)
 

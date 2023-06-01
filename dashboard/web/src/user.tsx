@@ -1,7 +1,7 @@
 import { Button, TextField } from "@charcoal-ui/react"
 import React, { Suspense, useEffect, useState } from "react"
 import { Modal, ModalBody, ModalHeader } from "./modal"
-import { fetchApi, useSuspendApi } from "./useApi"
+import { fetchApi, mutateAll, useSuspendApi } from "./useApi"
 import { useToken } from "./useToken"
 
 type user = {
@@ -23,6 +23,10 @@ export function User() {
         mutate()
     }, [])
 
+    const updateView = () => {
+        mutateAll()
+    }
+
     return (
         <>
             <div>
@@ -30,7 +34,7 @@ export function User() {
                     <Button
                         size="S"
                         variant="Navigation"
-                        onClick={() => mutate()}
+                        onClick={updateView}
                     >
                         RELOAD
                     </Button>
@@ -45,7 +49,7 @@ export function User() {
                     </Button>
                     <CreateUserModal
                         open={createModalOpen}
-                        updateView={mutate}
+                        updateView={updateView}
                     />
                 </div>
                 {users
@@ -54,7 +58,7 @@ export function User() {
                         <UserListItem
                             key={user.user_id}
                             user={user}
-                            updateView={mutate}
+                            updateView={updateView}
                         />
                     ))}
             </div>
@@ -75,11 +79,20 @@ const UserListItem = ({
 
     const logModalOpen = useState(false)
 
+    const setRolesModalOpen = useState(false)
+
+    const rolesResponse = useSuspendApi(useToken(), '/dash/user/role/list', {
+        user_id: user.user_id
+    }, '/dash/user/role/list/' + user.user_id)
+
     return (
         <div key={user.user_id} className="p-8 mb-16 bg-surface3">
             <h2 className="font-bold text-base mb-8">{user.user_id}</h2>
             <div className="mb-8">
                 パスワード {user.has_password ? "設定済み" : "未設定"}
+            </div>
+            <div className="mb-8">
+                ロール {rolesResponse.data.roles.join(", ")}
             </div>
             <div className="mb-8">
                 <div className="inline-block p-8 pl-0">
@@ -93,6 +106,20 @@ const UserListItem = ({
                     <SetPasswordModal
                         updateView={updateView}
                         open={passwordEditOpen}
+                        userId={user.user_id}
+                    />
+                </div>
+                <div className="inline-block p-8 pl-0">
+                    <Button
+                        size="S"
+                        variant="Navigation"
+                        onClick={() => setRolesModalOpen[1](true)}
+                    >
+                        ROLE
+                    </Button>
+                    <SetUserRoleModal
+                        updateView={updateView}
+                        open={setRolesModalOpen}
                         userId={user.user_id}
                     />
                 </div>
@@ -320,4 +347,50 @@ const SetPasswordModal = ({
             </ModalBody>
         </Modal>
     )
+}
+
+type setUserRoleModalProps = {
+    open: [boolean, React.Dispatch<React.SetStateAction<boolean>>],
+    userId: string,
+    updateView: () => void,
+}
+function SetUserRoleModal({ open, userId, updateView }: setUserRoleModalProps) {
+    const rolesResponse = useSuspendApi(useToken(), '/dash/user/role/list', {
+        user_id: userId
+    }, '/dash/user/role/list/' + userId)
+    const initialRoles = rolesResponse.data.roles
+
+    const [roles, setRoles] = useState<string[]>(initialRoles)
+
+    const onSubmit = async () => {
+        await fetchApi(useToken(), '/dash/user/role/set', {
+            user_id: userId,
+            roles
+        })
+        updateView()
+        open[1](false)
+    }
+
+    return <Modal open={open} isDissmissable={false}>
+        <ModalHeader>ロールの設定</ModalHeader>
+        <ModalBody>
+            <div className="mb-24">
+                <span className="font-bold">{userId}</span>{" "}
+                のロールを変更
+            </div>
+            <TextField
+                label="ロール"
+                placeholder="ロール"
+                multiline
+                className="mb-24"
+                value={roles.join('\n')}
+                onChange={(v) => {
+                    setRoles(v.split(/\s+/))
+                }}
+            ></TextField>
+            <Button variant="Primary" fixed onClick={onSubmit}>
+                変更する
+            </Button>
+        </ModalBody>
+    </Modal>
 }

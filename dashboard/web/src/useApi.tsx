@@ -65,3 +65,10 @@ export function useSuspendApi<T extends keyof apis>(
         throw fetcher(body)
     }
 }
+
+export function mutateAll() {
+    const keys = suspendApiResponses.keys()
+    for (const key of keys) {
+        suspendApiResponses.delete(key)
+    }
+}

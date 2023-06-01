@@ -259,6 +259,40 @@ func handleUserAuthenticationList(w http.ResponseWriter, r *http.Request) {
 	responseJsonData(w, r, data, err)
 }
 
+func handleListUserRole(w http.ResponseWriter, r *http.Request) {
+	var body createUserRequest
+	if !parseBody(w, r, &body) {
+		return
+	}
+
+	if !authorizedOrReturn(r.Context(), w, body.Token) {
+		return
+	}
+
+	data, err := listUserRole(r.Context(), body.UserId)
+	responseJsonData(w, r, data, err)
+}
+
+type listUserRoleRequest struct {
+	Roles  []string `json:"roles"`
+	UserId string   `json:"user_id"`
+	tokenRequest
+}
+
+func handleSetUserRole(w http.ResponseWriter, r *http.Request) {
+	var body listUserRoleRequest
+	if !parseBody(w, r, &body) {
+		return
+	}
+
+	if !authorizedOrReturn(r.Context(), w, body.Token) {
+		return
+	}
+
+	err := setUserRole(r.Context(), body.UserId, body.Roles)
+	responseJsonData(w, r, nil, err)
+}
+
 // data は json.Unmarshal の第 2 引数
 func parseBody(w http.ResponseWriter, r *http.Request, data interface{}) (ok bool) {
 	bytes, err := io.ReadAll(r.Body)

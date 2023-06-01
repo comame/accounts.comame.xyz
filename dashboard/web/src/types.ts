@@ -20,6 +20,8 @@ export type apis = {
     "/dash/rp/federated_user_binding/list": [clientIdRequest, federatedUserBindingListResponse],
     "/dash/rp/federated_user_binding/add": [federatedUserBindingRequest, empty],
     "/dash/rp/federated_user_binding/remove": [federatedUserBindingRequest, empty],
+    "/dash/user/role/list": [userIdRequest, rolesResponse],
+    "/dash/user/role/set": [rolesRequest, empty],
 }
 
 export type request<T extends keyof apis> = apis[T][0]
@@ -97,4 +99,14 @@ type federatedUserBindingListResponse = {
         relying_party_id: string,
         issuer: string,
     }[]
+}
+
+type rolesRequest = {
+    roles: string[],
+    user_id: string
+}
+
+type rolesResponse = {
+    roles: string[],
+    user_id: string
 }
