@@ -1,7 +1,7 @@
 import { Button, TextField } from "@charcoal-ui/react";
 import React, { Suspense, useEffect, useRef, useState } from "react";
 import { Modal, ModalBody, ModalHeader } from "./modal";
-import { fetchApi, useSuspendApi } from "./useApi";
+import { fetchApi, mutateAll, useSuspendApi } from "./useApi";
 import { useToken } from "./useToken";
 
 type user = {
@@ -10,7 +10,7 @@ type user = {
 };
 
 export default function User() {
-  const { data: usersResponse, mutate } = useSuspendApi(
+  const { data: usersResponse } = useSuspendApi(
     useToken(),
     "/dash/user/list",
     {}
@@ -20,7 +20,7 @@ export default function User() {
   const createModalOpen = useState(false);
 
   const updateView = () => {
-    location.reload();
+    mutateAll();
   };
 
   return (
@@ -70,23 +70,13 @@ const UserListItem = ({
 
   const setRolesModalOpen = useState(false);
 
-  const rolesResponse = useSuspendApi(
-    useToken(),
-    "/dash/user/role/list",
-    {
-      user_id: user.user_id,
-    },
-    "/dash/user/role/list/" + user.user_id
-  );
+  const rolesResponse = useSuspendApi(useToken(), "/dash/user/role/list", {
+    user_id: user.user_id,
+  });
 
-  const userinfoResonse = useSuspendApi(
-    useToken(),
-    "/dash/user/userinfo/get",
-    {
-      user_id: user.user_id,
-    },
-    "/dash/user/userinfo/get/" + user.user_id
-  );
+  const userinfoResonse = useSuspendApi(useToken(), "/dash/user/userinfo/get", {
+    user_id: user.user_id,
+  });
 
   const [isUserinfoOpen, setIsUserinfoOpen] = useState(false);
 
@@ -184,15 +174,9 @@ const LogModal = ({ open, userId }: logModalProps) => {
 };
 
 const Logs = ({ userId }: { userId: string }) => {
-  const { data, mutate } = useSuspendApi(
-    useToken(),
-    "/dash/user/authentication/list",
-    { user_id: userId },
-    "/dash/user/authentication/list/" + userId
-  );
-  useEffect(() => {
-    mutate();
-  }, []);
+  const { data } = useSuspendApi(useToken(), "/dash/user/authentication/list", {
+    user_id: userId,
+  });
   return (
     <ul>
       {data.values.map((log) => (
@@ -354,14 +338,9 @@ type setUserRoleModalProps = {
   updateView: () => void;
 };
 function SetUserRoleModal({ open, userId, updateView }: setUserRoleModalProps) {
-  const rolesResponse = useSuspendApi(
-    useToken(),
-    "/dash/user/role/list",
-    {
-      user_id: userId,
-    },
-    "/dash/user/role/list/" + userId
-  );
+  const rolesResponse = useSuspendApi(useToken(), "/dash/user/role/list", {
+    user_id: userId,
+  });
   const initialRoles = rolesResponse.data.roles;
 
   const [roles, setRoles] = useState<string[]>(initialRoles);

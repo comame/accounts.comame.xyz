@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchApi, useSuspendApi } from "./useApi";
+import { fetchApi, mutateAll, useSuspendApi } from "./useApi";
 import { useToken } from "./useToken";
 import { TextField, Button } from "@charcoal-ui/react";
 import { Modal, ModalHeader, ModalBody } from "./modal";
@@ -8,7 +8,7 @@ export default function Role() {
   const rolesRes = useSuspendApi(useToken(), "/dash/role/list", {});
 
   const updateView = () => {
-    location.reload();
+    mutateAll();
   };
 
   const createModalOpen = useState(false);

@@ -2,7 +2,7 @@ import { Button, TextField } from "@charcoal-ui/react";
 import React, { Suspense, useEffect, useRef, useState } from "react";
 import { Modal, ModalBody, ModalHeader } from "./modal";
 import { relyingParty } from "./types";
-import { useSuspendApi, fetchApi } from "./useApi";
+import { useSuspendApi, fetchApi, mutateAll } from "./useApi";
 import { useToken } from "./useToken";
 
 export default function RelyingParty() {
@@ -14,7 +14,7 @@ export default function RelyingParty() {
   const relyingParties = relyingPartiesResponse.values;
 
   const updateView = () => {
-    location.reload();
+    mutateAll();
   };
 
   const createModalOpen = useState(false);
@@ -66,12 +66,9 @@ const RelyingPartyListItem = ({
   const updateSecretModalOpen = useState(false);
   const setRoleAccessModalOpen = useState(false);
 
-  const rolesRes = useSuspendApi(
-    useToken(),
-    "/dash/rp/role/list",
-    { client_id: rp.client_id },
-    "/dash/rp/role/list" + rp.client_id
-  );
+  const rolesRes = useSuspendApi(useToken(), "/dash/rp/role/list", {
+    client_id: rp.client_id,
+  });
 
   return (
     <div key={rp.client_id} className="p-8 mb-16 bg-surface3">
@@ -352,14 +349,9 @@ function SetRoleAccessModal({
   clientId,
   updateView,
 }: setSetRoleAccessProps) {
-  const rolesRes = useSuspendApi(
-    useToken(),
-    "/dash/rp/role/list",
-    {
-      client_id: clientId,
-    },
-    "/dash/rp/role/list/" + clientId
-  );
+  const rolesRes = useSuspendApi(useToken(), "/dash/rp/role/list", {
+    client_id: clientId,
+  });
 
   const [roles, setRoles] = useState(rolesRes.data.roles);
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { apis, request, response } from "./types";
 
 export async function fetchApi<T extends keyof apis>(
@@ -20,18 +20,14 @@ export async function fetchApi<T extends keyof apis>(
   }
 }
 
-const suspendApiResponses: Map<string, any> = new Map();
-
-type useSuspendApiReturnType<T extends keyof apis> = {
-  data: response<T>;
-  mutate: () => void;
-};
+type useSuspendApiReturnType<T extends keyof apis> = { data: response<T> };
 export function useSuspendApi<T extends keyof apis>(
   token: string,
   endpoint: T,
-  body: request<T>,
-  key: string = endpoint
+  body: request<T>
 ): useSuspendApiReturnType<T> {
+  const key = endpoint + "?key=" + JSON.stringify(body);
+
   const fetcher = (body: any = {}) =>
     fetch(endpoint, {
       method: "POST",
@@ -45,30 +41,59 @@ export function useSuspendApi<T extends keyof apis>(
           // 再レンダリングしない
           return new Promise(() => {});
         } else {
-          suspendApiResponses.set(key, json);
+          fetching.delete(key);
+          store.set(key, json);
         }
       });
 
-  const cached = suspendApiResponses.get(key);
-
-  const [_s, update] = useState(false);
+  const rStore = useSyncExternalStore(store.subscribe, store.getSnapshot);
+  const cached = rStore.get(key);
 
   if (cached) {
     return {
       data: cached,
-      mutate: () => {
-        suspendApiResponses.delete(key);
-        update((v) => !v);
-      },
     };
+  } else if (fetching.get(key)) {
+    throw new Promise(() => {});
   } else {
+    fetching.set(key, true);
     throw fetcher(body);
   }
 }
 
 export function mutateAll() {
-  const keys = suspendApiResponses.keys();
-  for (const key of keys) {
-    suspendApiResponses.delete(key);
-  }
+  store.clear();
 }
+
+type cacheMapT = Map<string, any>;
+
+const store = {
+  _self: new Map() as cacheMapT,
+  _listeners: [] as (() => unknown)[],
+
+  set(key: string, value: any) {
+    store._self.set(key, value);
+    store._dispatch();
+  },
+  clear() {
+    store._self = new Map();
+    store._dispatch();
+  },
+
+  _dispatch() {
+    for (const listener of store._listeners) {
+      listener();
+    }
+  },
+  subscribe(listener: () => unknown) {
+    store._listeners = [...store._listeners, listener];
+    return () => {
+      store._listeners = store._listeners.filter((l) => l != listener);
+    };
+  },
+  getSnapshot() {
+    return store._self;
+  },
+};
+
+const fetching: Map<string, true> = new Map();

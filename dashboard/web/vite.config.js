@@ -3,6 +3,11 @@ import { defineConfig } from 'vite'
 export default defineConfig(({ mode }) => ({
     base: '/dash',
     build: {
-        sourcemap: mode == 'development' ? 'inline' : 'hidden'
+        sourcemap: mode == 'development' ? 'inline' : 'hidden',
+        rollupOptions: {
+            output: {
+                minifyInternalExports: mode == 'development' ? false : true
+            }
+        }
     }
 }))
