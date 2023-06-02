@@ -5,7 +5,7 @@ import { TextField, Button } from "@charcoal-ui/react";
 import { Modal, ModalHeader, ModalBody } from "./modal";
 
 export default function Role() {
-  const rolesRes = useSuspendApi(useToken(), "/dash/role/list", {});
+  const rolesRes = useSuspendApi(useToken(), "/role/list", {});
 
   const updateView = () => {
     mutateAll();
@@ -77,7 +77,7 @@ const CreateRoleModal = ({ open, updateView }: createRoleModalProps) => {
   const [id, setId] = useState("");
   const onSubmit = () => {
     if (id) {
-      fetchApi(useToken(), "/dash/role/create", { name: id }).then(() => {
+      fetchApi(useToken(), "/role/create", { name: id }).then(() => {
         open[1](false);
         updateView();
       });
@@ -129,7 +129,7 @@ const DeleteRoleModal = ({ open, name, updateView }: deleteRoleModalProps) => {
   }, [open[0]]);
 
   const onSubmit = () => {
-    fetchApi(useToken(), "/dash/role/delete", { name }).then(() => {
+    fetchApi(useToken(), "/role/delete", { name }).then(() => {
       updateView();
       open[1](false);
     });

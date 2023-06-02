@@ -13,7 +13,7 @@ import { useToken } from "./useToken";
 export default function RelyingParty() {
   const { data: relyingPartiesResponse } = useSuspendApi(
     useToken(),
-    "/dash/rp/list",
+    "/rp/list",
     {}
   );
   const relyingParties = relyingPartiesResponse.values;
@@ -71,7 +71,7 @@ const RelyingPartyListItem = ({
   const updateSecretModalOpen = useState(false);
   const setRoleAccessModalOpen = useState(false);
 
-  const rolesRes = useSuspendApi(useToken(), "/dash/rp/role/list", {
+  const rolesRes = useSuspendApi(useToken(), "/rp/role/list", {
     client_id: rp.client_id,
   });
 
@@ -147,7 +147,7 @@ const CreateRPModal = ({ open, updateView }: createRPModalProps) => {
   const [id, setId] = useState("");
   const onSubmit = () => {
     if (id) {
-      fetchApi(useToken(), "/dash/rp/create", { client_id: id }).then((res) => {
+      fetchApi(useToken(), "/rp/create", { client_id: id }).then((res) => {
         setClientSecret(res.client_secret);
       });
     }
@@ -228,12 +228,10 @@ const DeleteRPModal = ({ open, clientId, updateView }: deleteRPModalProps) => {
   }, [open[0]]);
 
   const onSubmit = () => {
-    fetchApi(useToken(), "/dash/rp/delete", { client_id: clientId }).then(
-      () => {
-        updateView();
-        open[1](false);
-      }
-    );
+    fetchApi(useToken(), "/rp/delete", { client_id: clientId }).then(() => {
+      updateView();
+      open[1](false);
+    });
   };
 
   return (
@@ -258,7 +256,7 @@ type newSecretModalProps = {
 const NewSecretModal = ({ open, client_id }: newSecretModalProps) => {
   const [secret, setSecret] = useState("");
   const onClick = async () => {
-    const res = await fetchApi(useToken(), "/dash/rp/update_secret", {
+    const res = await fetchApi(useToken(), "/rp/update_secret", {
       client_id,
     });
     setSecret(res.client_secret);
@@ -299,7 +297,7 @@ const EditModal = ({ open, rp, updateView }: editModalProps) => {
   const onSubmit = () => {
     const deletes = [
       ...rp.redirect_uris.map((uri: string) =>
-        fetchApi(useToken(), "/dash/rp/redirect_uri/remove", {
+        fetchApi(useToken(), "/rp/redirect_uri/remove", {
           client_id: rp.client_id,
           redirect_uri: uri,
         })
@@ -309,7 +307,7 @@ const EditModal = ({ open, rp, updateView }: editModalProps) => {
       ...uris
         .filter((v) => v.trim() !== "")
         .map((uri: string) =>
-          fetchApi(useToken(), "/dash/rp/redirect_uri/add", {
+          fetchApi(useToken(), "/rp/redirect_uri/add", {
             client_id: rp.client_id,
             redirect_uri: uri,
           })
@@ -354,16 +352,16 @@ function SetRoleAccessModal({
   clientId,
   updateView,
 }: setSetRoleAccessProps) {
-  const allRoles = useSuspendApi(useToken(), "/dash/role/list", {});
+  const allRoles = useSuspendApi(useToken(), "/role/list", {});
 
-  const rolesRes = useSuspendApi(useToken(), "/dash/rp/role/list", {
+  const rolesRes = useSuspendApi(useToken(), "/rp/role/list", {
     client_id: clientId,
   });
 
   const [roles, setRoles] = useState(rolesRes.data.roles);
 
   const onSubmit = async () => {
-    await fetchApi(useToken(), "/dash/rp/role/set", {
+    await fetchApi(useToken(), "/rp/role/set", {
       client_id: clientId,
       roles,
     });

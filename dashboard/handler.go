@@ -25,8 +25,7 @@ func handleStatic(w http.ResponseWriter, r *http.Request) {
 	}
 
 	server := http.FileServer(http.FS(public))
-	strip := http.StripPrefix("/dash", server)
-	strip.ServeHTTP(w, r)
+	server.ServeHTTP(w, r)
 }
 
 func handleSignin(w http.ResponseWriter, r *http.Request) {
@@ -48,7 +47,7 @@ func handleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Add("Location", env.DashHost+"/dash#"+token)
+	w.Header().Add("Location", env.DashHost+"/#"+token)
 	w.WriteHeader(http.StatusFound)
 }
 

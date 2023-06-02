@@ -51,14 +51,14 @@ func createAuthUrl(ctx context.Context) (string, error) {
 		return "", err
 	}
 
-	redirectUri := origin + "/dash/callback"
+	redirectUri := origin + "/callback"
 
 	authUrl := fmt.Sprintf("%s/authenticate?client_id=accounts.comame.xyz&redirect_uri=%s&scope=openid&response_type=code&state=%s&nonce=%s&prompt=login", env.Host, redirectUri, state, nonce)
 	return authUrl, nil
 }
 
 func callbackAndIssueToken(ctx context.Context, state, code string) (string, error) {
-	redirectUri := env.DashHost + "/dash/callback"
+	redirectUri := env.DashHost + "/callback"
 
 	clientId := "accounts.comame.xyz"
 

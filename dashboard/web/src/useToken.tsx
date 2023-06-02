@@ -1,7 +1,7 @@
 let token = "";
 
 async function checkToken(token: string): Promise<boolean> {
-  const json = await fetch("/dash/rp/list", {
+  const json = await fetch("/rp/list", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ token }),
@@ -23,7 +23,7 @@ export function useToken(): string {
   ]).then(([storeOk, urlOk]) => {
     if (!storeOk && !urlOk) {
       sessionStorage.removeItem("dash-token");
-      location.replace("/dash/signin");
+      location.replace("/signin");
       // Resolve しないことで再レンダリングを防ぐ
       return new Promise(() => {});
     }

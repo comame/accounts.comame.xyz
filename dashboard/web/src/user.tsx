@@ -15,11 +15,7 @@ type user = {
 };
 
 export default function User() {
-  const { data: usersResponse } = useSuspendApi(
-    useToken(),
-    "/dash/user/list",
-    {}
-  );
+  const { data: usersResponse } = useSuspendApi(useToken(), "/user/list", {});
   const users = usersResponse.values;
 
   const createModalOpen = useState(false);
@@ -75,11 +71,11 @@ const UserListItem = ({
 
   const setRolesModalOpen = useState(false);
 
-  const rolesResponse = useSuspendApi(useToken(), "/dash/user/role/list", {
+  const rolesResponse = useSuspendApi(useToken(), "/user/role/list", {
     user_id: user.user_id,
   });
 
-  const userinfoResonse = useSuspendApi(useToken(), "/dash/user/userinfo/get", {
+  const userinfoResonse = useSuspendApi(useToken(), "/user/userinfo/get", {
     user_id: user.user_id,
   });
 
@@ -185,7 +181,7 @@ const LogModal = ({ open, userId }: logModalProps) => {
 };
 
 const Logs = ({ userId }: { userId: string }) => {
-  const { data } = useSuspendApi(useToken(), "/dash/user/authentication/list", {
+  const { data } = useSuspendApi(useToken(), "/user/authentication/list", {
     user_id: userId,
   });
   return (
@@ -208,7 +204,7 @@ const CreateUserModal = ({ open, updateView }: createUserModalProps) => {
   const [id, setId] = useState("");
   const onSubmit = () => {
     if (id) {
-      fetchApi(useToken(), "/dash/user/create", { user_id: id }).then(() => {
+      fetchApi(useToken(), "/user/create", { user_id: id }).then(() => {
         open[1](false);
         updateView();
       });
@@ -264,7 +260,7 @@ const DeleteUserModal = ({
   }, [open[0]]);
 
   const onSubmit = () => {
-    fetchApi(useToken(), "/dash/user/delete", { user_id: userId }).then(() => {
+    fetchApi(useToken(), "/user/delete", { user_id: userId }).then(() => {
       updateView();
       open[1](false);
     });
@@ -305,14 +301,14 @@ const SetPasswordModal = ({
 
   const onSubmit = () => {
     if (password == "") {
-      fetchApi(useToken(), "/dash/user/password/remove", {
+      fetchApi(useToken(), "/user/password/remove", {
         user_id: userId,
       }).then(() => {
         updateView();
         open[1](false);
       });
     } else {
-      fetchApi(useToken(), "/dash/user/password/change", {
+      fetchApi(useToken(), "/user/password/change", {
         user_id: userId,
         password,
       }).then(() => {
@@ -349,16 +345,16 @@ type setUserRoleModalProps = {
   updateView: () => void;
 };
 function SetUserRoleModal({ open, userId, updateView }: setUserRoleModalProps) {
-  const allRoles = useSuspendApi(useToken(), "/dash/role/list", {});
+  const allRoles = useSuspendApi(useToken(), "/role/list", {});
 
-  const rolesResponse = useSuspendApi(useToken(), "/dash/user/role/list", {
+  const rolesResponse = useSuspendApi(useToken(), "/user/role/list", {
     user_id: userId,
   });
 
   const [roles, setRoles] = useState<string[]>(rolesResponse.data.roles);
 
   const onSubmit = async () => {
-    await fetchApi(useToken(), "/dash/user/role/set", {
+    await fetchApi(useToken(), "/user/role/set", {
       user_id: userId,
       roles,
     });

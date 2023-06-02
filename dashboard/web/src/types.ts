@@ -1,36 +1,33 @@
 export type apis = {
-  "/dash/rp/list": [empty, listRpResponse];
-  "/dash/rp/create": [clientIdRequest, createRpResponse];
-  "/dash/rp/update_secret": [clientIdRequest, createRpResponse];
-  "/dash/rp/delete": [clientIdRequest, empty];
-  "/dash/rp/redirect_uri/add": [relyingPartyUriRequest, empty];
-  "/dash/rp/redirect_uri/remove": [relyingPartyUriRequest, empty];
-  "/dash/rp/binding/list": [clientIdRequest, bindingResponse];
-  "/dash/rp/binding/add": [userBinding, empty];
-  "/dash/rp/binding/remove": [userBinding, empty];
-  "/dash/user/list": [empty, userListResponse];
-  "/dash/user/create": [userIdRequest, empty];
-  "/dash/user/delete": [userIdRequest, empty];
-  "/dash/user/password/change": [userIdPasswordRequest, empty];
-  "/dash/user/password/remove": [userIdRequest, empty];
-  "/dash/user/authentication/list": [userIdRequest, authenticationListResponse];
-  "/dash/rp/federated_user_binding/list": [
+  "/rp/list": [empty, listRpResponse];
+  "/rp/create": [clientIdRequest, createRpResponse];
+  "/rp/update_secret": [clientIdRequest, createRpResponse];
+  "/rp/delete": [clientIdRequest, empty];
+  "/rp/redirect_uri/add": [relyingPartyUriRequest, empty];
+  "/rp/redirect_uri/remove": [relyingPartyUriRequest, empty];
+  "/rp/binding/list": [clientIdRequest, bindingResponse];
+  "/rp/binding/add": [userBinding, empty];
+  "/rp/binding/remove": [userBinding, empty];
+  "/user/list": [empty, userListResponse];
+  "/user/create": [userIdRequest, empty];
+  "/user/delete": [userIdRequest, empty];
+  "/user/password/change": [userIdPasswordRequest, empty];
+  "/user/password/remove": [userIdRequest, empty];
+  "/user/authentication/list": [userIdRequest, authenticationListResponse];
+  "/rp/federated_user_binding/list": [
     clientIdRequest,
     federatedUserBindingListResponse
   ];
-  "/dash/rp/federated_user_binding/add": [federatedUserBindingRequest, empty];
-  "/dash/rp/federated_user_binding/remove": [
-    federatedUserBindingRequest,
-    empty
-  ];
-  "/dash/user/role/list": [userIdRequest, rolesResponse];
-  "/dash/user/role/set": [rolesRequest, empty];
-  "/dash/rp/role/set": [setRoleAccessResponse, empty];
-  "/dash/rp/role/list": [clientIdRequest, setRoleAccessResponse];
-  "/dash/role/list": [empty, listRoleResponse];
-  "/dash/role/create": [roleNameRequest, empty];
-  "/dash/role/delete": [roleNameRequest, empty];
-  "/dash/user/userinfo/get": [userIdRequest, userinfoReponse];
+  "/rp/federated_user_binding/add": [federatedUserBindingRequest, empty];
+  "/rp/federated_user_binding/remove": [federatedUserBindingRequest, empty];
+  "/user/role/list": [userIdRequest, rolesResponse];
+  "/user/role/set": [rolesRequest, empty];
+  "/rp/role/set": [setRoleAccessResponse, empty];
+  "/rp/role/list": [clientIdRequest, setRoleAccessResponse];
+  "/role/list": [empty, listRoleResponse];
+  "/role/create": [roleNameRequest, empty];
+  "/role/delete": [roleNameRequest, empty];
+  "/user/userinfo/get": [userIdRequest, userinfoReponse];
 };
 
 export type request<T extends keyof apis> = apis[T][0];
