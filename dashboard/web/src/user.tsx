@@ -1,4 +1,9 @@
-import { Button, TextField } from "@charcoal-ui/react";
+import {
+  Button,
+  MultiSelect,
+  MultiSelectGroup,
+  TextField,
+} from "@charcoal-ui/react";
 import React, { Suspense, useEffect, useRef, useState } from "react";
 import { Modal, ModalBody, ModalHeader } from "./modal";
 import { fetchApi, mutateAll, useSuspendApi } from "./useApi";
@@ -93,7 +98,13 @@ const UserListItem = ({
           setIsUserinfoOpen(e.currentTarget.open);
         }}
       >
-        {userinfoResonse.data.value}
+        <MyTextfield
+          readonly
+          multiline
+          label="userinfo"
+          autoHeight
+          value={formatJsonString(userinfoResonse.data.value)}
+        ></MyTextfield>
         <summary className="whitespace-nowrap text-ellipsis overflow-hidden">
           userinfo {!isUserinfoOpen && userinfoResonse.data.value}
         </summary>
@@ -338,12 +349,13 @@ type setUserRoleModalProps = {
   updateView: () => void;
 };
 function SetUserRoleModal({ open, userId, updateView }: setUserRoleModalProps) {
+  const allRoles = useSuspendApi(useToken(), "/dash/role/list", {});
+
   const rolesResponse = useSuspendApi(useToken(), "/dash/user/role/list", {
     user_id: userId,
   });
-  const initialRoles = rolesResponse.data.roles;
 
-  const [roles, setRoles] = useState<string[]>(initialRoles);
+  const [roles, setRoles] = useState<string[]>(rolesResponse.data.roles);
 
   const onSubmit = async () => {
     await fetchApi(useToken(), "/dash/user/role/set", {
@@ -361,20 +373,52 @@ function SetUserRoleModal({ open, userId, updateView }: setUserRoleModalProps) {
         <div className="mb-24">
           <span className="font-bold">{userId}</span> のロールを変更
         </div>
-        <TextField
-          label="ロール"
-          placeholder="ロール"
-          multiline
-          className="mb-24"
-          value={roles.join("\n")}
-          onChange={(v) => {
-            setRoles(v.split(/\s+/));
+        <MultiSelectGroup
+          name="ロール"
+          ariaLabel="ロール"
+          selected={roles}
+          onChange={(selected) => {
+            setRoles(selected);
           }}
-        ></TextField>
+          className="mb-24"
+        >
+          {allRoles.data.values.map((role) => (
+            <div className="mb-8">
+              <MultiSelect key={role} value={role}>
+                {role}
+              </MultiSelect>
+            </div>
+          ))}
+        </MultiSelectGroup>
         <Button variant="Primary" fixed onClick={onSubmit}>
           変更する
         </Button>
       </ModalBody>
     </Modal>
   );
+}
+
+function formatJsonString(str: string): string {
+  try {
+    return JSON.stringify(JSON.parse(str), null, 2);
+  } catch (_e) {
+    return str;
+  }
+}
+
+type MyTextfieldProps = React.ComponentProps<typeof TextField> & {
+  readonly?: boolean;
+};
+function MyTextfield(props: MyTextfieldProps) {
+  const ref = useRef<HTMLInputElement & HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const current = ref.current;
+    if (!current) {
+      return;
+    }
+    current.readOnly = props.readonly ?? false;
+  }, [props.readonly]);
+
+  return <TextField {...props} ref={ref} />;
 }

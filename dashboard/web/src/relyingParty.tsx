@@ -1,4 +1,9 @@
-import { Button, TextField } from "@charcoal-ui/react";
+import {
+  Button,
+  MultiSelect,
+  MultiSelectGroup,
+  TextField,
+} from "@charcoal-ui/react";
 import React, { Suspense, useEffect, useRef, useState } from "react";
 import { Modal, ModalBody, ModalHeader } from "./modal";
 import { relyingParty } from "./types";
@@ -349,6 +354,8 @@ function SetRoleAccessModal({
   clientId,
   updateView,
 }: setSetRoleAccessProps) {
+  const allRoles = useSuspendApi(useToken(), "/dash/role/list", {});
+
   const rolesRes = useSuspendApi(useToken(), "/dash/rp/role/list", {
     client_id: clientId,
   });
@@ -372,16 +379,23 @@ function SetRoleAccessModal({
           <span className="font-bold">{clientId}</span>{" "}
           へのログインを許可するロール
         </div>
-        <TextField
-          label="ロール"
-          placeholder="ロール"
-          multiline
-          className="mb-24"
-          value={roles.join("\n")}
-          onChange={(v) => {
-            setRoles(v.split(/\s+/));
+        <MultiSelectGroup
+          name="ロール"
+          ariaLabel="ロール"
+          selected={roles}
+          onChange={(selected) => {
+            setRoles(selected);
           }}
-        ></TextField>
+          className="mb-24"
+        >
+          {allRoles.data.values.map((role) => (
+            <div className="mb-8">
+              <MultiSelect key={role} value={role}>
+                {role}
+              </MultiSelect>
+            </div>
+          ))}
+        </MultiSelectGroup>
         <Button variant="Primary" fixed onClick={onSubmit}>
           変更する
         </Button>
