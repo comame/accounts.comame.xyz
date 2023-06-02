@@ -3,11 +3,11 @@
 @tailwind utilities;
 
 @layer components {
-    .modal-bg-w {
-        width: max(100vw, 100%);
-    }
+  .modal-bg-w {
+    width: max(100vw, 100%);
+  }
 }
 
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }

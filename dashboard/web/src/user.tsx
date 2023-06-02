@@ -1,5 +1,5 @@
 import { Button, TextField } from "@charcoal-ui/react";
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { Modal, ModalBody, ModalHeader } from "./modal";
 import { fetchApi, useSuspendApi } from "./useApi";
 import { useToken } from "./useToken";
@@ -9,7 +9,7 @@ type user = {
   has_password: boolean;
 };
 
-export function User() {
+export default function User() {
   const { data: usersResponse, mutate } = useSuspendApi(
     useToken(),
     "/dash/user/list",
@@ -88,6 +88,8 @@ const UserListItem = ({
     "/dash/user/userinfo/get/" + user.user_id
   );
 
+  const [isUserinfoOpen, setIsUserinfoOpen] = useState(false);
+
   return (
     <div key={user.user_id} className="p-8 mb-16 bg-surface3">
       <h2 className="font-bold text-base mb-8">{user.user_id}</h2>
@@ -95,7 +97,17 @@ const UserListItem = ({
         パスワード {user.has_password ? "設定済み" : "未設定"}
       </div>
       <div className="mb-8">ロール {rolesResponse.data.roles.join(", ")}</div>
-      <div className="mb-8">Userifo {userinfoResonse.data.value}</div>
+      <details
+        className="mb-8"
+        onToggle={(e) => {
+          setIsUserinfoOpen(e.currentTarget.open);
+        }}
+      >
+        {userinfoResonse.data.value}
+        <summary className="whitespace-nowrap text-ellipsis overflow-hidden">
+          userinfo {!isUserinfoOpen && userinfoResonse.data.value}
+        </summary>
+      </details>
       <div className="mb-8">
         <div className="inline-block p-8 pl-0">
           <Button

@@ -1,15 +1,16 @@
 import { Layout, LayoutItem, LayoutItemBody } from "@charcoal-ui/react-sandbox";
-import React, { StrictMode, Suspense, useEffect, useState } from "react";
+import React, { StrictMode, Suspense, lazy, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { Themed } from "./theme";
-import { RelyingParty } from "./relyingParty";
-import { User } from "./user";
 import { useSideMenu } from "./useSideMenu";
 
 import "../main.css";
-import { Role } from "./role";
 
 const Loading = () => <div>Loading</div>;
+
+const RelyingParty = lazy(() => import("./relyingParty"));
+const User = lazy(() => import("./user"));
+const Role = lazy(() => import("./role"));
 
 const App = () => {
   const toNormalRepresentation = (msg: string) => {

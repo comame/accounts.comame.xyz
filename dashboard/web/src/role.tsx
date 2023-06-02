@@ -4,7 +4,7 @@ import { useToken } from "./useToken";
 import { TextField, Button } from "@charcoal-ui/react";
 import { Modal, ModalHeader, ModalBody } from "./modal";
 
-export function Role() {
+export default function Role() {
   const rolesRes = useSuspendApi(useToken(), "/dash/role/list", {});
 
   const updateView = () => {
