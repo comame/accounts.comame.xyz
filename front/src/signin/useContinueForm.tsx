@@ -32,7 +32,11 @@ export function useContinueForm(
                 user_agent_id: userAgentId,
             }).then((res) => {
                 if ("error" in res) {
-                    window.alert(res.error)
+                    if (res.error === "no_permission") {
+                        handleNoPermission(relyingPartyId!)
+                    } else {
+                        window.alert(res.error)
+                    }
                 } else {
                     location.replace(res.location)
                 }
@@ -60,4 +64,10 @@ export function useContinueForm(
     )
 
     return [element, ref, onSubmit]
+}
+
+async function handleNoPermission(clientId: string) {
+    const { html } = await import("./accessDeniedHtml")
+    document.title = "Access Denied"
+    document.body.innerHTML = html.replace("$RP", clientId)
 }
