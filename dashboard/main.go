@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 	"log"
+	"net/http"
 
 	"github.com/comame/readenv-go"
 	router "github.com/comame/router-go"
@@ -59,5 +60,6 @@ func main() {
 
 	log.Println("Start http://localhost:8081")
 
-	router.ListenAndServe(":8081")
+	http.Handle("/", router.Handler())
+	http.ListenAndServe(":8081", nil)
 }
