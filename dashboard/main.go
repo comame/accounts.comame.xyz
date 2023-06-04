@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/comame/readenv-go"
-	router "github.com/comame/router-go"
+	"github.com/comame/router-go"
 )
 
 type env_t struct {
