@@ -7,6 +7,7 @@ use crate::data::oidc_flow::authentication_flow_state::OidcFlow;
 use crate::data::oidc_flow::authentication_response::AuthenticationResponse;
 use crate::data::openid_provider::OpenIDProvider;
 use crate::oidc::relying_party::callback;
+use crate::web::static_file;
 
 fn response_bad_request(msg: &str) -> Response {
     let mut res = Response::new();
@@ -19,6 +20,14 @@ fn response_redirect(location: &str) -> Response {
     let mut res = Response::new();
     res.status = 302;
     res.headers.insert("Location".into(), location.into());
+    res
+}
+
+fn response_permission_denied(client_id: &str) -> Response {
+    let mut res = Response::new();
+    let f = static_file::read("/error.html").unwrap();
+    let f = f.replace("$RP", client_id);
+    res.body = Some(f);
     res
 }
 
@@ -55,7 +64,7 @@ pub async fn handler(req: &Request, op: OpenIDProvider, remote_addr: &str) -> Re
     if let Err(err) = result {
         if err.redirect_uri.is_none() {
             dbg!("invalid");
-            return response_bad_request("invalid_request");
+            return response_permission_denied(&err.client_id);
         }
         match err.flow.unwrap() {
             OidcFlow::Code => {

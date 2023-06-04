@@ -26,6 +26,7 @@ pub struct AuthenticationError {
     pub redirect_uri: Option<String>,
     pub flow: Option<OidcFlow>,
     pub response: AuthenticationErrorResponse,
+    pub client_id: String,
 }
 
 /// Authentication Request を受け取って、ユーザ認証をする。
@@ -41,6 +42,7 @@ pub fn pre_authenticate(
         };
         dbg!("invalid");
         return Err(AuthenticationError {
+            client_id: String::from(""),
             redirect_uri: None,
             flow: None,
             response,
@@ -61,6 +63,7 @@ pub fn pre_authenticate(
         };
         dbg!("invalid");
         return Err(AuthenticationError {
+            client_id: relying_party.client_id.to_string(),
             redirect_uri: None,
             flow: None,
             response,
@@ -74,6 +77,7 @@ pub fn pre_authenticate(
         };
         dbg!("invalid");
         return Err(AuthenticationError {
+            client_id: relying_party.client_id.to_string(),
             redirect_uri: Some(request.redirect_uri),
             flow: Some(OidcFlow::Code), // フローは未確定だが、クエリパラメータで返すのでこれでよい
             response,
@@ -91,6 +95,7 @@ pub fn pre_authenticate(
         };
         dbg!("invalid");
         return Err(AuthenticationError {
+            client_id: relying_party.client_id.to_string(),
             redirect_uri: Some(request.redirect_uri),
             flow: Some(OidcFlow::Code), // フローは未確定だが、クエリパラメータで返すのでこれでよい
             response,
@@ -104,6 +109,7 @@ pub fn pre_authenticate(
         };
         dbg!("invalid");
         return Err(AuthenticationError {
+            client_id: relying_party.client_id.to_string(),
             redirect_uri: Some(request.redirect_uri),
             flow: Some(flow),
             response,
@@ -165,6 +171,7 @@ pub fn pronpt_none_fail_authentication(state_id: &str) -> AuthenticationError {
             state: None,
         };
         return AuthenticationError {
+            client_id: "".to_string(),
             redirect_uri: None,
             flow: None,
             response,
@@ -178,6 +185,7 @@ pub fn pronpt_none_fail_authentication(state_id: &str) -> AuthenticationError {
     };
 
     AuthenticationError {
+        client_id: "".to_string(),
         redirect_uri: Some(state.redirect_url),
         flow: Some(state.flow),
         response,
@@ -188,6 +196,7 @@ pub fn pronpt_none_fail_authentication(state_id: &str) -> AuthenticationError {
 pub struct PostAuthenticationResponse {
     pub response: AuthenticationResponse,
     pub redirect_uri: String,
+    pub client_id: String,
 }
 
 // ユーザー認証後、Authentication Response を行う
@@ -207,6 +216,7 @@ pub fn post_authentication(
         };
         dbg!("invalid");
         return Err(AuthenticationError {
+            client_id: relying_party_id.to_string(),
             redirect_uri: None,
             flow: None,
             response,
@@ -221,6 +231,7 @@ pub fn post_authentication(
         };
         dbg!("invalid");
         return Err(AuthenticationError {
+            client_id: relying_party_id.to_string(),
             redirect_uri: None,
             flow: None,
             response,
@@ -245,6 +256,7 @@ pub fn post_authentication(
         };
         dbg!("invalid");
         return Err(AuthenticationError {
+            client_id: relying_party_id.to_string(),
             redirect_uri: None,
             flow: None,
             response,
@@ -259,6 +271,7 @@ pub fn post_authentication(
         };
         dbg!("invalid");
         return Err(AuthenticationError {
+            client_id: relying_party_id.to_string(),
             redirect_uri: None,
             flow: None,
             response,
@@ -275,6 +288,7 @@ pub fn post_authentication(
         };
         dbg!("invalid");
         return Err(AuthenticationError {
+            client_id: relying_party_id.to_string(),
             redirect_uri: None,
             flow: None,
             response,
@@ -335,6 +349,7 @@ pub fn post_authentication(
         );
         code_state::save_state(&code);
         Ok(PostAuthenticationResponse {
+            client_id: relying_party_id.to_string(),
             response: AuthenticationResponse::Code(CodeFlowAuthenticationResponse {
                 state: state.state,
                 code: code.code,
@@ -343,6 +358,7 @@ pub fn post_authentication(
         })
     } else {
         Ok(PostAuthenticationResponse {
+            client_id: relying_party_id.to_string(),
             response: AuthenticationResponse::Implicit(ImplicitFlowAuthenticationResponse {
                 state: state.state,
                 id_token: jwt,

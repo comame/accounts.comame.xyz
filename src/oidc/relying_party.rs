@@ -116,6 +116,7 @@ pub async fn callback(
     if saved_state.is_none() {
         dbg!("invalid");
         return Err(AuthenticationError {
+            client_id: "".to_string(),
             redirect_uri: None,
             flow: None,
             response: AuthenticationErrorResponse {
@@ -131,6 +132,7 @@ pub async fn callback(
     if saved_relying_party_state.state != state {
         dbg!("invalid");
         return Err(AuthenticationError {
+            client_id: "".to_string(),
             redirect_uri: None,
             flow: None,
             response: AuthenticationErrorResponse {
@@ -145,6 +147,7 @@ pub async fn callback(
     if saved_relying_party_state.op != op {
         dbg!("invalid");
         return Err(AuthenticationError {
+            client_id: "".to_string(),
             redirect_uri: None,
             flow: None,
             response: AuthenticationErrorResponse {
@@ -173,6 +176,7 @@ pub async fn callback(
     let res = fetch(&token_request).await;
     if res.is_err() {
         return Err(AuthenticationError {
+            client_id: "".to_string(),
             redirect_uri: None,
             flow: None,
             response: AuthenticationErrorResponse {
@@ -186,6 +190,7 @@ pub async fn callback(
     if res.status != 200 {
         dbg!("invalid");
         return Err(AuthenticationError {
+            client_id: "".to_string(),
             redirect_uri: None,
             flow: None,
             response: AuthenticationErrorResponse {
@@ -199,6 +204,7 @@ pub async fn callback(
     if let Err(err) = body {
         dbg!(&err);
         return Err(AuthenticationError {
+            client_id: "".to_string(),
             redirect_uri: None,
             flow: None,
             response: AuthenticationErrorResponse {
@@ -216,6 +222,7 @@ pub async fn callback(
     if let Err(err) = id_token_header {
         dbg!(&err);
         return Err(AuthenticationError {
+            client_id: "".to_string(),
             redirect_uri: None,
             flow: None,
             response: AuthenticationErrorResponse {
@@ -229,6 +236,7 @@ pub async fn callback(
     if id_token_header.alg != Algorithm::RS256 {
         dbg!("unsupported JWT algorithm");
         return Err(AuthenticationError {
+            client_id: "".to_string(),
             redirect_uri: None,
             flow: None,
             response: AuthenticationErrorResponse {
@@ -241,6 +249,7 @@ pub async fn callback(
     if id_token_header.kid.is_none() {
         dbg!("kid is none");
         return Err(AuthenticationError {
+            client_id: "".to_string(),
             redirect_uri: None,
             flow: None,
             response: AuthenticationErrorResponse {
@@ -258,6 +267,7 @@ pub async fn callback(
 
     if jwk_response.is_err() {
         return Err(AuthenticationError {
+            client_id: "".to_string(),
             redirect_uri: None,
             flow: None,
             response: AuthenticationErrorResponse {
@@ -272,6 +282,7 @@ pub async fn callback(
     if let Err(err) = jwk {
         dbg!(&err);
         return Err(AuthenticationError {
+            client_id: "".to_string(),
             redirect_uri: None,
             flow: None,
             response: AuthenticationErrorResponse {
@@ -286,6 +297,7 @@ pub async fn callback(
     if jwk.is_none() {
         dbg!("target kid not found");
         return Err(AuthenticationError {
+            client_id: "".to_string(),
             redirect_uri: None,
             flow: None,
             response: AuthenticationErrorResponse {
@@ -300,6 +312,7 @@ pub async fn callback(
     if let Err(e) = decoding_key {
         dbg!(&e);
         return Err(AuthenticationError {
+            client_id: "".to_string(),
             redirect_uri: None,
             flow: None,
             response: AuthenticationErrorResponse {
@@ -318,6 +331,7 @@ pub async fn callback(
     if let Err(err) = claim {
         dbg!(&err);
         return Err(AuthenticationError {
+            client_id: "".to_string(),
             redirect_uri: None,
             flow: None,
             response: AuthenticationErrorResponse {
@@ -332,6 +346,7 @@ pub async fn callback(
     if claim.iss != "https://accounts.google.com" {
         dbg!("invalid");
         return Err(AuthenticationError {
+            client_id: "".to_string(),
             redirect_uri: None,
             flow: None,
             response: AuthenticationErrorResponse {
@@ -344,6 +359,7 @@ pub async fn callback(
     if now() > claim.exp {
         dbg!("invalid");
         return Err(AuthenticationError {
+            client_id: "".to_string(),
             redirect_uri: None,
             flow: None,
             response: AuthenticationErrorResponse {
@@ -356,6 +372,7 @@ pub async fn callback(
     if now() < claim.iat {
         dbg!("invalid");
         return Err(AuthenticationError {
+            client_id: "".to_string(),
             redirect_uri: None,
             flow: None,
             response: AuthenticationErrorResponse {
@@ -368,6 +385,7 @@ pub async fn callback(
     if claim.aud != client_id {
         dbg!("invalid");
         return Err(AuthenticationError {
+            client_id: "".to_string(),
             redirect_uri: None,
             flow: None,
             response: AuthenticationErrorResponse {
@@ -380,6 +398,7 @@ pub async fn callback(
     if claim.nonce.is_none() {
         dbg!("invalid");
         return Err(AuthenticationError {
+            client_id: "".to_string(),
             redirect_uri: None,
             flow: None,
             response: AuthenticationErrorResponse {
@@ -392,6 +411,7 @@ pub async fn callback(
     if *claim.nonce.as_ref().unwrap() != saved_relying_party_state.nonce {
         dbg!("invalid");
         return Err(AuthenticationError {
+            client_id: "".to_string(),
             redirect_uri: None,
             flow: None,
             response: AuthenticationErrorResponse {
@@ -414,6 +434,7 @@ pub async fn callback(
     if saved_state.is_none() {
         dbg!("invalid");
         return Err(AuthenticationError {
+            client_id: "".to_string(),
             redirect_uri: None,
             flow: None,
             response: AuthenticationErrorResponse {
@@ -436,6 +457,7 @@ pub async fn callback(
     if let Err(_) = userinfo_response {
         dbg!("invalid");
         return Err(AuthenticationError {
+            client_id: relying_party_id,
             redirect_uri: None,
             flow: None,
             response: AuthenticationErrorResponse {
@@ -449,6 +471,7 @@ pub async fn callback(
     if let Err(_) = userinfo_response {
         dbg!("invalid");
         return Err(AuthenticationError {
+            client_id: relying_party_id,
             redirect_uri: None,
             flow: None,
             response: AuthenticationErrorResponse {
@@ -465,6 +488,7 @@ pub async fn callback(
         if let Err(_) = result {
             dbg!("invalid");
             return Err(AuthenticationError {
+                client_id: relying_party_id,
                 redirect_uri: None,
                 flow: None,
                 response: AuthenticationErrorResponse {
@@ -501,6 +525,7 @@ pub async fn callback(
             );
             dbg!("invalid");
             return Err(AuthenticationError {
+                client_id: relying_party_id,
                 redirect_uri: None,
                 flow: None,
                 response: AuthenticationErrorResponse {
@@ -529,6 +554,7 @@ pub async fn callback(
         if !RoleAccess::is_accessible(&user_id, &relying_party_id) {
             dbg!("invalid");
             return Err(AuthenticationError {
+                client_id: relying_party_id,
                 redirect_uri: None,
                 flow: None,
                 response: AuthenticationErrorResponse {
