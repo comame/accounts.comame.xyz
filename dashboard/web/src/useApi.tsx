@@ -72,7 +72,7 @@ const store = {
   _listeners: [] as (() => unknown)[],
 
   set(key: string, value: any) {
-    store._self.set(key, value);
+    store._self = new Map(store._self.set(key, value));
     store._dispatch();
   },
   clear() {
