@@ -18,5 +18,10 @@ export function useQueryParams() {
         []
     )
 
-    return { csrfToken, relyingPartyId, stateId }
+    const userId = useMemo(
+        () => new URL(location.href).searchParams.get("u"),
+        []
+    )
+
+    return { csrfToken, relyingPartyId, stateId, userId }
 }

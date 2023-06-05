@@ -9,7 +9,6 @@ import {
     LayoutItemBody,
 } from "@charcoal-ui/react-sandbox"
 import { Themed } from "../theme"
-import { useContinueForm } from "./useContinueForm"
 import { useQueryParams } from "./useQueryParams"
 import {
     Bold,
@@ -23,61 +22,20 @@ import { useRequiredInputElement } from "./useRequiredInputElement"
 import { fetchApi } from "./fetchApi"
 
 const App = () => {
-    const { stateId, relyingPartyId, csrfToken } = useQueryParams()
-
-    const [loginType, setLoginType] = useState("")
-    const [hidden, setHidden] = useState(true)
-
-    const [ContinueForm, _ref, next] = useContinueForm(
-        csrfToken,
-        loginType,
-        stateId ?? undefined,
-        relyingPartyId
-    )
+    const { stateId, relyingPartyId, csrfToken, userId } = useQueryParams()
 
     const [invalidCredential, setInvalidCredential] = useState(false)
     const [sendingPassword, setSendingPassword] = useState(false)
     const [isEmpty, setIsEmpty] = useState(false)
 
-    useEffect(() => {
-        fetchApi("/api/signin-session", {
-            csrf_token: csrfToken,
-            relying_party_id: relyingPartyId,
-            user_agent_id: getUserAgentId(),
-        }).then((res) => {
-            if ("error" in res && res.error === "bad_request") {
-                throw "bad_request"
-            }
-
-            if ("error" in res && res.error === "no_session") {
-                location.replace(
-                    `/signin?sid=${stateId}&cid=${encodeURIComponent(
-                        relyingPartyId
-                    )}`
-                )
-            }
-
-            if ("error" in res) {
-                throw "unreachable"
-            }
-
-            setId(res.user_id)
-            setHidden(false)
-        })
-    }, [])
-
     const formRef = useRef<HTMLFormElement>(null)
     const passwordRef = useRef<HTMLInputElement & HTMLTextAreaElement>(null)
-    useRequiredInputElement([hidden])
 
-    const [id, setId] = useState("")
     const [password, setPassword] = useState("")
 
     useEffect(() => {
-        if (!hidden) {
-            passwordRef.current?.focus()
-        }
-    }, [hidden])
+        passwordRef.current?.focus()
+    }, [])
 
     const onSubmitPassword = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -92,11 +50,12 @@ const App = () => {
         setSendingPassword(true)
 
         const body = {
-            user_id: id,
+            user_id: userId ?? "",
             password,
             csrf_token: csrfToken,
             relying_party_id: relyingPartyId,
             user_agent_id: getUserAgentId(),
+            state_id: stateId ?? "",
         }
         const res = await fetchApi("/api/signin-password", body)
 
@@ -109,10 +68,9 @@ const App = () => {
                 passwordRef.current?.focus()
                 return
             }
+        } else {
+            location.replace(res.location)
         }
-
-        setLoginType("password")
-        next()
     }
 
     const chooseOtherAccount = (e: React.FormEvent) => {
@@ -127,70 +85,67 @@ const App = () => {
 
     return (
         <Themed>
-            {!hidden && (
-                <Layout center wide>
-                    <LayoutItem span={3}>
-                        <LayoutItemHeader>
-                            <div>
-                                <Bold>{relyingPartyId}</Bold> にログイン
-                            </div>
-                        </LayoutItemHeader>
-                        <LayoutItemBody>
-                            <form ref={formRef}>
-                                <TextContainer>
-                                    <div>
-                                        <Bold>{id}</Bold> さん
-                                    </div>
-                                    <div>
-                                        続けるには、パスワードを入力してください
-                                    </div>
-                                </TextContainer>
-                                <InputContainer>
-                                    <TextField
-                                        label="パスワード"
-                                        placeholder="パスワード"
-                                        type="password"
-                                        required
-                                        onChange={(e) => {
-                                            setInvalidCredential(false)
-                                            setPassword(e)
-                                            setIsEmpty(false)
-                                        }}
-                                        invalid={invalidCredential || isEmpty}
-                                        assistiveText={
-                                            invalidCredential
-                                                ? "パスワードが正しくありません"
-                                                : isEmpty
-                                                ? "パスワードを入力してください"
-                                                : undefined
-                                        }
-                                        ref={passwordRef}
-                                    ></TextField>
-                                </InputContainer>
-                                <ButtonsContainer>
-                                    <Button
-                                        variant="Primary"
-                                        fixed
-                                        onClick={onSubmitPassword}
-                                        type="submit"
-                                        disabled={sendingPassword}
-                                    >
-                                        続ける
-                                    </Button>
-                                    <Button
-                                        fixed
-                                        onClick={chooseOtherAccount}
-                                        disabled={sendingPassword}
-                                    >
-                                        アカウントを切り替える
-                                    </Button>
-                                </ButtonsContainer>
-                            </form>
-                        </LayoutItemBody>
-                    </LayoutItem>
-                </Layout>
-            )}
-            <ContinueForm />
+            <Layout center wide>
+                <LayoutItem span={3}>
+                    <LayoutItemHeader>
+                        <div>
+                            <Bold>{relyingPartyId}</Bold> にログイン
+                        </div>
+                    </LayoutItemHeader>
+                    <LayoutItemBody>
+                        <form ref={formRef}>
+                            <TextContainer>
+                                <div>
+                                    <Bold>{userId}</Bold> さん
+                                </div>
+                                <div>
+                                    続けるには、パスワードを入力してください
+                                </div>
+                            </TextContainer>
+                            <InputContainer>
+                                <TextField
+                                    label="パスワード"
+                                    placeholder="パスワード"
+                                    type="password"
+                                    required
+                                    onChange={(e) => {
+                                        setInvalidCredential(false)
+                                        setPassword(e)
+                                        setIsEmpty(false)
+                                    }}
+                                    invalid={invalidCredential || isEmpty}
+                                    assistiveText={
+                                        invalidCredential
+                                            ? "パスワードが正しくありません"
+                                            : isEmpty
+                                            ? "パスワードを入力してください"
+                                            : undefined
+                                    }
+                                    ref={passwordRef}
+                                ></TextField>
+                            </InputContainer>
+                            <ButtonsContainer>
+                                <Button
+                                    variant="Primary"
+                                    fixed
+                                    onClick={onSubmitPassword}
+                                    type="submit"
+                                    disabled={sendingPassword}
+                                >
+                                    続ける
+                                </Button>
+                                <Button
+                                    fixed
+                                    onClick={chooseOtherAccount}
+                                    disabled={sendingPassword}
+                                >
+                                    アカウントを切り替える
+                                </Button>
+                            </ButtonsContainer>
+                        </form>
+                    </LayoutItemBody>
+                </LayoutItem>
+            </Layout>
             <Global />
         </Themed>
     )

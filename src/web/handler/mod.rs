@@ -4,7 +4,6 @@ pub mod oidc_callback;
 pub mod oidc_code_request;
 pub mod oidc_userinfo_request;
 pub mod signin;
-pub mod signin_continue;
 pub mod signin_google;
 pub mod signout;
 pub mod static_file;
