@@ -1,6 +1,6 @@
 use http::request::Request;
 use http::response::Response;
-use serde_json::{from_str};
+use serde_json::from_str;
 
 use crate::auth::session::{self, create_session};
 use crate::auth::{csrf_token, password};

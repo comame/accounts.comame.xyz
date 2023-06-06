@@ -1,7 +1,6 @@
 use mysql::params;
 use mysql::prelude::*;
-use serde_json::from_str;
-use serde_json::to_string;
+use serde_json::{from_str, to_string};
 
 use super::mysql::get_conn;
 use crate::data::oidc_flow::userinfo::UserInfo;

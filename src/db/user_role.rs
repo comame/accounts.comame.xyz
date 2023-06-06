@@ -1,8 +1,8 @@
-use mysql::{params, prelude::*};
-
-use crate::data::user_role::UserRole;
+use mysql::params;
+use mysql::prelude::*;
 
 use super::mysql::get_conn;
+use crate::data::user_role::UserRole;
 
 pub struct UserRoleDb;
 

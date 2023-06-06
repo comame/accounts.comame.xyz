@@ -104,20 +104,14 @@ pub fn handler(req: &Request) -> Response {
     let reauthenticate_url = format!("/reauthenticate?sid={sid}&cid={cid}&u={}", session.id);
 
     match state.login_requirement {
-        LoginRequirement::Consent => {
-            response_redirect(&confirm_url)
-        }
-        LoginRequirement::ReAuthenticate => {
-            response_redirect(&reauthenticate_url)
-        }
+        LoginRequirement::Consent => response_redirect(&confirm_url),
+        LoginRequirement::ReAuthenticate => response_redirect(&reauthenticate_url),
         LoginRequirement::MaxAge => {
             unimplemented!();
         }
         LoginRequirement::None => {
             unimplemented!("nointaeraction を実装");
         }
-        LoginRequirement::Any => {
-            response_redirect(&confirm_url)
-        }
+        LoginRequirement::Any => response_redirect(&confirm_url),
     }
 }

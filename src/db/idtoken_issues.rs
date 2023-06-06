@@ -1,7 +1,7 @@
 use mysql::params;
 use mysql::prelude::*;
 
-use super::mysql::{get_conn};
+use super::mysql::get_conn;
 use crate::data::idtoken_issues::IdTokenIssue;
 use crate::time::unixtime_to_datetime;
 

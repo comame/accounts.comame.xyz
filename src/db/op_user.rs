@@ -1,8 +1,9 @@
-use mysql::{params, prelude::*};
-
-use crate::data::{op_user::OpUser, openid_provider::OpenIDProvider};
+use mysql::params;
+use mysql::prelude::*;
 
 use super::mysql::get_conn;
+use crate::data::op_user::OpUser;
+use crate::data::openid_provider::OpenIDProvider;
 
 pub struct OpUserDb;
 
