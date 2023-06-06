@@ -33,6 +33,7 @@ pub fn encode(str: &str) -> String {
     string
 }
 
+#[allow(clippy::result_unit_err)]
 pub fn decode(str: &str) -> Result<String, ()> {
     let mut string = String::new();
     let mut hex_chars: [char; 2] = ['\0', '\0'];

@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use super::url_encode;
 
+#[allow(clippy::result_unit_err)]
 pub fn parse(body: &str) -> Result<HashMap<String, String>, ()> {
     if body.trim().is_empty() {
         return Ok(HashMap::new());
@@ -21,7 +22,7 @@ pub fn parse(body: &str) -> Result<HashMap<String, String>, ()> {
             return Err(());
         }
 
-        let key = key_value.get(0).cloned().unwrap();
+        let key = key_value.first().cloned().unwrap();
         let value = url_encode::decode(key_value.get(1).cloned().unwrap_or(""));
 
         if key.is_empty() || value.is_err() {

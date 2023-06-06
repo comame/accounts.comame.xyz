@@ -19,7 +19,6 @@ pub struct RelyingPartyState {
 
 impl RelyingPartyState {
     pub fn save(v: &Self) {
-        let v = v.clone();
         let redis_key = format!("{REDIS_PREFIX}{}", v.state_id);
         let redis_value = to_string(&v).unwrap();
 

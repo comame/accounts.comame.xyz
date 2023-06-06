@@ -37,9 +37,9 @@ async fn parse_body(body: HyperBody) -> Result<String, ()> {
 
 impl Request {
     async fn from_async(request: HyperRequest<HyperBody>) -> Request {
-        let method = match request.method() {
-            &HyperMethod::GET => Method::Get,
-            &HyperMethod::POST => Method::Post,
+        let method = match *request.method() {
+            HyperMethod::GET => Method::Get,
+            HyperMethod::POST => Method::Post,
             _ => todo!(),
         };
 
@@ -96,9 +96,9 @@ impl Response {
                 .to_string();
             res.headers
                 .borrow_mut()
-                .insert(normalize_header_key(&key.to_string()), value.clone());
+                .insert(normalize_header_key(key.as_ref()), value.clone());
 
-            if normalize_header_key(&key.to_string()) == "Set-Cookie" {
+            if normalize_header_key(key.as_ref()) == "Set-Cookie" {
                 cookies.push(value);
             }
         }

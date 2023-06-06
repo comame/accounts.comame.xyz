@@ -91,8 +91,6 @@ pub fn generate_authentication_endpoint_url(
 
     let redirect_url = format!("{endpoint}?{query}");
 
-    dbg!(&redirect_url);
-
     AuthorizationInitate {
         redirect_url,
         state_id: saved_state.state_id,

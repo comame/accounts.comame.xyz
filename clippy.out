@@ -1,0 +1,203 @@
+    Checking http v0.1.0 (/home/comame/github.com/comame/id/http)
+    Checking id v0.1.0 (/home/comame/github.com/comame/id)
+warning: use of deprecated function `web::set_header::set_header_req`
+  --> src/mail.rs:11:29
+   |
+11 | use crate::web::set_header::set_header_req;
+   |                             ^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated function `web::set_header::set_header_req`
+  --> src/mail.rs:96:5
+   |
+96 |     set_header_req(&mut request, "Authorization", &format!("Bearer {token}"));
+   |     ^^^^^^^^^^^^^^
+
+warning: use of deprecated function `web::set_header::set_header_req`
+  --> src/mail.rs:97:5
+   |
+97 |     set_header_req(&mut request, "Content-Type", "application/json");
+   |     ^^^^^^^^^^^^^^
+
+warning: use of deprecated function `web::set_header::set_header_req`
+   --> src/mail.rs:158:5
+    |
+158 |     set_header_req(
+    |     ^^^^^^^^^^^^^^
+
+warning: associated function `list_all` is never used
+  --> src/data/oidc_relying_party.rs:24:12
+   |
+24 |     pub fn list_all() -> Vec<Self> {
+   |            ^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+warning: associated function `delete` is never used
+  --> src/data/oidc_relying_party.rs:28:12
+   |
+28 |     pub fn delete(client_id: &str) {
+   |            ^^^^^^
+
+warning: associated function `register` is never used
+  --> src/data/oidc_relying_party.rs:33:12
+   |
+33 |     pub fn register(client_id: &str) -> Result<String, ()> {
+   |            ^^^^^^^^
+
+warning: associated function `update_secret` is never used
+  --> src/data/oidc_relying_party.rs:41:12
+   |
+41 |     pub fn update_secret(client_id: &str) -> Result<String, ()> {
+   |            ^^^^^^^^^^^^^
+
+warning: associated function `add_redirect_uri` is never used
+  --> src/data/oidc_relying_party.rs:48:12
+   |
+48 |     pub fn add_redirect_uri(&self, redirect_uri: &str) -> Result<(), ()> {
+   |            ^^^^^^^^^^^^^^^^
+
+warning: associated function `remove_redirect_uri` is never used
+  --> src/data/oidc_relying_party.rs:57:12
+   |
+57 |     pub fn remove_redirect_uri(&self, redirect_uri: &str) {
+   |            ^^^^^^^^^^^^^^^^^^^
+
+warning: associated function `all` is never used
+  --> src/data/user.rs:12:12
+   |
+12 |     pub fn all() -> Vec<Self> {
+   |            ^^^
+
+warning: associated function `delete` is never used
+  --> src/data/user.rs:20:12
+   |
+20 |     pub fn delete(user_id: &str) -> Result<(), ()> {
+   |            ^^^^^^
+
+warning: associated function `has_password` is never used
+  --> src/data/user.rs:38:12
+   |
+38 |     pub fn has_password(&self) -> bool {
+   |            ^^^^^^^^^^^^
+
+warning: function `list_all_relying_party` is never used
+  --> src/db/relying_party.rs:46:8
+   |
+46 | pub fn list_all_relying_party() -> Vec<RelyingParty> {
+   |        ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `update_secret` is never used
+   --> src/db/relying_party.rs:111:8
+    |
+111 | pub fn update_secret(client_id: &str, hashed_secret: &str) {
+    |        ^^^^^^^^^^^^^
+
+warning: function `delete_relying_party` is never used
+   --> src/db/relying_party.rs:124:8
+    |
+124 | pub fn delete_relying_party(client_id: &str) {
+    |        ^^^^^^^^^^^^^^^^^^^^
+
+warning: function `remove_redirect_uri` is never used
+   --> src/db/relying_party.rs:148:8
+    |
+148 | pub fn remove_redirect_uri(client_id: &str, redirect_uri: &str) {
+    |        ^^^^^^^^^^^^^^^^^^^
+
+warning: function `list_user` is never used
+  --> src/db/user.rs:31:8
+   |
+31 | pub fn list_user() -> Vec<User> {
+   |        ^^^^^^^^^
+
+warning: function `delete_user` is never used
+  --> src/db/user.rs:38:8
+   |
+38 | pub fn delete_user(user_id: &str) -> Result<(), ()> {
+   |        ^^^^^^^^^^^
+
+warning: function `password_exists` is never used
+  --> src/db/user_password.rs:20:8
+   |
+20 | pub fn password_exists(user_id: &str) -> bool {
+   |        ^^^^^^^^^^^^^^^
+
+warning: variant `InsufficientScope` is never constructed
+ --> src/oidc/userinfo.rs:7:5
+  |
+5 | pub enum ErrorReason {
+  |          ----------- variant in this enum
+6 |     InvalidToken,
+7 |     InsufficientScope,
+  |     ^^^^^^^^^^^^^^^^^
+  |
+  = note: `ErrorReason` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: associated function `new` is never used
+ --> src/web/data/password_sign_in_response.rs:9:12
+  |
+9 |     pub fn new(user_id: &str) -> Self {
+  |            ^^^
+
+warning: called `unwrap` on `id` after checking its variant with `is_some`
+  --> src/data/oidc_flow/code_request.rs:45:13
+   |
+44 |         let client_id = if id.is_some() {
+   |                         --------------- help: try: `if let Some(..) = id`
+45 |             id.unwrap().to_string()
+   |             ^^^^^^^^^^^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#unnecessary_unwrap
+   = note: `#[warn(clippy::unnecessary_unwrap)]` on by default
+
+warning: called `unwrap` on `secret` after checking its variant with `is_some`
+  --> src/data/oidc_flow/code_request.rs:50:18
+   |
+49 |         let client_secret = if secret.is_some() {
+   |                             ------------------- help: try: `if let Some(..) = secret`
+50 |             Some(secret.unwrap().to_string())
+   |                  ^^^^^^^^^^^^^^^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#unnecessary_unwrap
+
+warning: methods called `new` usually return `Self`
+  --> src/db/role_access.rs:9:5
+   |
+9  | /     pub fn new(role: &str, relying_party_id: &str) {
+10 | |         get_conn().unwrap().exec_drop(
+11 | |             "INSERT INTO role_access (role, relying_party_id) VALUES (:role, :relying_party_id)",
+12 | |             params! {
+...  |
+16 | |         ).unwrap()
+17 | |     }
+   | |_____^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#new_ret_no_self
+   = note: `#[warn(clippy::new_ret_no_self)]` on by default
+
+warning: called `unwrap` on `result` after checking its variant with `is_err`
+  --> src/db/userinfo.rs:26:14
+   |
+23 |     if result.is_err() {
+   |     ------------------ help: try: `if let Ok(..) = result`
+...
+26 |         Some(result.unwrap())
+   |              ^^^^^^^^^^^^^^^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#unnecessary_unwrap
+
+warning: redundant pattern matching, consider using `is_err()`
+   --> src/oidc/relying_party.rs:470:12
+    |
+470 |     if let Err(_) = userinfo_response {
+    |     -------^^^^^^-------------------- help: try this: `if userinfo_response.is_err()`
+    |
+    = note: this will change drop order of the result, as well as all temporaries
+    = note: add `#[allow(clippy::redundant_pattern_matching)]` if this is important
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#redundant_pattern_matching
+    = note: `#[warn(clippy::redundant_pattern_matching)]` on by default
+
+warning: `id` (bin "id") generated 27 warnings
+    Finished dev [unoptimized + debuginfo] target(s) in 1.52s
