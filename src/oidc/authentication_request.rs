@@ -4,7 +4,7 @@ use http::response::Response;
 use jsonwebtoken::{encode, Algorithm, EncodingKey, Header};
 use url::Url;
 
-use super::{authentication_flow_state, code_state};
+use super::code_state;
 use crate::data::authentication::{Authentication, AuthenticationMethod, LoginPrompt};
 use crate::data::idtoken_issues::IdTokenIssue;
 use crate::data::oidc_flow::authentication_flow_state::{
@@ -159,7 +159,6 @@ pub fn pre_authenticate(
         login_requirement,
         flow,
     );
-    authentication_flow_state::save_state(state.clone());
 
     Ok(state)
 }
@@ -180,7 +179,7 @@ pub fn post_authentication(
     login_type: AuthenticationMethod,
     remote_addr: &str,
 ) -> Result<PostAuthenticationResponse, AuthenticationError> {
-    let state = authentication_flow_state::get_state_consume(state_id);
+    let state = AuthenticationFlowState::get_consume(state_id);
     if state.is_none() {
         let response = AuthenticationErrorResponse {
             error: ErrorCode::InvalidRequest,

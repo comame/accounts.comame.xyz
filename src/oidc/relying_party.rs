@@ -3,7 +3,6 @@ use http::request::{Method, Request};
 use jsonwebtoken::{Algorithm, DecodingKey, Validation};
 use serde_json::from_str;
 
-use super::authentication_flow_state::{self, get_state_keep};
 use super::authentication_request::{
     post_authentication, AuthenticationError, PostAuthenticationResponse,
 };
@@ -11,7 +10,9 @@ use crate::crypto::rand;
 use crate::data::authentication::{Authentication, AuthenticationMethod, LoginPrompt};
 use crate::data::authentication_failure::AuthenticationFailure;
 use crate::data::jwk::Jwk;
-use crate::data::oidc_flow::authentication_flow_state::LoginRequirement;
+use crate::data::oidc_flow::authentication_flow_state::{
+    AuthenticationFlowState, LoginRequirement,
+};
 use crate::data::oidc_flow::authenticationi_error_response::AuthenticationErrorResponse;
 use crate::data::oidc_flow::code_request::CodeRequest;
 use crate::data::oidc_flow::code_response::CodeResponse;
@@ -62,7 +63,7 @@ pub fn generate_authentication_endpoint_url(
     RelyingPartyState::save(&saved_state);
 
     let authentication_flow_state =
-        authentication_flow_state::get_state_keep(&authorization_flow_state_id).unwrap();
+        AuthenticationFlowState::get_keep(&authorization_flow_state_id).unwrap();
     let login_requirement = authentication_flow_state.login_requirement;
     let login_prompt = match login_requirement {
         LoginRequirement::Consent => Some(LoginPrompt::Consent),
@@ -430,7 +431,7 @@ pub async fn callback(
         OpenIDProvider::Google => format!("google:{user_id}"),
     };
 
-    let saved_state = get_state_keep(state_id);
+    let saved_state = AuthenticationFlowState::get_keep(state_id);
     if saved_state.is_none() {
         dbg!("invalid");
         return Err(AuthenticationError {

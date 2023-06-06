@@ -6,6 +6,7 @@ use crate::db::redis;
 
 const REDIS_PREFIX: &str = "relying_party_state:";
 
+/// 外部アカウント連携で必要な状態を保存しておく
 #[derive(Serialize, Deserialize)]
 pub struct RelyingPartyState {
     /// `AuthenticationFlowState.id` と同じ。Authorization Request 以外から飛んでくることはありえないため
