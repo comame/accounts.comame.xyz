@@ -94,7 +94,7 @@ pub fn handler(req: &Request) -> Response {
     }
     let session_key = session_key.unwrap();
 
-    let session = session::authenticate(&client_id, &session_key);
+    let session = session::authenticate(&client_id, session_key);
     if session.is_none() {
         return response_redirect(&signin_url);
     }
@@ -105,10 +105,10 @@ pub fn handler(req: &Request) -> Response {
 
     match state.login_requirement {
         LoginRequirement::Consent => {
-            return response_redirect(&confirm_url);
+            response_redirect(&confirm_url)
         }
         LoginRequirement::ReAuthenticate => {
-            return response_redirect(&reauthenticate_url);
+            response_redirect(&reauthenticate_url)
         }
         LoginRequirement::MaxAge => {
             unimplemented!();
@@ -117,7 +117,7 @@ pub fn handler(req: &Request) -> Response {
             unimplemented!("nointaeraction を実装");
         }
         LoginRequirement::Any => {
-            return response_redirect(&confirm_url);
+            response_redirect(&confirm_url)
         }
-    };
+    }
 }

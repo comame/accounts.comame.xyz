@@ -1,4 +1,4 @@
-use crate::data::authentication::{Authentication, AuthenticationMethod};
+
 use crate::data::session::Session;
 use crate::data::user::User;
 use crate::db::session::{
@@ -24,7 +24,7 @@ pub fn revoke_session_by_token(token: &str) {
     delete_by_token(token);
 }
 
-pub fn authenticate(audience: &str, token: &str) -> Option<User> {
+pub fn authenticate(_audience: &str, token: &str) -> Option<User> {
     if token.is_empty() {
         return None;
     }
@@ -35,7 +35,7 @@ pub fn authenticate(audience: &str, token: &str) -> Option<User> {
 
     let session = session.unwrap();
     let user_id = session.user_id;
-    let created_at = session.created_at;
+    let _created_at = session.created_at;
 
     let user = find_user_by_id(&user_id);
 

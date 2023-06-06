@@ -65,7 +65,7 @@ pub fn pre_authenticate(
         };
         dbg!("invalid");
         return Err(AuthenticationError {
-            client_id: relying_party.client_id.to_string(),
+            client_id: relying_party.client_id,
             redirect_uri: None,
             flow: None,
             response,
@@ -79,7 +79,7 @@ pub fn pre_authenticate(
         };
         dbg!("invalid");
         return Err(AuthenticationError {
-            client_id: relying_party.client_id.to_string(),
+            client_id: relying_party.client_id,
             redirect_uri: Some(request.redirect_uri),
             flow: Some(OidcFlow::Code), // フローは未確定だが、クエリパラメータで返すのでこれでよい
             response,
@@ -97,7 +97,7 @@ pub fn pre_authenticate(
         };
         dbg!("invalid");
         return Err(AuthenticationError {
-            client_id: relying_party.client_id.to_string(),
+            client_id: relying_party.client_id,
             redirect_uri: Some(request.redirect_uri),
             flow: Some(OidcFlow::Code), // フローは未確定だが、クエリパラメータで返すのでこれでよい
             response,
@@ -111,7 +111,7 @@ pub fn pre_authenticate(
         };
         dbg!("invalid");
         return Err(AuthenticationError {
-            client_id: relying_party.client_id.to_string(),
+            client_id: relying_party.client_id,
             redirect_uri: Some(request.redirect_uri),
             flow: Some(flow),
             response,
@@ -342,13 +342,13 @@ pub fn post_authentication(
 fn response_bad_request() -> Response {
     let mut res = Response::new();
     res.status = 400;
-    return res;
+    res
 }
 
 fn response_redirect(url: &str) -> Response {
     let mut res = Response::new();
     res.body = Some(format!(r#"{{ "location": "{url}" }}"#));
-    return res;
+    res
 }
 
 pub fn response_post_authentication(

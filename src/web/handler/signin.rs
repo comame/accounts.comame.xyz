@@ -1,6 +1,6 @@
 use http::request::Request;
 use http::response::Response;
-use serde_json::{from_str, to_string};
+use serde_json::{from_str};
 
 use crate::auth::session::{self, create_session};
 use crate::auth::{csrf_token, password};
@@ -93,7 +93,7 @@ pub fn sign_in_with_password(req: &Request, remote_addr: &str) -> Response {
             &user_id,
             &AuthenticationMethod::Session,
             &AuthenticationFailureReason::NoUserBinding,
-            &remote_addr,
+            remote_addr,
         );
         dbg!("invalid");
         return response_bad_request();
@@ -114,7 +114,7 @@ pub fn sign_in_with_password(req: &Request, remote_addr: &str) -> Response {
     res.cookies
         .push(http::cookies::build("Session", &session.token).build());
 
-    return res;
+    res
 }
 
 pub fn sign_in_with_session(req: &Request, remote_address: &str) -> Response {
@@ -159,7 +159,7 @@ pub fn sign_in_with_session(req: &Request, remote_address: &str) -> Response {
             &user.id,
             &AuthenticationMethod::Session,
             &AuthenticationFailureReason::NoUserBinding,
-            &remote_address,
+            remote_address,
         );
         dbg!("invalid");
         return response_bad_request();
@@ -171,8 +171,8 @@ pub fn sign_in_with_session(req: &Request, remote_address: &str) -> Response {
         &request.relying_party_id,
         &request.user_agent_id,
         AuthenticationMethod::Session,
-        &remote_address,
+        remote_address,
     );
 
-    return response_post_authentication(result);
+    response_post_authentication(result)
 }

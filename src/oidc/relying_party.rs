@@ -63,7 +63,7 @@ pub fn generate_authentication_endpoint_url(
     RelyingPartyState::save(&saved_state);
 
     let authentication_flow_state =
-        AuthenticationFlowState::get_keep(&authorization_flow_state_id).unwrap();
+        AuthenticationFlowState::get_keep(authorization_flow_state_id).unwrap();
     let login_requirement = authentication_flow_state.login_requirement;
     let login_prompt = match login_requirement {
         LoginRequirement::Consent => Some(LoginPrompt::Consent),
@@ -448,14 +448,14 @@ pub async fn callback(
 
     let relying_party_id = saved_authentication_flow_state.relying_party_id;
 
-    let mut userinfo_request = Request::new("/v1/userinfo".into(), None);
+    let mut userinfo_request = Request::new("/v1/userinfo", None);
     userinfo_request.origin = Some("https://openidconnect.googleapis.com".into());
     userinfo_request
         .headers
         .insert("Authorization".into(), format!("Bearer {access_token}"));
     let userinfo_response = fetch(&userinfo_request).await;
 
-    if let Err(_) = userinfo_response {
+    if userinfo_response.is_err() {
         dbg!("invalid");
         return Err(AuthenticationError {
             client_id: relying_party_id,
@@ -486,7 +486,7 @@ pub async fn callback(
     let user_exists = User::find(&user_id).is_some();
     if !user_exists {
         let result = User::new(&user_id);
-        if let Err(_) = result {
+        if result.is_err() {
             dbg!("invalid");
             return Err(AuthenticationError {
                 client_id: relying_party_id,
@@ -573,18 +573,18 @@ pub async fn callback(
             &user_agent_id,
         );
 
-        let result = post_authentication(
+        
+
+        // TODO: 成功時にセッションを発行する
+        // ただし、ユーザーの存在確認をする必要はないかもしれない (外部アカウントなので)
+
+        post_authentication(
             &user_id,
             state_id,
             &relying_party_id,
             &user_agent_id,
             login_type,
             remote_addr,
-        );
-
-        // TODO: 成功時にセッションを発行する
-        // ただし、ユーザーの存在確認をする必要はないかもしれない (外部アカウントなので)
-
-        result
+        )
     }
 }

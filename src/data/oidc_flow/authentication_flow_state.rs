@@ -84,7 +84,7 @@ impl AuthenticationFlowState {
             STATE_TIME,
         );
 
-        return state;
+        state
     }
 
     pub fn id(&self) -> String {
