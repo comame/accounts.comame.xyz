@@ -17,7 +17,7 @@ fn to_byte(c: char) -> u8 {
     let charcode_of_a = b'A';
     let charcode_of_zero = b'0';
 
-    if ('0'..='9').contains(&c) {
+    if c.is_ascii_digit() {
         c as u8 - charcode_of_zero
     } else if ('A'..='F').contains(&c) {
         c as u8 - charcode_of_a + 10
@@ -67,7 +67,7 @@ pub fn decode(hex: &str) -> Vec<u8> {
     let mut arr: Vec<u8> = vec![];
     let mut chars: [usize; 2] = [0, 0];
 
-    for (i, char) in hex.chars().into_iter().enumerate() {
+    for (i, char) in hex.chars().enumerate() {
         if i % 2 == 0 {
             chars[0] = to_byte(char) as usize;
         } else {
