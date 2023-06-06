@@ -7,7 +7,7 @@ pub struct RoleAccess {
 
 impl RoleAccess {
     pub fn new(role: &str, relying_party_id: &str) -> Self {
-        RoleAccessDb::new(role, relying_party_id);
+        RoleAccessDb::create(role, relying_party_id);
         Self {
             role: role.into(),
             relying_party_id: relying_party_id.into(),

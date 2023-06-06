@@ -4,7 +4,6 @@ use crate::data::oidc_flow::userinfo::UserInfo;
 #[derive(Debug)]
 pub enum ErrorReason {
     InvalidToken,
-    InsufficientScope,
 }
 
 pub fn userinfo(access_token: &str) -> Result<UserInfo, ErrorReason> {

@@ -20,10 +20,10 @@ pub fn get_userinfo(sub: &str) -> Option<UserInfo> {
 
     let result = from_str::<UserInfo>(&first.1);
 
-    if result.is_err() {
-        None
+    if let Ok(result) = result {
+        Some(result)
     } else {
-        Some(result.unwrap())
+        None
     }
 }
 

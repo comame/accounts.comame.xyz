@@ -467,7 +467,7 @@ pub async fn callback(
     }
     let userinfo_response = userinfo_response.unwrap();
     let userinfo_response = from_str::<UserInfo>(&userinfo_response.body.unwrap());
-    if let Err(_) = userinfo_response {
+    if userinfo_response.is_err() {
         dbg!("invalid");
         return Err(AuthenticationError {
             client_id: relying_party_id,

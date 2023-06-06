@@ -41,13 +41,15 @@ impl CodeRequest {
         let grant_type = get_or_result(&map, "grant_type")?.clone();
         let code = get_or_result(&map, "code")?.clone();
         let redirect_uri = get_or_result(&map, "redirect_uri")?.clone();
-        let client_id = if id.is_some() {
-            id.unwrap().to_string()
+
+        let client_id = if let Some(id) = id {
+            id.to_string()
         } else {
             get_or_result(&map, "client_id")?.clone()
         };
-        let client_secret = if secret.is_some() {
-            Some(secret.unwrap().to_string())
+
+        let client_secret = if let Some(secret) = secret {
+            Some(secret.to_string())
         } else {
             map.get("client_secret").cloned()
         };

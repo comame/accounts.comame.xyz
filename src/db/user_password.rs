@@ -17,21 +17,6 @@ pub fn password_matched(user_password: &UserPassword) -> bool {
     !result.is_empty()
 }
 
-pub fn password_exists(user_id: &str) -> bool {
-    let result = get_conn()
-        .unwrap()
-        .exec_map(
-            "SELECT user_id FROM user_passwords WHERE user_id = :user_id",
-            params! {
-                "user_id" => user_id,
-            },
-            |(_user_id,): (String,)| 0,
-        )
-        .unwrap();
-
-    !result.is_empty()
-}
-
 pub fn insert_password(user_password: &UserPassword) -> Result<(), Error> {
     let user_id = user_password.user_id.clone();
     let new_pass = user_password.hashed_password.clone();

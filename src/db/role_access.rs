@@ -6,7 +6,7 @@ use super::mysql::get_conn;
 pub struct RoleAccessDb;
 
 impl RoleAccessDb {
-    pub fn new(role: &str, relying_party_id: &str) {
+    pub fn create(role: &str, relying_party_id: &str) {
         get_conn().unwrap().exec_drop(
             "INSERT INTO role_access (role, relying_party_id) VALUES (:role, :relying_party_id)",
             params! {
