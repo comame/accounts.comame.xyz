@@ -18,6 +18,7 @@ pub fn get_mime_types(extension: &str) -> Option<String> {
     match extension {
         "html" => Some("text/html".to_string()),
         "svg" => Some("image/svg+xml".to_string()),
+        "js" => Some("text/javascript".to_string()),
         _ => None,
     }
 }

@@ -18,6 +18,7 @@ pub fn handler(req: &Request) -> Response {
 
     let extension = extract_extension(&req.path);
     let content_type = get_mime_types(&extension);
+    dbg!(&extension, &content_type);
 
     if let Some(content_type) = content_type {
         res.headers.insert("Content-Type".to_string(), content_type);

@@ -39,7 +39,7 @@ fn response_no_session() -> Response {
 pub fn page(name: &str) -> Response {
     let mut response = Response::new();
 
-    let html_file = static_file::read(&format!("/{name}.html")).unwrap();
+    let html_file = static_file::read(&format!("/front/src/{name}.html")).unwrap();
 
     let token = csrf_token::generate();
 
