@@ -1,12 +1,12 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from "vite"
 
 export default defineConfig(({ mode }) => ({
     build: {
-        sourcemap: mode == 'development' ? 'inline' : 'hidden',
+        sourcemap: mode == "development" ? "inline" : "hidden",
         rollupOptions: {
             output: {
-                minifyInternalExports: mode == 'development' ? false : true
-            }
-        }
-    }
+                minifyInternalExports: mode == "development" ? false : true,
+            },
+        },
+    },
 }))

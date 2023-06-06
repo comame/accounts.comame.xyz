@@ -1,62 +1,62 @@
-import React, { ReactNode } from "react";
-import { IconButton } from "@charcoal-ui/react";
+import React, { ReactNode } from "react"
+import { IconButton } from "@charcoal-ui/react"
 
 type props = {
-  open: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
-  children: ReactNode;
-  isDissmissable?: boolean;
-  onClose?: () => void;
-};
+    open: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
+    children: ReactNode
+    isDissmissable?: boolean
+    onClose?: () => void
+}
 
 export function Modal({
-  open,
-  children,
-  isDissmissable = true,
-  onClose,
+    open,
+    children,
+    isDissmissable = true,
+    onClose,
 }: props) {
-  const onBackgroundClick = (e: React.MouseEvent) => {
-    if (e.target !== e.currentTarget) return;
-    e.stopPropagation();
-    e.preventDefault();
-    if (isDissmissable) {
-      open[1](false);
+    const onBackgroundClick = (e: React.MouseEvent) => {
+        if (e.target !== e.currentTarget) return
+        e.stopPropagation()
+        e.preventDefault()
+        if (isDissmissable) {
+            open[1](false)
+        }
     }
-  };
 
-  return open[0] ? (
-    <>
-      <div
-        className="modal-bg-w h-screen bg-surface4 z-10 fixed top-0 left-0 flex justify-center items-center"
-        onClick={onBackgroundClick}
-      >
-        <div className="bg-background1 w-col-span-5 p-24 rounded-24 relative">
-          {children}
-          <div className="absolute top-16 right-16 z-20">
-            <IconButton
-              variant="Overlay"
-              icon="24/Close"
-              onClick={() => {
-                open[1](false);
-                onClose?.();
-              }}
-            />
-          </div>
-        </div>
-      </div>
-    </>
-  ) : null;
+    return open[0] ? (
+        <>
+            <div
+                className="modal-bg-w h-screen bg-surface4 z-10 fixed top-0 left-0 flex justify-center items-center"
+                onClick={onBackgroundClick}
+            >
+                <div className="bg-background1 w-col-span-5 p-24 rounded-24 relative">
+                    {children}
+                    <div className="absolute top-16 right-16 z-20">
+                        <IconButton
+                            variant="Overlay"
+                            icon="24/Close"
+                            onClick={() => {
+                                open[1](false)
+                                onClose?.()
+                            }}
+                        />
+                    </div>
+                </div>
+            </div>
+        </>
+    ) : null
 }
 
 type headerProps = {
-  children: ReactNode;
-};
+    children: ReactNode
+}
 export function ModalHeader({ children }: headerProps) {
-  return <div className="font-bold text-center mb-24">{children}</div>;
+    return <div className="font-bold text-center mb-24">{children}</div>
 }
 
 type bodyProps = {
-  children: ReactNode;
-};
+    children: ReactNode
+}
 export function ModalBody({ children }: bodyProps) {
-  return <div className="overflow-y-auto max-h-[80vh]">{children}</div>;
+    return <div className="overflow-y-auto max-h-[80vh]">{children}</div>
 }

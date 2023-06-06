@@ -5,8 +5,8 @@ import { useEffect } from "react"
  */
 export function useRequiredInputElement(deps: any[]) {
     useEffect(() => {
-        document.querySelectorAll('input[aria-required=true]').forEach(v => {
-            v.setAttribute('required', 'true')
+        document.querySelectorAll("input[aria-required=true]").forEach((v) => {
+            v.setAttribute("required", "true")
         })
     }, [...deps])
 }
