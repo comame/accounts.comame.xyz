@@ -1,10 +1,9 @@
-use std::env;
 use std::sync::Mutex;
+use std::{env, sync::OnceLock};
 
-use once_cell::sync::OnceCell;
 use redis::{Client, Commands, Connection};
 
-static CLIENT: OnceCell<Mutex<Client>> = OnceCell::new();
+static CLIENT: OnceLock<Mutex<Client>> = OnceLock::new();
 
 fn get_prefix() -> String {
     let redis_prefix = env::var("REDIS_PREFIX").unwrap();

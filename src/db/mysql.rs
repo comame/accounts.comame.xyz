@@ -1,12 +1,11 @@
-use std::sync::Mutex;
+use std::sync::{Mutex, OnceLock};
 
 use chrono::NaiveDate;
 use mysql::{Pool, PooledConn};
-use once_cell::sync::OnceCell;
 
 use crate::time::datetime_to_unixtime;
 
-static POOL: OnceCell<Mutex<Pool>> = OnceCell::new();
+static POOL: OnceLock<Mutex<Pool>> = OnceLock::new();
 
 pub fn init(mysql_url: &str) {
     POOL.get_or_init(|| {

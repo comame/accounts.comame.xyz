@@ -737,7 +737,6 @@ dependencies = [
  "hyper-tls",
  "jsonwebtoken",
  "mysql",
- "once_cell",
  "openssl",
  "redis",
  "serde",
