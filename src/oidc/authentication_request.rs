@@ -1,8 +1,10 @@
 use std::env;
 
+use http::response::Response;
 use jsonwebtoken::{encode, Algorithm, EncodingKey, Header};
+use url::Url;
 
-use super::{authentication_flow_state, code_state};
+use super::code_state;
 use crate::data::authentication::{Authentication, AuthenticationMethod, LoginPrompt};
 use crate::data::idtoken_issues::IdTokenIssue;
 use crate::data::oidc_flow::authentication_flow_state::{
@@ -63,7 +65,7 @@ pub fn pre_authenticate(
         };
         dbg!("invalid");
         return Err(AuthenticationError {
-            client_id: relying_party.client_id.to_string(),
+            client_id: relying_party.client_id,
             redirect_uri: None,
             flow: None,
             response,
@@ -77,7 +79,7 @@ pub fn pre_authenticate(
         };
         dbg!("invalid");
         return Err(AuthenticationError {
-            client_id: relying_party.client_id.to_string(),
+            client_id: relying_party.client_id,
             redirect_uri: Some(request.redirect_uri),
             flow: Some(OidcFlow::Code), // フローは未確定だが、クエリパラメータで返すのでこれでよい
             response,
@@ -95,7 +97,7 @@ pub fn pre_authenticate(
         };
         dbg!("invalid");
         return Err(AuthenticationError {
-            client_id: relying_party.client_id.to_string(),
+            client_id: relying_party.client_id,
             redirect_uri: Some(request.redirect_uri),
             flow: Some(OidcFlow::Code), // フローは未確定だが、クエリパラメータで返すのでこれでよい
             response,
@@ -109,7 +111,7 @@ pub fn pre_authenticate(
         };
         dbg!("invalid");
         return Err(AuthenticationError {
-            client_id: relying_party.client_id.to_string(),
+            client_id: relying_party.client_id,
             redirect_uri: Some(request.redirect_uri),
             flow: Some(flow),
             response,
@@ -157,39 +159,8 @@ pub fn pre_authenticate(
         login_requirement,
         flow,
     );
-    authentication_flow_state::save_state(state.clone());
 
     Ok(state)
-}
-
-/// prompt=none のとき、interaction_required を返す
-pub fn pronpt_none_fail_authentication(state_id: &str) -> AuthenticationError {
-    let state = authentication_flow_state::get_state_consume(state_id);
-    if state.is_none() {
-        let response = AuthenticationErrorResponse {
-            error: ErrorCode::InteractionRequired,
-            state: None,
-        };
-        return AuthenticationError {
-            client_id: "".to_string(),
-            redirect_uri: None,
-            flow: None,
-            response,
-        };
-    }
-    let state = state.unwrap();
-
-    let response = AuthenticationErrorResponse {
-        error: ErrorCode::InteractionRequired,
-        state: state.state,
-    };
-
-    AuthenticationError {
-        client_id: "".to_string(),
-        redirect_uri: Some(state.redirect_url),
-        flow: Some(state.flow),
-        response,
-    }
 }
 
 #[derive(Debug)]
@@ -208,7 +179,7 @@ pub fn post_authentication(
     login_type: AuthenticationMethod,
     remote_addr: &str,
 ) -> Result<PostAuthenticationResponse, AuthenticationError> {
-    let state = authentication_flow_state::get_state_consume(state_id);
+    let state = AuthenticationFlowState::get_consume(state_id);
     if state.is_none() {
         let response = AuthenticationErrorResponse {
             error: ErrorCode::InvalidRequest,
@@ -365,5 +336,84 @@ pub fn post_authentication(
             }),
             redirect_uri: state.redirect_url,
         })
+    }
+}
+
+fn response_bad_request() -> Response {
+    let mut res = Response::new();
+    res.status = 400;
+    res
+}
+
+fn response_redirect(url: &str) -> Response {
+    let mut res = Response::new();
+    res.body = Some(format!(r#"{{ "location": "{url}" }}"#));
+    res
+}
+
+pub fn response_post_authentication(
+    result: Result<PostAuthenticationResponse, AuthenticationError>,
+) -> Response {
+    if let Err(err) = result {
+        if err.redirect_uri.is_none() {
+            return response_bad_request();
+        }
+        match err.flow.unwrap() {
+            OidcFlow::Code => {
+                let redirect_uri = err.redirect_uri.unwrap();
+                let error_body = err.response;
+                let mut redirect_uri = Url::parse(&redirect_uri).unwrap();
+                redirect_uri
+                    .query_pairs_mut()
+                    .append_pair("error", error_body.error.to_string().as_str());
+                if let Some(state) = error_body.state {
+                    redirect_uri.query_pairs_mut().append_pair("state", &state);
+                }
+                return response_redirect(redirect_uri.as_str());
+            }
+            OidcFlow::Implicit => {
+                let redirect_uri = err.redirect_uri.unwrap();
+                let error_body = err.response;
+                let mut hash = String::new();
+                hash.push_str(&format!(
+                    "error={}",
+                    http::enc::url_encode::encode(error_body.error.to_string().as_str())
+                ));
+                if let Some(state) = error_body.state {
+                    hash.push_str(&format!("&state={}", http::enc::url_encode::encode(&state)))
+                }
+                return response_redirect(&format!("{redirect_uri}#{hash}"));
+            }
+        }
+    }
+
+    let result = result.unwrap();
+
+    match result.response {
+        AuthenticationResponse::Code(res) => {
+            let mut redirect_uri = Url::parse(result.redirect_uri.as_str()).unwrap();
+
+            redirect_uri
+                .query_pairs_mut()
+                .append_pair("code", &res.code);
+            if let Some(ref state) = res.state {
+                redirect_uri.query_pairs_mut().append_pair("state", state);
+            }
+            return response_redirect(redirect_uri.as_str());
+        }
+        AuthenticationResponse::Implicit(res) => {
+            let mut hash = String::new();
+
+            hash.push_str(&format!(
+                "id_token={}",
+                http::enc::url_encode::encode(&res.id_token)
+            ));
+            if let Some(ref state) = res.state {
+                hash.push_str(&format!("&state={}", http::enc::url_encode::encode(state)));
+            }
+
+            let redirect_uri = format!("{}#{}", result.redirect_uri, hash);
+            return response_redirect(redirect_uri.as_str());
+        }
     }
 }

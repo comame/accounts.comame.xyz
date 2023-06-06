@@ -6,6 +6,7 @@ use crate::db::redis;
 
 const REDIS_PREFIX: &str = "relying_party_state:";
 
+/// 外部アカウント連携で必要な状態を保存しておく
 #[derive(Serialize, Deserialize)]
 pub struct RelyingPartyState {
     /// `AuthenticationFlowState.id` と同じ。Authorization Request 以外から飛んでくることはありえないため
@@ -18,7 +19,6 @@ pub struct RelyingPartyState {
 
 impl RelyingPartyState {
     pub fn save(v: &Self) {
-        let v = v.clone();
         let redis_key = format!("{REDIS_PREFIX}{}", v.state_id);
         let redis_value = to_string(&v).unwrap();
 

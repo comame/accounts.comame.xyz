@@ -1,9 +1,11 @@
 export type apis = {
     "/api/signin-password": [passwordRequest, passwordResponse]
-    "/api/signin-session": [requestBase, sessionResponse]
-    "/api/signin-continue": [continueRequest, continueResponse],
-    "/api/signin-continue-nointeraction-fail": [continueNoSessionRequest, continueNoSessionResponse],
-    "/signin/google": [signinRpRequest, continueResponse],
+    "/api/signin-session": [sessionLoginRequest, sessionResponse]
+    "/api/signin-continue-nointeraction-fail": [
+        continueNoSessionRequest,
+        continueNoSessionResponse
+    ]
+    "/signin/google": [signinRpRequest, continueResponse]
 }
 
 export type request<T extends keyof apis> = apis[T][0]
@@ -14,8 +16,7 @@ type sessionResponse =
           error: "bad_request" | "no_session"
       }
     | {
-          user_id: string
-          last_auth?: number
+          location: string
       }
 
 type passwordResponse =
@@ -23,14 +24,16 @@ type passwordResponse =
           error: "bad_request" | "invalid_credential"
       }
     | {
-          user_id: string
+          location: string
       }
 
-type continueResponse = {
-    error: "bad_request" | "no_permission"
-} | {
-    location: string
-}
+type continueResponse =
+    | {
+          error: "bad_request" | "no_permission"
+      }
+    | {
+          location: string
+      }
 
 type requestBase = {
     csrf_token: string
@@ -38,15 +41,13 @@ type requestBase = {
     user_agent_id: string
 }
 
+type sessionLoginRequest = {
+    state_id: string
+} & requestBase
+
 type passwordRequest = {
     user_id: string
     password: string
-} & requestBase
-
-type authenticationMethod = "password" | "google" | "session" | "content"
-
-type continueRequest = {
-    login_type: authenticationMethod
     state_id: string
 } & requestBase
 
@@ -54,13 +55,15 @@ type continueNoSessionRequest = {
     state_id: string
 } & requestBase
 
-type continueNoSessionResponse = {
-    error: "bad_request"
-} | {
-    location: string
-}
+type continueNoSessionResponse =
+    | {
+          error: "bad_request"
+      }
+    | {
+          location: string
+      }
 
 type signinRpRequest = {
-    state_id: string,
-    user_agent_id: string,
+    state_id: string
+    user_agent_id: string
 }

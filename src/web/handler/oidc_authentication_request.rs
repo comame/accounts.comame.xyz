@@ -4,6 +4,7 @@ use http::query_builder::QueryBuilder;
 use http::request::{Method, Request};
 use http::response::Response;
 
+use crate::auth::session;
 use crate::data::oidc_flow::authentication_flow_state::LoginRequirement;
 use crate::data::oidc_flow::authentication_request::AuthenticationRequest;
 use crate::oidc::authentication_request::pre_authenticate;
@@ -17,7 +18,7 @@ fn response_bad_request() -> Response {
     response
 }
 
-fn redirect(url: &str) -> Response {
+fn response_redirect(url: &str) -> Response {
     let mut response = Response::new();
     response.status = 302;
     response
@@ -56,7 +57,10 @@ pub fn handler(req: &Request) -> Response {
         return response_bad_request();
     }
 
-    let result = pre_authenticate(authentication_request.unwrap());
+    let body = authentication_request.unwrap();
+    let client_id = body.client_id.clone();
+
+    let result = pre_authenticate(body);
 
     if let Err(err) = result {
         if err.redirect_uri.is_none() {
@@ -74,25 +78,40 @@ pub fn handler(req: &Request) -> Response {
             query.append("state", &state);
         }
 
-        return redirect(&format!("{redirect_url}?{}", query.build()));
+        return response_redirect(&format!("{redirect_url}?{}", query.build()));
     }
 
     // 正常系
     let state = result.unwrap();
     let sid = &state.id();
     let cid = http::enc::url_encode::encode(&state.relying_party_id);
-    let uri = match state.login_requirement {
-        LoginRequirement::Consent => format!("/confirm?sid={sid}&cid={}", cid),
-        LoginRequirement::ReAuthenticate => format!("/reauthenticate?sid={sid}&cid={}", cid),
+
+    let signin_url = format!("/signin?sid={sid}&cid={cid}");
+
+    let session_key = req.cookies.get("Session");
+    if session_key.is_none() {
+        return response_redirect(&signin_url);
+    }
+    let session_key = session_key.unwrap();
+
+    let session = session::authenticate(&client_id, session_key);
+    if session.is_none() {
+        return response_redirect(&signin_url);
+    }
+    let session = session.unwrap();
+
+    let confirm_url = format!("/confirm?sid={sid}&cid={cid}&u={}", session.id);
+    let reauthenticate_url = format!("/reauthenticate?sid={sid}&cid={cid}&u={}", session.id);
+
+    match state.login_requirement {
+        LoginRequirement::Consent => response_redirect(&confirm_url),
+        LoginRequirement::ReAuthenticate => response_redirect(&reauthenticate_url),
         LoginRequirement::MaxAge => {
-            format!(
-                "/signin?sid={sid}&age={}&cid={}#maxage",
-                state.max_age.unwrap(),
-                cid
-            )
+            unimplemented!();
         }
-        LoginRequirement::None => format!("/signin?sid={sid}&cid={}#nointeraction", cid),
-        LoginRequirement::Any => format!("/signin?sid={sid}&cid={}", cid),
-    };
-    redirect(&uri)
+        LoginRequirement::None => {
+            unimplemented!("nointaeraction を実装");
+        }
+        LoginRequirement::Any => response_redirect(&confirm_url),
+    }
 }

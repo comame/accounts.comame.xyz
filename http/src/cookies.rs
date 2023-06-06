@@ -5,6 +5,7 @@ use std::fmt::Display;
 use for_test::CookieOptions;
 
 /// Cookie ヘッダの値をパースする
+#[allow(clippy::result_unit_err)]
 pub fn parse(header_value: &str) -> Result<HashMap<String, String>, ()> {
     let mut map = HashMap::new();
 
@@ -157,13 +158,14 @@ pub mod for_test {
     }
 
     /// Set-Cookie の値をパースして (key, value) を返す
+    #[allow(clippy::result_unit_err)]
     pub fn parse_set_cookie(header_value: &str) -> Result<(String, String, CookieOptions), ()> {
         let directives: Vec<&str> = header_value.split(';').map(|str| str.trim()).collect();
         if directives.is_empty() {
             return Err(());
         }
 
-        let cookie = parse(directives.get(0).unwrap());
+        let cookie = parse(directives.first().unwrap());
         if cookie.is_err() {
             return Err(());
         }
@@ -175,7 +177,7 @@ pub mod for_test {
         let header = cookie.keys().next().unwrap().to_string();
         let value = cookie.get(&header).unwrap().to_string();
 
-        let directives: Vec<&str> = directives[1..].iter().map(|&s| s.into()).collect();
+        let directives: Vec<&str> = directives[1..].into();
 
         let mut opt = CookieOptions {
             max_age: None,
@@ -190,7 +192,7 @@ pub mod for_test {
             if key_value.len() > 2 {
                 return Err(());
             }
-            let key = key_value.get(0).cloned().unwrap();
+            let key = key_value.first().cloned().unwrap();
             let value = key_value.get(1).cloned();
 
             match key.to_lowercase().as_str() {

@@ -39,7 +39,6 @@ pub fn handle(req: &Request) -> Response {
 
     if let Err(error) = result {
         let message = match error {
-            ErrorReason::InsufficientScope => "insufficient_scope",
             ErrorReason::InvalidToken => "invalid_token",
         };
         return response_error(message);

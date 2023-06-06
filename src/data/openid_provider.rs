@@ -1,9 +1,7 @@
 use std::fmt::Display;
 
-use serde::{
-    de::{self, Visitor},
-    Deserialize, Serialize,
-};
+use serde::de::{self, Visitor};
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum OpenIDProvider {

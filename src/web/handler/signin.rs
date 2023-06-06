@@ -1,14 +1,15 @@
 use http::request::Request;
 use http::response::Response;
-use serde_json::{from_str, to_string};
+use serde_json::from_str;
 
 use crate::auth::session::{self, create_session};
 use crate::auth::{csrf_token, password};
-use crate::data::authentication::{Authentication, LoginPrompt};
+use crate::data::authentication::{AuthenticationMethod, LoginPrompt};
+use crate::data::authentication_failure::{AuthenticationFailure, AuthenticationFailureReason};
+use crate::data::role_access::RoleAccess;
+use crate::oidc::authentication_request::{post_authentication, response_post_authentication};
 use crate::web::data::password_sign_in_request::PasswordSignInRequest;
-use crate::web::data::password_sign_in_response::PasswordSignInResponse;
 use crate::web::data::session_sign_in_request::SessionSignInRequest;
-use crate::web::data::session_sign_in_response::SessionSignInResponse;
 use crate::web::static_file;
 
 #[inline]
@@ -76,7 +77,7 @@ pub fn sign_in_with_password(req: &Request, remote_addr: &str) -> Response {
         &ua_id,
         remote_addr,
     );
-    let is_token_collect = csrf_token::validate_keep_token(&token);
+    let is_token_collect = csrf_token::validate_once(&token);
 
     if !is_authenticated {
         return response_invalid_credential();
@@ -86,18 +87,37 @@ pub fn sign_in_with_password(req: &Request, remote_addr: &str) -> Response {
         return response_bad_request();
     }
 
-    let session = create_session(&user_id).unwrap();
-    let body = PasswordSignInResponse::new(user_id.as_str());
+    let is_accessible = RoleAccess::is_accessible(&user_id, &audience);
+    if !is_accessible {
+        AuthenticationFailure::new(
+            &user_id,
+            &AuthenticationMethod::Session,
+            &AuthenticationFailureReason::NoUserBinding,
+            remote_addr,
+        );
+        dbg!("invalid");
+        return response_bad_request();
+    }
 
-    let mut res = Response::new();
-    res.body = Some(to_string(&body).unwrap());
+    let result = post_authentication(
+        &user_id,
+        &request.state_id,
+        &audience,
+        &ua_id,
+        AuthenticationMethod::Password,
+        remote_addr,
+    );
+
+    let mut res = response_post_authentication(result);
+
+    let session = create_session(&user_id).unwrap();
     res.cookies
         .push(http::cookies::build("Session", &session.token).build());
 
     res
 }
 
-pub fn sign_in_with_session(req: &Request) -> Response {
+pub fn sign_in_with_session(req: &Request, remote_address: &str) -> Response {
     let req = req.clone();
 
     let cookie_map = req.cookies;
@@ -119,12 +139,7 @@ pub fn sign_in_with_session(req: &Request) -> Response {
         }
     };
 
-    let user = session::authenticate(
-        &request.relying_party_id,
-        session_token.unwrap(),
-        false,
-        &request.user_agent_id,
-    );
+    let user = session::authenticate(&request.relying_party_id, session_token.unwrap());
 
     if user.is_none() {
         return response_no_session();
@@ -132,20 +147,32 @@ pub fn sign_in_with_session(req: &Request) -> Response {
 
     let user = user.unwrap();
 
-    let latest_authentication = Authentication::latest(&user.id, &request.user_agent_id);
-
-    let csrf_token_correct = csrf_token::validate_keep_token(&request.csrf_token);
+    let csrf_token_correct = csrf_token::validate_once(&request.csrf_token);
 
     if !csrf_token_correct {
         return response_bad_request();
     }
 
-    let body = SessionSignInResponse {
-        user_id: user.id,
-        last_auth: latest_authentication.map(|auth| auth.authenticated_at),
-    };
+    let is_accessible = RoleAccess::is_accessible(&user.id, &request.relying_party_id);
+    if !is_accessible {
+        AuthenticationFailure::new(
+            &user.id,
+            &AuthenticationMethod::Session,
+            &AuthenticationFailureReason::NoUserBinding,
+            remote_address,
+        );
+        dbg!("invalid");
+        return response_bad_request();
+    }
 
-    let mut res = Response::new();
-    res.body = Some(to_string(&body).unwrap());
-    res
+    let result = post_authentication(
+        &user.id,
+        &request.state_id,
+        &request.relying_party_id,
+        &request.user_agent_id,
+        AuthenticationMethod::Session,
+        remote_address,
+    );
+
+    response_post_authentication(result)
 }

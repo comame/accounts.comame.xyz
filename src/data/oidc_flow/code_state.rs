@@ -1,7 +1,8 @@
 use serde::{Deserialize, Serialize};
 
 use super::oidc_scope::Scopes;
-use crate::{crypto::rand::random_str, data::openid_provider::OpenIDProvider};
+use crate::crypto::rand::random_str;
+use crate::data::openid_provider::OpenIDProvider;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CodeState {

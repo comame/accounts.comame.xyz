@@ -1,6 +1,5 @@
-use crate::db::op_user::OpUserDb;
-
 use super::openid_provider::OpenIDProvider;
+use crate::db::op_user::OpUserDb;
 
 pub struct OpUser {
     pub user_id: String,

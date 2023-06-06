@@ -7,6 +7,12 @@ pub struct QueryBuilder {
     value: HashMap<String, String>,
 }
 
+impl Default for QueryBuilder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl QueryBuilder {
     pub fn new() -> Self {
         Self {
@@ -36,7 +42,7 @@ impl QueryBuilder {
         for key in keys {
             let value = self.value.get(&key).unwrap();
             if value.is_empty() {
-                query.push(format!("{key}"));
+                query.push(key.to_string());
             } else {
                 query.push(format!("{key}={}", url_encode::encode(value)));
             }

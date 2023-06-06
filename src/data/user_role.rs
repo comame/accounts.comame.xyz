@@ -1,6 +1,5 @@
-use crate::db::user_role::UserRoleDb;
-
 use super::role::Role;
+use crate::db::user_role::UserRoleDb;
 
 pub struct UserRole {
     pub user_id: String,

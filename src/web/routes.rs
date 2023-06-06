@@ -20,14 +20,10 @@ pub async fn routes(hyper_request: HyperRequest<Body>) -> HyperResponse<Body> {
         (Method::Post, "/api/signin-password") => {
             handler::signin::sign_in_with_password(&req, &remote_address)
         }
-        (Method::Post, "/api/signin-session") => handler::signin::sign_in_with_session(&req),
+        (Method::Post, "/api/signin-session") => {
+            handler::signin::sign_in_with_session(&req, &remote_address)
+        }
         (Method::Get, "/signout") => handler::signout::signout(&req),
-        (Method::Post, "/api/signin-continue") => {
-            handler::signin_continue::handler(&req, &remote_address)
-        }
-        (Method::Post, "/api/signin-continue-nointeraction-fail") => {
-            handler::signin_continue::no_interaction_fail(&req)
-        }
         (Method::Get, "/authenticate") => handler::oidc_authentication_request::handler(&req),
         (Method::Post, "/authenticate") => handler::oidc_authentication_request::handler(&req),
         (Method::Post, "/code") => handler::oidc_code_request::handle(&req),

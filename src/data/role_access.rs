@@ -7,7 +7,7 @@ pub struct RoleAccess {
 
 impl RoleAccess {
     pub fn new(role: &str, relying_party_id: &str) -> Self {
-        RoleAccessDb::new(role, relying_party_id);
+        RoleAccessDb::create(role, relying_party_id);
         Self {
             role: role.into(),
             relying_party_id: relying_party_id.into(),
@@ -15,6 +15,6 @@ impl RoleAccess {
     }
 
     pub fn is_accessible(user_id: &str, relying_party_id: &str) -> bool {
-        RoleAccessDb::is_accessable(user_id, relying_party_id)
+        RoleAccessDb::is_accessible(user_id, relying_party_id)
     }
 }
