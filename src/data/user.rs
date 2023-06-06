@@ -1,7 +1,7 @@
 use super::user_role::UserRole;
 use crate::auth::session::revoke_session_by_user_id;
 use crate::db::user::{find_user_by_id, insert_user};
-use crate::db::user_password::{remove_password};
+use crate::db::user_password::remove_password;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct User {

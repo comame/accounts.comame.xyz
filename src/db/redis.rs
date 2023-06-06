@@ -1,5 +1,5 @@
-use std::sync::Mutex;
-use std::{env, sync::OnceLock};
+use std::env;
+use std::sync::{Mutex, OnceLock};
 
 use redis::{Client, Commands, Connection};
 

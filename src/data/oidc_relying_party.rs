@@ -1,12 +1,6 @@
-
-
 use serde::Serialize;
 
-
-
-use crate::db::relying_party::{
-    find_relying_party_by_id,
-};
+use crate::db::relying_party::find_relying_party_by_id;
 
 #[derive(Eq, PartialEq, Debug, Serialize)]
 pub struct RelyingParty {
