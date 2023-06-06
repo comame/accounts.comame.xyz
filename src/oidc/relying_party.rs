@@ -515,8 +515,8 @@ pub async fn callback(
         userinfo_response.sub = op_user.user_id.clone();
         UserInfo::insert(&userinfo_response);
 
-        let is_accessable_user = RoleAccess::is_accessible(&op_user.user_id, &relying_party_id);
-        if !is_accessable_user {
+        let is_accessible_user = RoleAccess::is_accessible(&op_user.user_id, &relying_party_id);
+        if !is_accessible_user {
             AuthenticationFailure::new(
                 &op_user.user_id,
                 &crate::data::authentication::AuthenticationMethod::Session,

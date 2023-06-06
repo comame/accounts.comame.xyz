@@ -87,8 +87,8 @@ pub fn sign_in_with_password(req: &Request, remote_addr: &str) -> Response {
         return response_bad_request();
     }
 
-    let is_accessable = RoleAccess::is_accessible(&user_id, &audience);
-    if !is_accessable {
+    let is_accessible = RoleAccess::is_accessible(&user_id, &audience);
+    if !is_accessible {
         AuthenticationFailure::new(
             &user_id,
             &AuthenticationMethod::Session,
@@ -153,8 +153,8 @@ pub fn sign_in_with_session(req: &Request, remote_address: &str) -> Response {
         return response_bad_request();
     }
 
-    let is_accessable = RoleAccess::is_accessible(&user.id, &request.relying_party_id);
-    if !is_accessable {
+    let is_accessible = RoleAccess::is_accessible(&user.id, &request.relying_party_id);
+    if !is_accessible {
         AuthenticationFailure::new(
             &user.id,
             &AuthenticationMethod::Session,

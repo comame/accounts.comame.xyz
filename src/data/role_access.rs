@@ -15,6 +15,6 @@ impl RoleAccess {
     }
 
     pub fn is_accessible(user_id: &str, relying_party_id: &str) -> bool {
-        RoleAccessDb::is_accessable(user_id, relying_party_id)
+        RoleAccessDb::is_accessible(user_id, relying_party_id)
     }
 }
