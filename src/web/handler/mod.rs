@@ -7,4 +7,3 @@ pub mod signin;
 pub mod signin_google;
 pub mod signout;
 pub mod static_file;
-pub mod tools_id_token;

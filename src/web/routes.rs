@@ -34,7 +34,6 @@ pub async fn routes(hyper_request: HyperRequest<Body>) -> HyperResponse<Body> {
         }
         (Method::Get, "/.well-known/openid-configuration") => handler::discovery::handle_config(),
         (Method::Get, "/certs") => handler::discovery::handle_certs(),
-        (Method::Post, "/tools/id-token") => handler::tools_id_token::handle(&req),
         _ => handler::static_file::handler(&req),
     };
 

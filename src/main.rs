@@ -20,7 +20,6 @@ mod crypto;
 mod data;
 mod db;
 mod enc;
-mod external;
 mod mail;
 mod oidc;
 mod time;
