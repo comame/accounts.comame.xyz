@@ -426,7 +426,7 @@ pub async fn callback(
     };
 
     let user_id = match op {
-        OpenIDProvider::Google => format!("google:{user_id}"),
+        OpenIDProvider::Google => format!("{user_id}@accounts.google.com"),
     };
 
     let saved_state = AuthenticationFlowState::get_keep(state_id);
