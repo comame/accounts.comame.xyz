@@ -340,6 +340,8 @@ pub async fn callback(
         });
     }
 
+    // id_token に含まれるクレームの検証
+
     let claim = claim.unwrap().claims;
 
     if claim.iss != "https://accounts.google.com" {
@@ -481,33 +483,6 @@ pub async fn callback(
     }
     let mut userinfo_response = userinfo_response.unwrap();
 
-    let user_exists = User::find(&user_id).is_some();
-    if !user_exists {
-        let result = User::new(&user_id);
-        if result.is_err() {
-            dbg!("invalid");
-            return Err(AuthenticationError {
-                client_id: relying_party_id,
-                redirect_uri: None,
-                flow: None,
-                response: AuthenticationErrorResponse {
-                    error: ErrorCode::ServerError,
-                    state: None,
-                },
-            });
-        }
-
-        let role_exists = Role::get(&op.to_string()).is_some();
-        if !role_exists {
-            Role::new(&op.to_string());
-        }
-
-        UserRole::new(&user_id, &op.to_string()).unwrap();
-    }
-
-    userinfo_response.sub = user_id.clone(); // OP ごとの prefix 付きのものに差し替える
-    UserInfo::insert(&userinfo_response);
-
     let op_user = OpUser::get(&claim.sub, OpenIDProvider::Google);
     if let Some(op_user) = op_user {
         // 既存のユーザーに対して紐づけがある場合
@@ -550,6 +525,33 @@ pub async fn callback(
         )
     } else {
         // 紐づけがない場合
+        let user_exists = User::find(&user_id).is_some();
+        if !user_exists {
+            let result = User::new(&user_id);
+            if result.is_err() {
+                dbg!("invalid");
+                return Err(AuthenticationError {
+                    client_id: relying_party_id,
+                    redirect_uri: None,
+                    flow: None,
+                    response: AuthenticationErrorResponse {
+                        error: ErrorCode::ServerError,
+                        state: None,
+                    },
+                });
+            }
+
+            let role_exists = Role::get(&op.to_string()).is_some();
+            if !role_exists {
+                Role::new(&op.to_string());
+            }
+
+            UserRole::new(&user_id, &op.to_string()).unwrap();
+        }
+
+        userinfo_response.sub = user_id.clone(); // OP ごとの prefix 付きのものに差し替える
+        UserInfo::insert(&userinfo_response);
+
         if !RoleAccess::is_accessible(&user_id, &relying_party_id) {
             dbg!("invalid");
             return Err(AuthenticationError {
