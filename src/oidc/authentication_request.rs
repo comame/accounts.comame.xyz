@@ -20,7 +20,10 @@ use crate::data::oidc_flow::error_code::ErrorCode;
 use crate::data::oidc_flow::id_token_claim::IdTokenClaim;
 use crate::data::oidc_relying_party::RelyingParty;
 use crate::data::openid_provider::OpenIDProvider;
+use crate::data::role::Role;
 use crate::data::rsa_keypair::RsaKeypair;
+use crate::data::user::User;
+use crate::data::user_role::UserRole;
 use crate::time::now;
 
 #[derive(Debug)]
@@ -266,6 +269,9 @@ pub fn post_authentication(
         });
     }
 
+    let roles = UserRole::list(user_id);
+    let roles = roles.iter().map(|r| r.role.clone()).collect();
+
     let mut claim = IdTokenClaim {
         iss: env::var("HOST").unwrap(),
         sub: user_id.into(),
@@ -280,6 +286,7 @@ pub fn post_authentication(
         preferred_username: None,
         profile: None,
         picture: None,
+        roles: Some(roles),
     };
 
     if state.scopes.has("email") {

@@ -34,4 +34,17 @@ impl UserRoleDb {
             .unwrap();
         result.0 != 0
     }
+
+    pub fn findByUserId(user_id: &str) -> Vec<String> {
+        get_conn()
+            .unwrap()
+            .exec_map(
+                "SELECT role FROM user_role WHERE user_id=:user_id",
+                params! {
+                    "user_id" => user_id.to_string(),
+                },
+                |(role,)| role,
+            )
+            .unwrap()
+    }
 }

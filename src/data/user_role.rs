@@ -23,4 +23,15 @@ impl UserRole {
     pub fn exists(&self) -> bool {
         UserRoleDb::exists(self)
     }
+
+    pub fn list(user_id: &str) -> Vec<UserRole> {
+        let roles = UserRoleDb::findByUserId(user_id);
+        roles
+            .iter()
+            .map(|role| UserRole {
+                user_id: user_id.to_string(),
+                role: role.to_string(),
+            })
+            .collect()
+    }
 }
