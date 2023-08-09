@@ -11,7 +11,6 @@ pub mod relying_party;
 pub mod role;
 pub mod role_access;
 pub mod rsa_keypair;
-pub mod session;
 pub mod user;
 pub mod user_password;
 pub mod user_role;

@@ -4,7 +4,6 @@ use http::query_builder::QueryBuilder;
 use http::request::{Method, Request};
 use http::response::Response;
 
-use crate::auth::session;
 use crate::data::oidc_flow::authentication_flow_state::LoginRequirement;
 use crate::data::oidc_flow::authentication_request::AuthenticationRequest;
 use crate::oidc::authentication_request::pre_authenticate;
@@ -58,7 +57,6 @@ pub fn handler(req: &Request) -> Response {
     }
 
     let body = authentication_request.unwrap();
-    let client_id = body.client_id.clone();
 
     let result = pre_authenticate(body);
 
@@ -88,30 +86,5 @@ pub fn handler(req: &Request) -> Response {
 
     let signin_url = format!("/signin?sid={sid}&cid={cid}");
 
-    let session_key = req.cookies.get("Session");
-    if session_key.is_none() {
-        return response_redirect(&signin_url);
-    }
-    let session_key = session_key.unwrap();
-
-    let session = session::authenticate(&client_id, session_key);
-    if session.is_none() {
-        return response_redirect(&signin_url);
-    }
-    let session = session.unwrap();
-
-    let confirm_url = format!("/confirm?sid={sid}&cid={cid}&u={}", session.id);
-    let reauthenticate_url = format!("/reauthenticate?sid={sid}&cid={cid}&u={}", session.id);
-
-    match state.login_requirement {
-        LoginRequirement::Consent => response_redirect(&confirm_url),
-        LoginRequirement::ReAuthenticate => response_redirect(&reauthenticate_url),
-        LoginRequirement::MaxAge => {
-            unimplemented!();
-        }
-        LoginRequirement::None => {
-            unimplemented!("nointaeraction を実装");
-        }
-        LoginRequirement::Any => response_redirect(&confirm_url),
-    }
+    return response_redirect(&signin_url);
 }

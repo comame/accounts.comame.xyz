@@ -1,4 +1,3 @@
-use super::session::revoke_session_by_user_id;
 use crate::crypto::sha::sha256;
 use crate::data::authentication::{Authentication, AuthenticationMethod, LoginPrompt};
 use crate::data::authentication_failure::{AuthenticationFailure, AuthenticationFailureReason};
@@ -22,8 +21,6 @@ pub fn set_password(user_id: &str, password: &str) {
     if !user_exists {
         return;
     }
-
-    revoke_session_by_user_id(user_id);
 
     if password.is_empty() {
         return;

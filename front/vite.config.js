@@ -10,8 +10,6 @@ export default defineConfig(({ mode }) => ({
         rollupOptions: {
             input: {
                 signin: resolve(__dirname, "./src/signin.html"),
-                reauthenticate: resolve(__dirname, "./src/reauthenticate.html"),
-                confirm: resolve(__dirname, "./src/confirm.html"),
             },
         },
     },
