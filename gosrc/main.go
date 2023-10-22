@@ -40,7 +40,7 @@ func main() {
 	router.Get("/userinfo", tmpNotFound)
 	router.Post("/userinfo", tmpNotFound)
 	router.Get("/.well-known/openid-configuration", tmpNotFound)
-	router.Get("/certs", tmpNotFound)
+	router.Get("/certs", handle_GET_certs)
 
 	router.Post("/signin/google", tmpNotFound)
 	router.Post("/api/signin-password", handle_GET_apiSigninPassword)
@@ -161,6 +161,17 @@ func handle_GET_apiSigninPassword(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Location", loc)
 	w.WriteHeader(http.StatusFound)
+}
+
+func handle_GET_certs(w http.ResponseWriter, _ *http.Request) {
+	js, err := oidc.GetDiscoveryCertsJSON()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		io.WriteString(w, "Internal Server Error")
+		return
+	}
+
+	w.Write(js)
 }
 
 func handle_GET_rest(w http.ResponseWriter, r *http.Request) {

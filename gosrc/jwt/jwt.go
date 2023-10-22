@@ -35,6 +35,10 @@ type JWT struct {
 	Payload Payload
 }
 
+type JWK struct {
+	Keys []JWKKey `json:"keys"`
+}
+
 type JWKKey struct {
 	N   string `json:"n"`
 	E   string `json:"e"`
@@ -204,8 +208,8 @@ func DecodeJWK(key JWKKey) (*rsa.PublicKey, error) {
 
 }
 
-func EncodeToJWK(privKey *rsa.PublicKey, kid string) (*JWKKey, error) {
-	if privKey.Size() != 256 {
+func EncodeToJWK(pubkey *rsa.PublicKey, kid string) (*JWKKey, error) {
+	if pubkey.Size() != 256 {
 		return nil, errors.New("unsupported alg")
 	}
 
@@ -216,9 +220,9 @@ func EncodeToJWK(privKey *rsa.PublicKey, kid string) (*JWKKey, error) {
 		Use: "sig",
 	}
 
-	e := new(big.Int).SetInt64(int64(privKey.E))
+	e := new(big.Int).SetInt64(int64(pubkey.E))
 
-	k.N = base64.RawURLEncoding.EncodeToString(privKey.N.Bytes())
+	k.N = base64.RawURLEncoding.EncodeToString(pubkey.N.Bytes())
 	k.E = base64.RawURLEncoding.EncodeToString(e.Bytes())
 
 	return k, nil
