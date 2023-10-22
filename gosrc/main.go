@@ -103,6 +103,7 @@ type req_GET_apiSigninPassword struct {
 func handle_GET_apiSigninPassword(w http.ResponseWriter, r *http.Request) {
 	b, err := io.ReadAll(r.Body)
 	if err != nil {
+		log.Println("failed to read request body")
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `"{"error": "bad_request" }`)
 		return
@@ -110,6 +111,7 @@ func handle_GET_apiSigninPassword(w http.ResponseWriter, r *http.Request) {
 
 	var req req_GET_apiSigninPassword
 	if err := json.Unmarshal(b, &req); err != nil {
+		log.Println("failed to parse json")
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `"{"error": "bad_request" }`)
 		return
@@ -117,11 +119,13 @@ func handle_GET_apiSigninPassword(w http.ResponseWriter, r *http.Request) {
 
 	passOk, err := auth.AuthenticateByPassword(r.Context(), req.UserId, req.Password, req.RelyingPartyID, req.UserAgentID)
 	if err != nil {
+		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{ "error": "bad_request" }`)
 		return
 	}
 	if !passOk {
+		log.Println("パスワードが違う")
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{ "error": "invalid_credential" }`)
 		return
@@ -129,16 +133,34 @@ func handle_GET_apiSigninPassword(w http.ResponseWriter, r *http.Request) {
 
 	roleOk, err := auth.Authorized(req.UserId, req.RelyingPartyID)
 	if err != nil {
+		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{ "error": "bad_request" }`)
 		return
 	}
 	if !roleOk {
+		log.Println("権限がない")
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{ "error": "unauthorized" }`)
 	}
 
-	// TODO: post_authentication
+	ar, err := oidc.PostAuthentication(req.UserId, req.StateID, req.RelyingPartyID, req.UserAgentID, auth.AuthenticationMethodPassword)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		io.WriteString(w, `{ "error": "bad_request" }`)
+		return
+	}
+	loc, err := oidc.CreateRedirectURLFromAuthenticationResponse(ar)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		io.WriteString(w, `{ "error": "bad_request" }`)
+		return
+	}
+
+	w.Header().Add("Location", loc)
+	w.WriteHeader(http.StatusFound)
 }
 
 func handle_GET_rest(w http.ResponseWriter, r *http.Request) {

@@ -1,0 +1,97 @@
+package oidc
+
+import (
+	"errors"
+	"time"
+
+	"github.com/comame/accounts.comame.xyz/auth"
+	"github.com/comame/accounts.comame.xyz/db"
+	"github.com/comame/accounts.comame.xyz/jwt"
+	"github.com/comame/accounts.comame.xyz/kvs"
+	"github.com/comame/accounts.comame.xyz/random"
+)
+
+// IDToken を発行する。sub が確定したのち呼ぶ。
+func PostAuthentication(
+	sub, stateID, aud, userAgentID string,
+	loginType auth.AuthenticationMethod,
+) (*AuthenticationResponse, error) {
+	state, err := kvs.AuthenticationFlowState_get(stateID)
+	if err != nil {
+		return nil, err
+	}
+	kvs.AuthenticationFlowState_delete(stateID)
+
+	// TODO: userAgentID を使う？
+
+	if state.RelyingPartyID != aud {
+		return nil, errors.New("RelyingPartyID mismatch")
+	}
+
+	// TODO: ロールを取得する
+
+	now := time.Now().Unix()
+
+	// TODO: auth_at に対応する
+	// TODO: email, email_verified, name, preferred_username, profile, picture に対応する
+	claim := jwt.Payload{
+		Iss:   "https://accounts.comame.xyz",
+		Sub:   sub,
+		Aud:   state.RedirectURI,
+		Iat:   now,
+		Exp:   now + int64(5*60),
+		Roles: []string{},
+	}
+	if state.Nonce != "" {
+		claim.Nonce = state.Nonce
+	}
+
+	kp, err := db.RSAKeypair_get()
+	if err != nil {
+		return nil, err
+	}
+	priv, err := jwt.DecodeRSAPrivKeyPem(kp.Private)
+	if err != nil {
+		return nil, err
+	}
+	token, err := jwt.EncodeJWT(jwt.Header{
+		Alg: "RS256",
+		Typ: "JWT",
+	}, claim, priv)
+	if err != nil {
+		return nil, err
+	}
+
+	flow := Flow(state.Flow)
+	switch flow {
+	case FlowCode:
+		code, err := random.String(32)
+		if err != nil {
+			return nil, err
+		}
+		if err := kvs.CodeState_save(code, aud, sub, token, state.Scopes, state.RedirectURI); err != nil {
+			return nil, err
+		}
+		res := &AuthenticationResponse{
+			Code:        code,
+			Flow:        FlowCode,
+			RedirectURI: state.RedirectURI,
+		}
+		if state.State != "" {
+			res.State = state.State
+		}
+		return res, nil
+	case FlowImplicit:
+		res := &AuthenticationResponse{
+			IDToken:     token,
+			Flow:        FlowImplicit,
+			RedirectURI: state.RedirectURI,
+		}
+		if state.State != "" {
+			res.State = state.State
+		}
+		return res, nil
+	default:
+		return nil, errors.New("invalid state")
+	}
+}

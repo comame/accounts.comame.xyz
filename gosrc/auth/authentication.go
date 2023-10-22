@@ -19,8 +19,9 @@ func CreateAuthentication(
 	method AuthenticationMethod,
 	authenticatedAt int64,
 ) error {
-	now := time.Now().Unix()
-	if err := db.Authentication_insertInTransaction(tx, aud, sub, userAgentID, string(method), now, authenticatedAt); err != nil {
+	now := time.Now().Format(db.DatetimeFormat)
+	at := time.Unix(authenticatedAt, 0).Format(db.DatetimeFormat)
+	if err := db.Authentication_insertInTransaction(tx, aud, sub, userAgentID, string(method), now, at); err != nil {
 		return err
 	}
 	return nil

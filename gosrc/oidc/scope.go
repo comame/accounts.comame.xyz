@@ -7,7 +7,7 @@ import (
 )
 
 // scopes が target を満たすかどうかを返す
-func scopeWithin(scopes, target string) bool {
+func hasScope(scopes, target string) bool {
 	a := strings.Split(scopes, " ")
 	b := strings.Split(target, " ")
 

@@ -51,7 +51,7 @@ func PreAuthenticate(req AuthenticationRequest) (string, error) {
 	}
 
 	// TODO: 元のコードが openid profile email となっている
-	if !scopeWithin(req.Scope, "openid") {
+	if !hasScope(req.Scope, "openid") {
 		return "", throw(AuthenticationErrInvalidScope, true)
 	}
 

@@ -5,8 +5,8 @@ import "database/sql"
 func Authentication_insertInTransaction(
 	con *sql.Tx,
 	aud, sub, userAgentID, method string,
-	createdAt int64,
-	authenticatedAt int64,
+	createdAt string,
+	authenticatedAt string,
 ) error {
 	if _, err := con.Exec(`
 		INSERT INTO authentications

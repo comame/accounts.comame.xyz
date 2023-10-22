@@ -47,3 +47,23 @@ func AuthenticationFlowState_save(
 
 	return id, nil
 }
+
+func AuthenticationFlowState_get(id string) (*authenticationFlowState, error) {
+	key := fmt.Sprintf("%s:%s", "AUTH_FLOW_STATE", id)
+	s, err := Get(context.Background(), key)
+	if err != nil {
+		return nil, err
+	}
+
+	var v authenticationFlowState
+	if err := json.Unmarshal([]byte(s), &v); err != nil {
+		return nil, err
+	}
+
+	return &v, nil
+}
+
+func AuthenticationFlowState_delete(id string) {
+	key := fmt.Sprintf("%s:%s", "AUTH_FLOW_STATE", id)
+	Del(context.Background(), key)
+}

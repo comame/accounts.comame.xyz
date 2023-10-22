@@ -22,8 +22,8 @@ type Payload struct {
 	Iss   string `json:"iss"`
 	Sub   string `json:"sub"`
 	Aud   string `json:"aud"`
-	Exp   uint64 `json:"exp"`
-	Iat   uint64 `json:"iat"`
+	Exp   int64  `json:"exp"`
+	Iat   int64  `json:"iat"`
 	Nonce string `json:"nonce"`
 
 	// Custom claim
