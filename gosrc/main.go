@@ -22,7 +22,7 @@ func init() {
 	}
 
 	// TODO: 環境変数から読む
-	kvs.Initialize("dev.accounts.comame.xyz", "redis.comame.dev:6379")
+	kvs.InitializeRedis("dev.accounts.comame.xyz", "redis.comame.dev:6379")
 }
 
 func main() {

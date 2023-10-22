@@ -8,40 +8,45 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-var _prefix string
-var _client *redis.Client
-
-func Initialize(prefix, host string) {
-	_prefix = prefix
-	_client = redis.NewClient(&redis.Options{
-		Addr: host,
-	})
+type redisClient struct {
+	cl *redis.Client
+	pf string
 }
 
-func Keys(ctx context.Context, pattern string) ([]string, error) {
-	keys, err := _client.Keys(ctx, _prefix+pattern).Result()
+func InitializeRedis(prefix, host string) {
+	c := redisClient{
+		cl: redis.NewClient(&redis.Options{
+			Addr: host,
+		}),
+		pf: prefix,
+	}
+	InitializeKVS(&c)
+}
+
+func (rc *redisClient) Keys(ctx context.Context, pattern string) ([]string, error) {
+	keys, err := rc.cl.Keys(ctx, rc.pf+pattern).Result()
 	if err != nil {
 		return nil, err
 	}
 
 	var trimed []string
 	for _, key := range keys {
-		prefixLen := len(_prefix)
+		prefixLen := len(rc.pf)
 		if len(key) <= prefixLen {
 			return nil, fmt.Errorf("invalid format key")
 		}
-		trimed = append(trimed, key[len(_prefix):])
+		trimed = append(trimed, key[len(rc.pf):])
 	}
 
 	return trimed, nil
 }
 
-func Set(ctx context.Context, key string, value string, expireSec uint16) error {
+func (rc *redisClient) Set(ctx context.Context, key string, value string, expireSec int64) error {
 	if expireSec <= 0 {
 		return fmt.Errorf("expireSec must larger than 0")
 	}
 
-	err := _client.Set(ctx, _prefix+key, value, time.Duration(expireSec)*time.Second).Err()
+	err := rc.cl.Set(ctx, rc.pf+key, value, time.Duration(expireSec)*time.Second).Err()
 	if err != nil {
 		return err
 	}
@@ -49,14 +54,14 @@ func Set(ctx context.Context, key string, value string, expireSec uint16) error 
 	return nil
 }
 
-func Get(ctx context.Context, key string) (string, error) {
-	v, err := _client.Get(ctx, _prefix+key).Result()
+func (rc *redisClient) Get(ctx context.Context, key string) (string, error) {
+	v, err := rc.cl.Get(ctx, rc.pf+key).Result()
 	if err != nil {
 		return "", err
 	}
 	return v, nil
 }
 
-func Del(ctx context.Context, key string) {
-	_client.Del(ctx, _prefix+key)
+func (rc *redisClient) Del(ctx context.Context, key string) {
+	rc.cl.Del(ctx, rc.pf+key)
 }
