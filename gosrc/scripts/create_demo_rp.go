@@ -10,7 +10,7 @@ func init() {
 }
 
 func CreateDemoRP(args ...string) error {
-	cs := auth.CalculatePasswordHash("demo", "demo.accounts.comame.dev")
+	cs := auth.CalculatePasswordHash("client_secret", "demo.accounts.comame.dev")
 	if err := db.RelyingParty_insert("demo.accounts.comame.dev", cs); err != nil {
 		return err
 	}

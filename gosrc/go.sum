@@ -1,7 +1,11 @@
 github.com/bsm/ginkgo/v2 v2.12.0 h1:Ny8MWAHyOepLGlLKYmXG4IEkioBysk6GpaRTLC8zwWs=
+github.com/bsm/ginkgo/v2 v2.12.0/go.mod h1:SwYbGRRDovPVboqFv0tPTcG1sN61LM1Z4ARdbAV9g4c=
 github.com/bsm/gomega v1.27.10 h1:yeMWxP2pV2fG3FgAODIY8EiRE3dy0aeFYt4l7wh6yKA=
+github.com/bsm/gomega v1.27.10/go.mod h1:JyEr/xRbxbtgWNi8tIEVPUYZ5Dzef52k01W3YH0H+O0=
 github.com/cespare/xxhash/v2 v2.2.0 h1:DC2CZ1Ep5Y4k3ZQ899DldepgrayRUGE6BBZ/cd9Cj44=
 github.com/cespare/xxhash/v2 v2.2.0/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
+github.com/comame/json-go v1.0.2 h1:mKXiLjM6mfIDkiPcuwPPyZDTfyvWmBwajSDsJN5IbDM=
+github.com/comame/json-go v1.0.2/go.mod h1:TzkZzPEjMIYzNfUuwrizaminEn3P+Cl4sHcY99tXnRo=
 github.com/comame/mysql-go v1.0.1 h1:SoBeeXC5+OURGroyh3uP4tx8jj9bbkKZ8QzUcfibpKw=
 github.com/comame/mysql-go v1.0.1/go.mod h1:ZiB2oY9HDlWJB5kIiYPN5unuf6PINe4CKvCvFIHR9Ks=
 github.com/comame/readenv-go v1.1.0 h1:EcPkZp9UatknLVbENLj7Sgtp9SiCo+Q2XVMMWr2IzuY=

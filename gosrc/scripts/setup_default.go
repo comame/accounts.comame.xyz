@@ -75,6 +75,13 @@ func SetupDefault(args ...string) error {
 		return err
 	}
 
+	if err := db.UserInfo_insert(
+		"admin",
+		`{"sub":"admin", "email":"admin@example.com", "email_verified":true, "name":"admin", "preferred_username":"admin", "profile":"https://example.com", "picture":"https://example.com"}`,
+	); err != nil {
+		return err
+	}
+
 	return nil
 }
 

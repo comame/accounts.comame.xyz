@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 
 	"github.com/comame/accounts.comame.xyz/auth"
 	"github.com/comame/accounts.comame.xyz/kvs"
@@ -54,8 +55,8 @@ func main() {
 	router.Get("/authenticate", handle_GET_authenticate)
 	router.Post("/authenticate", handle_POST_authenticate)
 	router.Post("/code", handle_POST_code)
-	router.Get("/userinfo", tmpNotFound)
-	router.Post("/userinfo", tmpNotFound)
+	router.Get("/userinfo", handle_GET_userinfo)
+	router.Post("/userinfo", handle_POST_userinfo)
 	router.Get("/.well-known/openid-configuration", handle_GET_wellknownOpenIDConfiguration)
 	router.Get("/certs", handle_GET_certs)
 
@@ -158,6 +159,14 @@ func handle_POST_code(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(j)
+}
+
+func handle_GET_userinfo(w http.ResponseWriter, r *http.Request) {
+	userinfoRequest(w, r)
+}
+
+func handle_POST_userinfo(w http.ResponseWriter, r *http.Request) {
+	userinfoRequest(w, r)
 }
 
 type req_GET_apiSigninPassword struct {
@@ -317,4 +326,61 @@ func authenticationRequest(w http.ResponseWriter, body url.Values) {
 	u := fmt.Sprintf("/signin?sid=%s&cid=%s", id, req.ClientId)
 	w.Header().Add("Location", u)
 	w.WriteHeader(http.StatusFound)
+}
+
+func userinfoRequest(w http.ResponseWriter, r *http.Request) {
+	var at string
+
+	// RFC6750 2.1
+	authHeader := r.Header.Get("Authorization")
+	if authHeader != "" {
+		if len(authHeader) < len("Bearer a") {
+			w.Header().Set("WWW-Authenticate", `Bearer error="invalid_request"`)
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		if !strings.HasPrefix(authHeader, "Bearer ") {
+			w.Header().Set("WWW-Authenticate", `Bearer error="invalid_request"`)
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		at = strings.TrimPrefix(authHeader, "Bearer ")
+	}
+
+	// RFC6750 2.3
+	q := r.URL.Query().Get("access_token")
+	if q != "" && at != "" {
+		w.Header().Set("WWW-Authenticate", `Bearer error="invalid_request"`)
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	if q != "" {
+		at = q
+	}
+
+	// RFC6750 2.1
+	if at == "" {
+		if err := r.ParseForm(); err != nil {
+			w.Header().Set("WWW-Authenticate", `Bearer error="invalid_request"`)
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		at = r.Form.Get("access_token")
+		if at == "" {
+			w.Header().Set("WWW-Authenticate", `Bearer error="invalid_request"`)
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+	}
+
+	j, err := oidc.GetUserinfoJSON(at)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Header().Set("WWW-Authenticate", `Bearer error="invalid_token"`)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(j)
 }

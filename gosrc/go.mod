@@ -3,6 +3,7 @@ go 1.21
 module github.com/comame/accounts.comame.xyz
 
 require (
+	github.com/comame/json-go v1.0.2
 	github.com/comame/mysql-go v1.0.1
 	github.com/comame/router-go v1.3.0
 	github.com/redis/go-redis/v9 v9.2.1
