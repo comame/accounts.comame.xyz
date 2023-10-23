@@ -179,8 +179,8 @@ func handle_GET_apiSigninPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Add("Location", loc)
-	w.WriteHeader(http.StatusFound)
+	// TODO: 通常のリダイレクトにしたい
+	io.WriteString(w, fmt.Sprintf(`{ "location": "%s" }`, loc))
 }
 
 func handle_GET_wellknownOpenIDConfiguration(w http.ResponseWriter, r *http.Request) {
