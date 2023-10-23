@@ -64,7 +64,10 @@ func main() {
 	router.Get("/oidc-callback/google", tmpNotFound)
 
 	router.Get("/*", handle_GET_rest)
-	router.All("/*", tmpNotFound)
+
+	router.All("/*", func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+	})
 
 	log.Println("Start http://localhost:8080")
 	http.ListenAndServe(":8080", router.Handler())
