@@ -16,11 +16,11 @@ func PostAuthentication(
 	sub, stateID, aud, userAgentID string,
 	loginType auth.AuthenticationMethod,
 ) (*AuthenticationResponse, error) {
-	state, err := kvs.AuthenticationFlowState_get(stateID)
+	state, err := kvs.LoginSession_get(stateID)
 	if err != nil {
 		return nil, err
 	}
-	kvs.AuthenticationFlowState_delete(stateID)
+	kvs.LoginSession_delete(stateID)
 
 	// TODO: userAgentID を使う？
 

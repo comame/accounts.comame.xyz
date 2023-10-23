@@ -8,7 +8,7 @@ import (
 	"github.com/comame/accounts.comame.xyz/random"
 )
 
-type authenticationFlowState struct {
+type loginSession struct {
 	ID             string `json:"id"`
 	RelyingPartyID string `json:"relying_party_id"`
 	Flow           int    `json:"flow"`
@@ -18,7 +18,7 @@ type authenticationFlowState struct {
 	Nonce          string `json:"nonce"`
 }
 
-func AuthenticationFlowState_save(
+func LoginSession_save(
 	sub, redirectURI, scope, state, nonce string, flow int,
 ) (string, error) {
 	id, err := random.String(64)
@@ -26,7 +26,7 @@ func AuthenticationFlowState_save(
 		return "", err
 	}
 
-	s := authenticationFlowState{
+	s := loginSession{
 		ID:             id,
 		RelyingPartyID: sub,
 		Flow:           flow,
@@ -40,7 +40,7 @@ func AuthenticationFlowState_save(
 		return "", err
 	}
 
-	key := fmt.Sprintf("%s:%s", "AUTH_FLOW_STATE", id)
+	key := fmt.Sprintf("%s:%s", "LOGINSESSION", id)
 	if err := Set(context.Background(), key, string(b), 5*60); err != nil {
 		return "", err
 	}
@@ -48,14 +48,14 @@ func AuthenticationFlowState_save(
 	return id, nil
 }
 
-func AuthenticationFlowState_get(id string) (*authenticationFlowState, error) {
-	key := fmt.Sprintf("%s:%s", "AUTH_FLOW_STATE", id)
+func LoginSession_get(id string) (*loginSession, error) {
+	key := fmt.Sprintf("%s:%s", "LOGINSESSION", id)
 	s, err := Get(context.Background(), key)
 	if err != nil {
 		return nil, err
 	}
 
-	var v authenticationFlowState
+	var v loginSession
 	if err := json.Unmarshal([]byte(s), &v); err != nil {
 		return nil, err
 	}
@@ -63,7 +63,7 @@ func AuthenticationFlowState_get(id string) (*authenticationFlowState, error) {
 	return &v, nil
 }
 
-func AuthenticationFlowState_delete(id string) {
-	key := fmt.Sprintf("%s:%s", "AUTH_FLOW_STATE", id)
+func LoginSession_delete(id string) {
+	key := fmt.Sprintf("%s:%s", "LOGINSESSION", id)
 	Del(context.Background(), key)
 }
