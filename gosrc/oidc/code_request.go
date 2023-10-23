@@ -60,6 +60,8 @@ func HandleCodeRequest(r codeRequest) (*codeResponse, error) {
 		return nil, err
 	}
 
+	kvs.CodeState_delete(r.Code)
+
 	if r.ClientID != state.Aud {
 		return nil, errors.New("client_id が保存されたものと違う")
 	}

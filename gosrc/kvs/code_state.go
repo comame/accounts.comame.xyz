@@ -51,3 +51,8 @@ func CodeState_get(code string) (*codeState, error) {
 	}
 	return &r, nil
 }
+
+func CodeState_delete(code string) {
+	key := "CODE:" + code
+	Del(context.Background(), key)
+}
