@@ -56,7 +56,7 @@ func main() {
 	router.Post("/code", tmpNotFound)
 	router.Get("/userinfo", tmpNotFound)
 	router.Post("/userinfo", tmpNotFound)
-	router.Get("/.well-known/openid-configuration", tmpNotFound)
+	router.Get("/.well-known/openid-configuration", handle_GET_wellknownOpenIDConfiguration)
 	router.Get("/certs", handle_GET_certs)
 
 	router.Post("/signin/google", tmpNotFound)
@@ -178,6 +178,18 @@ func handle_GET_apiSigninPassword(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Location", loc)
 	w.WriteHeader(http.StatusFound)
+}
+
+func handle_GET_wellknownOpenIDConfiguration(w http.ResponseWriter, r *http.Request) {
+	j, err := oidc.GetDiscoveryConfigurationJSON("https://accounts.comame.xyz")
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		io.WriteString(w, "Internal Server Error")
+		return
+	}
+
+	w.Write(j)
 }
 
 func handle_GET_certs(w http.ResponseWriter, _ *http.Request) {
