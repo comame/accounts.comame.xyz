@@ -41,3 +41,26 @@ func RelyingParty_selectRedirectURIs(clientID string) ([]string, error) {
 
 	return uris, nil
 }
+
+func RelyingParty_newRedirectURI(rp, uri string) error {
+	db := Conn()
+	if _, err := db.Exec(`
+		INSERT INTO redirect_uris
+		SET client_id=?, redirect_uri=?
+	`, rp, uri); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func RelyingParty_insert(id, hashedClientSecret string) error {
+	db := Conn()
+	if _, err := db.Exec(`
+		INSERT INTO relying_parties
+		SET client_id = ?, hashed_client_secret = ?
+	`, id, hashedClientSecret); err != nil {
+		return err
+	}
+	return nil
+}

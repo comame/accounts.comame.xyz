@@ -17,3 +17,15 @@ func UserPassword_passwordMatchedInTransaction(con *sql.Tx, user, passwordHash s
 	}
 	return count, nil
 }
+
+func UserPassword_insert(user, passwordHash string) error {
+	con := Conn()
+	if _, err := con.Exec(`
+		INSERT INTO user_passwords
+		SET
+			user_id = ?, hashed_password = ?
+	`, user, passwordHash); err != nil {
+		return err
+	}
+	return nil
+}

@@ -16,3 +16,13 @@ func RoleAccess_authorized(userID, relyingPartyID string) (int, error) {
 	}
 	return count, nil
 }
+
+func RoleAccess_insert(role, relyingParty string) error {
+	con := Conn()
+	if _, err := con.Exec(`
+		INSERT INTO role_access SET role=?, relying_party_id=?
+	`, role, relyingParty); err != nil {
+		return err
+	}
+	return nil
+}

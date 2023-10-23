@@ -12,6 +12,7 @@ import (
 	"github.com/comame/accounts.comame.xyz/auth"
 	"github.com/comame/accounts.comame.xyz/kvs"
 	"github.com/comame/accounts.comame.xyz/oidc"
+	"github.com/comame/accounts.comame.xyz/scripts"
 	"github.com/comame/mysql-go"
 	"github.com/comame/router-go"
 )
@@ -26,6 +27,22 @@ func init() {
 }
 
 func main() {
+	args := os.Args
+	if len(args) >= 2 {
+		subcommand := args[1]
+		if subcommand != "script" {
+			return
+		}
+		if len(args) < 3 {
+			return
+		}
+
+		scriptName := args[2]
+		scriptArgs := args[3:]
+		scripts.Run(scriptName, scriptArgs...)
+		return
+	}
+
 	// TODO: いずれ消す
 	tmpNotFound := func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
@@ -166,6 +183,7 @@ func handle_GET_apiSigninPassword(w http.ResponseWriter, r *http.Request) {
 func handle_GET_certs(w http.ResponseWriter, _ *http.Request) {
 	js, err := oidc.GetDiscoveryCertsJSON()
 	if err != nil {
+		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		io.WriteString(w, "Internal Server Error")
 		return

@@ -19,3 +19,23 @@ func RSAKeypair_get() (*rsaKeypair, error) {
 	}
 	return kp, nil
 }
+
+func RSAKeypair_delete() {
+	con := Conn()
+	con.Exec("DELETE FROM rsa_keypair")
+}
+
+func RSAKeypair_insertIgnore(public, private, kid string) error {
+	con := Conn()
+	if _, err := con.Exec(`
+		INSERT IGNORE INTO rsa_keypair
+		SET
+			id='1',
+			public=?,
+			private=?,
+			kid=?
+	`, public, private, kid); err != nil {
+		return err
+	}
+	return nil
+}
