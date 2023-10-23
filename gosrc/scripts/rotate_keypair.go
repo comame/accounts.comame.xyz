@@ -6,10 +6,10 @@ import (
 )
 
 func init() {
-	register("rotate_keypair", rotateKeypair, "")
+	register("rotate_keypair", RotateKeypair, "")
 }
 
-func rotateKeypair(args ...string) error {
+func RotateKeypair(args ...string) error {
 	priv, pub, err := setupDefault_generateKeypair()
 	if err != nil {
 		return err

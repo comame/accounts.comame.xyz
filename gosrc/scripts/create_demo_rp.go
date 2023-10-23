@@ -5,13 +5,11 @@ import (
 	"github.com/comame/accounts.comame.xyz/db"
 )
 
-const scriptCreateDemoRP = "create_demo_rp"
-
 func init() {
-	register(scriptCreateDemoRP, createDemoRP, "")
+	register("create_demo_rp", CreateDemoRP, "")
 }
 
-func createDemoRP(args ...string) error {
+func CreateDemoRP(args ...string) error {
 	cs := auth.CalculatePasswordHash("demo", "demo.accounts.comame.dev")
 	if err := db.RelyingParty_insert("demo.accounts.comame.dev", cs); err != nil {
 		return err

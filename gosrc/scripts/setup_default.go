@@ -12,13 +12,11 @@ import (
 	"github.com/comame/accounts.comame.xyz/random"
 )
 
-const scriptSetupDefault = "setup_default"
-
 func init() {
-	register(scriptSetupDefault, setupDefault, "adminPassword, dashboardClientSecret")
+	register("setup_default", SetupDefault, "adminPassword, dashboardClientSecret")
 }
 
-func setupDefault(args ...string) error {
+func SetupDefault(args ...string) error {
 	adminPassword := args[0]
 	dashboardClientSecret := args[1]
 
