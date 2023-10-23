@@ -53,7 +53,7 @@ func main() {
 
 	router.Get("/authenticate", handle_GET_authenticate)
 	router.Post("/authenticate", handle_POST_authenticate)
-	router.Post("/code", tmpNotFound)
+	router.Post("/code", handle_POST_code)
 	router.Get("/userinfo", tmpNotFound)
 	router.Post("/userinfo", tmpNotFound)
 	router.Get("/.well-known/openid-configuration", handle_GET_wellknownOpenIDConfiguration)
@@ -109,6 +109,55 @@ func handle_POST_authenticate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	authenticationRequest(w, r.Form)
+}
+
+func handle_POST_code(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Type", "application/json;charset=UTF-8")
+	w.Header().Add("Cache-Control", "no-store")
+	w.Header().Add("Pragma", "no-cache")
+
+	if err := r.ParseForm(); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		io.WriteString(w, `{ "error": "invalid_request" }`)
+		return
+	}
+	req := oidc.ParseCodeRequest(r.Form)
+
+	// client_secret_basic
+	clientID, clientSecret, ok := r.BasicAuth()
+	if ok && (req.ClientID != "" || req.ClientSecret != "") {
+		w.WriteHeader(http.StatusBadRequest)
+		io.WriteString(w, `{ "error": "invalid_request" }`)
+		return
+	}
+	if ok {
+		req.ClientID = clientID
+		req.ClientSecret = clientSecret
+	}
+
+	res, err := oidc.HandleCodeRequest(req)
+	if err != nil {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		io.WriteString(w, `{ "error": "invalid_request" }`)
+		return
+	}
+
+	j, err := json.Marshal(res)
+	if err != nil {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		io.WriteString(w, `{ "error": "invalid_request" }`)
+		return
+	}
+
+	if res.Error != "" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(j)
+		return
+	}
+
+	w.Write(j)
 }
 
 type req_GET_apiSigninPassword struct {

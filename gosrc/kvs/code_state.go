@@ -38,3 +38,16 @@ func CodeState_save(
 
 	return nil
 }
+
+func CodeState_get(code string) (*codeState, error) {
+	key := "CODE:" + code
+	v, err := Get(context.Background(), key)
+	if err != nil {
+		return nil, err
+	}
+	var r codeState
+	if err := json.Unmarshal([]byte(v), &r); err != nil {
+		return nil, err
+	}
+	return &r, nil
+}
