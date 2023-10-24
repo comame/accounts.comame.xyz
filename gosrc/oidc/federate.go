@@ -61,7 +61,7 @@ func CallbackGoogle(code, state, clientID, clientSecret string) (*Authentication
 	kvs.ExternalLoginSession_delete(state)
 
 	if saved.Provider != "google" {
-		return nil, errors.New("Google ログインを要求していないのに Authentication Response を受け取った")
+		return nil, errors.New("google ログインを要求していないのに Authentication Response を受け取った")
 	}
 
 	session, err := kvs.LoginSession_get(saved.LoginSession)

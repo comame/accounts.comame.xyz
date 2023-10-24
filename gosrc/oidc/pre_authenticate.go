@@ -52,7 +52,7 @@ func PreAuthenticate(req AuthenticationRequest) (string, error) {
 
 	// TODO: 元のコードが openid profile email となっている
 	if !hasScope(req.Scope, "openid") {
-		return "", throw(AuthenticationErrInvalidScope, true)
+		return "", throw(ErrAuthenticationErrInvalidScope, true)
 	}
 
 	var flow Flow
@@ -62,11 +62,11 @@ func PreAuthenticate(req AuthenticationRequest) (string, error) {
 	case "id_token":
 		flow = FlowImplicit
 	default:
-		return "", throw(AuthenticationErrUnsupportedResponseType, true)
+		return "", throw(ErrAuthenticationErrUnsupportedResponseType, true)
 	}
 
 	if flow == FlowImplicit && req.Nonce == "" {
-		return "", throw(AuthenticationErrInvalidRequest, true)
+		return "", throw(ErrAuthenticationErrInvalidRequest, true)
 	}
 
 	if req.Prompt != LoginPromptUnspecified {
