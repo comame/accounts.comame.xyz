@@ -30,3 +30,23 @@ func ExternalLoginSession_set(nonce, state, provider, loginSession string) error
 
 	return nil
 }
+
+func ExternalLoginSession_get(state string) (*externalLoginSession, error) {
+	key := "EXTERNAL_LOGIN_SESSION:" + state
+	v, err := Get(context.Background(), key)
+	if err != nil {
+		return nil, err
+	}
+
+	var s externalLoginSession
+	if err := json.Unmarshal([]byte(v), &s); err != nil {
+		return nil, err
+	}
+
+	return &s, nil
+}
+
+func ExternalLoginSession_delete(state string) {
+	key := "EXTERNAL_LOGIN_SESSION:" + state
+	Del(context.Background(), key)
+}

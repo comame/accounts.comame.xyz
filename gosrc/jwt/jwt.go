@@ -16,6 +16,7 @@ import (
 type Header struct {
 	Typ string `json:"typ"`
 	Alg string `json:"alg"`
+	Kid string `json:"kid"`
 }
 
 type Payload struct {
@@ -136,6 +137,25 @@ func EncodeJWT(header Header, payload Payload, privKey *rsa.PrivateKey) (string,
 	sig := base64.RawURLEncoding.EncodeToString(s)
 
 	return hb + "." + pb + "." + sig, nil
+}
+
+func ExtractJWTHeader(jwt string) (*Header, error) {
+	parts := strings.Split(jwt, ".")
+	if len(parts) != 3 {
+		return nil, errors.New("invalid jwt format")
+	}
+
+	bheader, err := base64.RawURLEncoding.DecodeString(parts[0])
+	if err != nil {
+		return nil, err
+	}
+
+	var header Header
+	if err := json.Unmarshal(bheader, &header); err != nil {
+		return nil, err
+	}
+
+	return &header, nil
 }
 
 func DecodeJWT(jwt string, pubkey *rsa.PublicKey) (*Payload, error) {

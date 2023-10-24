@@ -44,12 +44,6 @@ func main() {
 		return
 	}
 
-	// TODO: いずれ消す
-	tmpNotFound := func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusNotFound)
-		io.WriteString(w, "unimplemented")
-	}
-
 	router.Get("/signin", handle_GET_signin)
 
 	router.Get("/authenticate", handle_GET_authenticate)
@@ -62,7 +56,7 @@ func main() {
 
 	router.Post("/signin/google", handle_POST_signinGoogle)
 	router.Post("/api/signin-password", handle_GET_apiSigninPassword)
-	router.Get("/oidc-callback/google", tmpNotFound)
+	router.Get("/oidc-callback/google", handle_GET_oidCallbackGoogle)
 
 	router.Get("/*", handle_GET_rest)
 
@@ -278,6 +272,53 @@ func handle_POST_signinGoogle(w http.ResponseWriter, r *http.Request) {
 	})
 
 	io.WriteString(w, fmt.Sprintf(`{ "location": "%s"}`, redirect))
+}
+
+func handle_GET_oidCallbackGoogle(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query()
+
+	state := q.Get("state")
+	code := q.Get("code")
+
+	if state == "" || code == "" {
+		log.Println("state か code が渡されていない")
+		w.WriteHeader(http.StatusBadRequest)
+		io.WriteString(w, `{ "error": "bad_request" }`)
+		return
+	}
+
+	c, err := r.Cookie("rp")
+	if err != nil {
+		log.Println("Cookie がない")
+		w.WriteHeader(http.StatusBadRequest)
+		io.WriteString(w, `{ "error": "bad_request" }`)
+		return
+	}
+	if c.Value != state {
+		log.Println("state が Cookie に保存されたものと異なる")
+		w.WriteHeader(http.StatusBadRequest)
+		io.WriteString(w, `{ "error": "bad_request" }`)
+		return
+	}
+
+	res, err := oidc.CallbackGoogle(code, state, os.Getenv("GOOGLE_OIDC_CLIENT_ID"), os.Getenv("GOOGLE_OIDC_CLIENT_SECRET"))
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		io.WriteString(w, `{ "error": "bad_request" }`)
+		return
+	}
+
+	loc, err := oidc.CreateRedirectURLFromAuthenticationResponse(res)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		io.WriteString(w, `{ "error": "bad_request" }`)
+		return
+	}
+
+	// TODO: 通常のリダイレクトにしたい
+	io.WriteString(w, fmt.Sprintf(`{ "location": "%s" }`, loc))
 }
 
 func handle_GET_wellknownOpenIDConfiguration(w http.ResponseWriter, r *http.Request) {

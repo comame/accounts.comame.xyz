@@ -11,6 +11,7 @@ type AuthenticationMethod string
 
 var (
 	AuthenticationMethodPassword AuthenticationMethod = "password"
+	AuthenticationMethodGoogle   AuthenticationMethod = "google"
 )
 
 func CreateAuthentication(
