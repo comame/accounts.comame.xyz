@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Callback</title>
+</head>
+
+<body>
+    <h1>Token Request Tester</h1>
+    <input placeholder="client_secret" id="client_secret" value="client_secret">
+    <button id="initiate_code_request">CONTINUE</button>
+    <textarea readonly id="output" rows="20" cols="100"></textarea>
+    <style>
+        * {
+            vertical-align: top;
+        }
+
+    </style>
+    <script>
+        const query = new URL(location.href).searchParams
+        const idToken = query.get('id_token')
+        const code = query.get('code')
+
+        /** @type {HTMLInputElement} */
+        const clientSecretInput = document.getElementById('client_secret')
+        /** @type {HTMLButtonElement} */
+        const initiateCodeRequest = document.getElementById('initiate_code_request')
+        /** @type {HTMLTextAreaElement} */
+        const textarea = document.getElementById('output')
+
+        let token = ''
+
+        initiateCodeRequest.onclick = () => {
+            const redirect_uri = encodeURIComponent(`${location.origin}/dev/callback.html`)
+
+            fetch('/code', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `code=${code}&client_id=demo.accounts.comame.dev&client_secret=${clientSecretInput.value}&redirect_uri=${redirect_uri}&grant_type=authorization_code`
+            }).then(res => res.json()).then(json => {
+                textarea.value += JSON.stringify(json, null, 2)
+                const accessToken = json.access_token
+
+                return fetch('/userinfo', {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${accessToken}` },
+                }).then(res => res.json()).then(json => {
+                    textarea.value += JSON.stringify(json, null, 2)
+                })
+            })
+        }
+    </script>
+</body>
+
+</html>

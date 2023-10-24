@@ -1,9 +1,11 @@
 package main
 
 import (
+	"embed"
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/fs"
 	"log"
 	"net/http"
 	"net/url"
@@ -17,6 +19,9 @@ import (
 	"github.com/comame/mysql-go"
 	"github.com/comame/router-go"
 )
+
+//go:embed static
+var staticFs embed.FS
 
 func init() {
 	if err := mysql.Initialize(); err != nil {
@@ -80,9 +85,9 @@ func handle_GET_signin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: 静的に読みたい
-	f, err := os.Open("/home/comame/github.com/comame/id/static/front/src/signin.html")
+	f, err := staticFs.Open("static/front/src/signin.html")
 	if err != nil {
+		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		io.WriteString(w, "error")
 		return
@@ -346,8 +351,11 @@ func handle_GET_certs(w http.ResponseWriter, _ *http.Request) {
 }
 
 func handle_GET_rest(w http.ResponseWriter, r *http.Request) {
-	// TODO: 静的に読むようにしたい
-	srv := http.FileServer(http.Dir("/home/comame/github.com/comame/id/static"))
+	sub, err := fs.Sub(staticFs, "static")
+	if err != nil {
+		panic(err)
+	}
+	srv := http.FileServer(http.FS(sub))
 	srv.ServeHTTP(w, r)
 }
 
