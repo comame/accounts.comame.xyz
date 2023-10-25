@@ -152,7 +152,7 @@ const App = () => {
                             <ButtonsContainer>
                                 <Button
                                     variant="Default"
-                                    fixed
+                                    fullWidth
                                     onClick={onSubmitPassword}
                                     type="submit"
                                     disabled={sendingPassword}
@@ -161,7 +161,7 @@ const App = () => {
                                 </Button>
                                 <Button
                                     variant="Primary"
-                                    fixed
+                                    fullWidth
                                     onClick={signinWithGoogle}
                                     type="button"
                                 >
