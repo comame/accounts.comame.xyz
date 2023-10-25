@@ -77,7 +77,7 @@ func PreAuthenticate(req AuthenticationRequest) (string, error) {
 		return "", throw(errMaxAgeIsUnsupported, false)
 	}
 
-	id, err := kvs.LoginSession_save(req.ClientId, req.RedirectURI, req.Scope, req.Scope, req.Nonce, int(flow))
+	id, err := kvs.LoginSession_save(req.ClientId, req.RedirectURI, req.Scope, req.State, req.Nonce, int(flow))
 	if err != nil {
 		return "", throw(err, false)
 	}

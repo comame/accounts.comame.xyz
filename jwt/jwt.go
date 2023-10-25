@@ -28,7 +28,7 @@ type Payload struct {
 	Nonce string `json:"nonce"`
 
 	// Custom claim
-	Roles []string `json:"roles"`
+	Roles []string `json:"roles,omitempty"`
 }
 
 type JWT struct {

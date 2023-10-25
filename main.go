@@ -322,8 +322,8 @@ func handle_GET_oidCallbackGoogle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: 通常のリダイレクトにしたい
-	io.WriteString(w, fmt.Sprintf(`{ "location": "%s" }`, loc))
+	w.Header().Set("Location", loc)
+	w.WriteHeader(http.StatusFound)
 }
 
 func handle_GET_wellknownOpenIDConfiguration(w http.ResponseWriter, r *http.Request) {

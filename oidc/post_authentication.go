@@ -28,7 +28,10 @@ func PostAuthentication(
 		return nil, errors.New("RelyingPartyID mismatch")
 	}
 
-	// TODO: ロールを取得する
+	roles, err := db.Role_getUserRoles(sub)
+	if err != nil {
+		return nil, err
+	}
 
 	now := time.Now().Unix()
 
@@ -40,7 +43,7 @@ func PostAuthentication(
 		Aud:   state.RelyingPartyID,
 		Iat:   now,
 		Exp:   now + int64(5*60),
-		Roles: []string{},
+		Roles: roles,
 	}
 	if state.Nonce != "" {
 		claim.Nonce = state.Nonce
