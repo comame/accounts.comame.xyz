@@ -37,7 +37,7 @@ func PostAuthentication(
 	claim := jwt.Payload{
 		Iss:   "https://accounts.comame.xyz",
 		Sub:   sub,
-		Aud:   state.RedirectURI,
+		Aud:   state.RelyingPartyID,
 		Iat:   now,
 		Exp:   now + int64(5*60),
 		Roles: []string{},

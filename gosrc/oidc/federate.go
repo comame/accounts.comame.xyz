@@ -152,6 +152,14 @@ func CallbackGoogle(code, state, clientID, clientSecret string) (*Authentication
 
 	// TODO: userinfo を取る
 
+	roleOk, err := auth.Authorized(sub, session.RelyingPartyID)
+	if err != nil {
+		return nil, err
+	}
+	if !roleOk {
+		return nil, errors.New("権限がない")
+	}
+
 	// TODO: user_agent_id を消す
 	res, err := PostAuthentication(sub, saved.LoginSession, session.RelyingPartyID, "", auth.AuthenticationMethodGoogle)
 	if err != nil {
