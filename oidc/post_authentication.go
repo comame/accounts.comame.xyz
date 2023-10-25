@@ -57,6 +57,7 @@ func PostAuthentication(
 	token, err := jwt.EncodeJWT(jwt.Header{
 		Alg: "RS256",
 		Typ: "JWT",
+		Kid: kp.Kid,
 	}, claim, priv)
 	if err != nil {
 		return nil, err
