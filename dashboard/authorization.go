@@ -6,6 +6,7 @@ import (
 	"crypto/rsa"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"math/big"
@@ -53,7 +54,7 @@ func createAuthUrl(ctx context.Context) (string, error) {
 
 	redirectUri := origin + "/callback"
 
-	authUrl := fmt.Sprintf("%s/authenticate?client_id=accounts.comame.xyz&redirect_uri=%s&scope=openid&response_type=code&state=%s&nonce=%s&prompt=login", env.Host, redirectUri, state, nonce)
+	authUrl := fmt.Sprintf("%s/authenticate?client_id=accounts.comame.xyz&redirect_uri=%s&scope=openid&response_type=code&state=%s&nonce=%s", env.Host, redirectUri, state, nonce)
 	return authUrl, nil
 }
 
@@ -194,16 +195,10 @@ func getJwkPublicKey() (*rsa.PublicKey, error) {
 		return nil, logErr(err)
 	}
 
-	var key *jwkKey_t = nil
-	for _, k := range jwk.Keys {
-		if k.Kty == "RSA" && k.Alg == "RS256" && k.Use == "sig" {
-			key = &k
-		}
+	if len(jwk.Keys) != 1 {
+		return nil, errors.New("/certs に鍵が複数登録されている")
 	}
-
-	if key == nil {
-		return nil, fmt.Errorf("valid jwk not found")
-	}
+	key := jwk.Keys[0]
 
 	nBytes, err := base64.RawURLEncoding.DecodeString(key.N)
 	if err != nil {

@@ -5,7 +5,7 @@ pushd front
     npm run build
 popd
 
-cargo build -r
+go build -o out .
 
 pushd dashboard
     pushd web
