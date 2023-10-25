@@ -1,5 +1,0 @@
-CREATE TABLE userinfo (
-    sub VARCHAR(100) NOT NULL PRIMARY KEY,
-    value TEXT NOT NULL,
-    FOREIGN KEY (`sub`) REFERENCES `users` (`id`) ON DELETE CASCADE
-)
