@@ -1,7 +1,9 @@
 package oidc
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
 
 	"github.com/comame/accounts.comame.xyz/db"
 	"github.com/comame/json-go/builder"
@@ -24,6 +26,12 @@ func GetUserinfoJSON(token string) ([]byte, error) {
 	}
 
 	uis, err := db.UserInfo_get(sub)
+	if err != nil && errors.Is(err, sql.ErrNoRows) {
+		res := builder.Object(
+			builder.Entry("sub", builder.String(sub)),
+		)
+		return res.MustBuild(), nil
+	}
 	if err != nil {
 		return nil, err
 	}

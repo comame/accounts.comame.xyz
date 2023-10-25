@@ -235,7 +235,7 @@ func EncodeToJWK(pubkey *rsa.PublicKey, kid string) (*JWKKey, error) {
 
 	k := &JWKKey{
 		Kty: "RSA",
-		Alg: "RSA256",
+		Alg: "RS256",
 		Kid: kid,
 		Use: "sig",
 	}
