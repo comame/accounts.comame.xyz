@@ -20,7 +20,7 @@ type discovery struct {
 	TokenEndpointAuthMethodsSupported []string `json:"token_endpoint_auth_methods_supported"`
 	ClaimsSupported                   []string `json:"claims_supported"`
 	CodeChallengeMethodsSupported     []string `json:"code_challenge_methods_supported"`
-	GrantTypesSupported               []string `json:"authorization_code"`
+	GrantTypesSupported               []string `json:"grant_types_supported"`
 }
 
 func GetDiscoveryCertsJSON() ([]byte, error) {
