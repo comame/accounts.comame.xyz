@@ -86,10 +86,10 @@ func CallbackGoogle(code, state, clientID, clientSecret string) (*Authentication
 
 	var key *jwt.JWKKey
 	for _, v := range keys {
-		if v.Kid != tokenHeader.Kid {
-			continue
+		if v.Kid == tokenHeader.Kid {
+			key = &v
+			break
 		}
-		key = &v
 	}
 	if key == nil {
 		return nil, errors.New("id_token を署名した公開鍵が Google の Certs に存在しない")
