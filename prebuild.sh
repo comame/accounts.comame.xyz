@@ -1,5 +1,7 @@
 #! /bin/bash
 
+go build -o out .
+
 pushd front
     npm ci
     npm run build
