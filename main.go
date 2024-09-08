@@ -219,6 +219,7 @@ func handle_GET_apiSigninPassword(w http.ResponseWriter, r *http.Request) {
 		log.Println("権限がない")
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, `{ "error": "unauthorized" }`)
+		return
 	}
 
 	ar, err := oidc.PostAuthentication(req.UserId, req.StateID, req.RelyingPartyID, req.UserAgentID, auth.AuthenticationMethodPassword)
