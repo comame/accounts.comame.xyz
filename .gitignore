@@ -8,3 +8,4 @@ dashboard/out
 dashboard/web/dist
 go.work
 go.work.sum
+.testdb/
