@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ログイン</title>
+  </head>
+  <body>
+    <fieldset>
+      <input autocomplete="username webauthn" placeholder="ユーザー名" />
+      <input
+        type="password"
+        autocomplete="off webauthn"
+        placeholder="パスワード"
+      />
+
+      <br />
+
+      <span>
+        <code>autocomplete=webauthn</code>
+        に対応していないブラウザは、パスワードの自動補完のフォームに勝手に
+        Autofill する
+      </span>
+
+      <br />
+
+      <button id="signin-passkey">パスキーでログイン</button>
+
+      <button id="register-passkey">パスキーを作成</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>Logs</legend>
+      <textarea readonly id="events" rows="40" cols="100"></textarea>
+    </fieldset>
+
+    <script src="demo/index.js" type="module"></script>
+  </body>
+</html>
