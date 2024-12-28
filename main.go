@@ -13,10 +13,10 @@ import (
 	"strings"
 
 	"github.com/comame/accounts.comame.xyz/auth"
+	"github.com/comame/accounts.comame.xyz/db"
 	"github.com/comame/accounts.comame.xyz/kvs"
 	"github.com/comame/accounts.comame.xyz/oidc"
 	"github.com/comame/accounts.comame.xyz/scripts"
-	"github.com/comame/mysql-go"
 	"github.com/comame/router-go"
 )
 
@@ -24,9 +24,7 @@ import (
 var staticFs embed.FS
 
 func init() {
-	if err := mysql.Initialize(); err != nil {
-		panic(err)
-	}
+	db.Initialize()
 
 	// TODO: 環境変数から読む
 	kvs.InitializeRedis("dev.accounts.comame.xyz", "redis.comame.dev:6379")
