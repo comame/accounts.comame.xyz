@@ -1,0 +1,71 @@
+timeFreeze
+2024-12-01 00:00:00
+
+
+
+
+prepareKeyPair
+
+
+
+
+sql userinfoにデータを入れる
+insert into userinfo
+(sub, value)
+values
+('admin', '{"email":"user@example.com","email_verified":true,"name":"user","preferred_username":"user","profile":"https://example.com","picture":"https://example.com"}')
+on duplicate key update
+value = values(value)
+;
+
+
+
+
+httpRequest Authentication Endpoint をたたくと、ログインページを開く
+GET /authenticate?client_id=demo.accounts.comame.dev&redirect_uri=http://localhost:8080/dev/callback.html&scope=openid%20profile&state=state&nonce=nonce&response_type=code
+
+
+302
+Location: /signin?sid={{sid}}&cid=demo.accounts.comame.dev
+
+
+
+
+httpRequest パスワードログイン
+POST /api/signin-password
+Content-Type: application/json
+
+{"user_id":"admin","password":"admin","csrf_token":"$CSRF","relying_party_id":"demo.accounts.comame.dev","user_agent_id":"foooo","state_id":"((sid))"}
+
+
+200
+
+{ "location": "http://localhost:8080/dev/callback.html?code={{code}}&state=state" }
+
+
+
+
+httpRequest Code Endpoint を叩く (BASIC認証)
+POST /code
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic ZGVtby5hY2NvdW50cy5jb21hbWUuZGV2OmNsaWVudF9zZWNyZXQ=
+
+grant_type=authorization_code&code=((code))&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fdev%2Fcallback.html
+
+
+200
+
+{"access_token":"{{accessToken}}","token_type":"Bearer","expires_in":3600,"scope":"openid profile","id_token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IlROa2hMelNuIn0.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmNvbWFtZS54eXoiLCJzdWIiOiJhZG1pbiIsImF1ZCI6ImRlbW8uYWNjb3VudHMuY29tYW1lLmRldiIsImV4cCI6MTczMjk3OTEwMCwiaWF0IjoxNzMyOTc4ODAwLCJub25jZSI6Im5vbmNlIiwicm9sZXMiOlsiYWRtaW4iXX0.KF3Cx_vLjGxeM5wq5ix2oDXPd6vjBDeJfPYIeBKvtLgsZIheE7MM-JzRAcQSn9WcKmziBxv37K1mMhx_3BPY74HvkiPUHvaoJr4xJ8PP1Y1NSMeNHXAIGbpNml4s_AHc2dddXt-WKiIcPzWQzqe-VB7y02HfYdszARaKimYT8jvGfk0JmUlAKBJXPJswEctWnMNliI2ZsPKamAzRgFk5ZUFdGegi1kq-ck0tKuh9n8umXBp19RUMRJN3-AuAEsqfQEc_sJAsacY0CYRrPFsWX0Bg_zi6zsjRhDByjVAbc7GHbgvNcK-ark9cCc3YfaQA7qNOlhPfhjfZuY4zzFJcAg"}
+
+
+
+
+httpRequest UserInfo Endpoint をたたく
+GET /userinfo
+Authorization: Bearer ((accessToken))
+
+
+200
+Content-Type: application/json
+
+{"name":"user","picture":"https://example.com","preferred_username":"user","profile":"https://example.com","sub":"admin"}

@@ -57,3 +57,32 @@ Authorization: Bearer ((accessToken))
 Content-Type: application/json
 
 {"sub":"admin"}
+
+
+
+
+httpRequest Code Endpoint を叩く (2回目)
+POST /code
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic ZGVtby5hY2NvdW50cy5jb21hbWUuZGV2OmNsaWVudF9zZWNyZXQ=
+
+grant_type=authorization_code&code=((code))&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fdev%2Fcallback.html
+
+
+400
+Content-Type: application/json;charset=UTF-8
+
+{"error":"invalid_grant"}
+
+
+
+
+httpRequest UserInfo Endpoint をたたく FIXME: 400を返すべき (SHOULD) https://www.certification.openid.net/log-detail.html?log=9jn5w6kXKIseMB8
+GET /userinfo
+Authorization: Bearer ((accessToken))
+
+
+200
+Content-Type: application/json
+
+{"sub":"admin"}

@@ -385,8 +385,9 @@ func authenticationRequest(w http.ResponseWriter, body url.Values) {
 	id, err := oidc.PreAuthenticate(*req)
 	if err != nil {
 		log.Println(err)
-		perr, ok := err.(oidc.PreAuthenticateError)
+		perr, ok := err.(*oidc.PreAuthenticateError)
 		if !ok {
+			// ここ
 			w.WriteHeader(http.StatusBadRequest)
 			io.WriteString(w, `{ "error": "bad_request" }`)
 			return
