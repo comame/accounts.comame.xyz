@@ -1,0 +1,16 @@
+timeFreeze
+2024-12-01 00:00:00
+
+
+
+
+prepareKeyPair
+
+
+
+
+httpRequest Authentication Endpoint をたたくと、ログインページを開く
+GET /authenticate?client_id=demo.accounts.comame.dev&redirect_uri=http://example.com/bad&scope=openid&state=state&nonce=nonce&response_type=code
+
+
+400

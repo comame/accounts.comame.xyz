@@ -57,7 +57,9 @@ func HandleCodeRequest(r codeRequest) (*codeResponse, error) {
 
 	state, err := kvs.CodeState_get(r.Code)
 	if err != nil {
-		return nil, err
+		return &codeResponse{
+			Error: "invalid_grant",
+		}, nil
 	}
 
 	kvs.CodeState_delete(r.Code)
