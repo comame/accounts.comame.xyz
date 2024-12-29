@@ -19,9 +19,10 @@ type scenario struct {
 type stepType string
 
 const (
-	stepTypeHttpRequest stepType = "httpRequest"
-	stepTypeSQL         stepType = "sql"
-	stepTypeTimeFreeze  stepType = "timeFreeze"
+	stepTypeHttpRequest    stepType = "httpRequest"
+	stepTypeSQL            stepType = "sql"
+	stepTypeTimeFreeze     stepType = "timeFreeze"
+	stepTypePrepareKeyPair stepType = "prepareKeyPair"
 )
 
 type httpRequestStep struct {
@@ -50,6 +51,11 @@ type timeFreezeStep struct {
 	StepDescription string
 
 	Datetime string
+}
+
+type prepareKeyPairStep struct {
+	Type            stepType
+	StepDescription string
 }
 
 func GetScenarios() ([]scenario, error) {
@@ -144,6 +150,12 @@ func parseScenario(t string, name string) (*scenario, error) {
 			}
 			step.StepDescription, _ = strings.CutPrefix(sp[0], string(stepTypeTimeFreeze))
 			steps = append(steps, *step)
+		case strings.HasPrefix(sp[0], string(stepTypePrepareKeyPair)):
+			step := prepareKeyPairStep{
+				Type: stepTypePrepareKeyPair,
+			}
+			step.StepDescription, _ = strings.CutPrefix(sp[0], string(stepTypePrepareKeyPair))
+			steps = append(steps, step)
 		default:
 			return nil, fmt.Errorf("未知のstepType %s", sp[0])
 		}
