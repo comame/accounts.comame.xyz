@@ -14,15 +14,19 @@ import (
 func TestScenario(t *testing.T, s *scenario, ts *httptest.Server) {
 	log.Println(s.Name)
 
-	for _, step := range s.Steps {
+	for i, step := range s.Steps {
 		switch v := step.(type) {
 		case httpRequestStep:
+			log.Printf("step %d %s", i, v.StepDescription)
 			testHttpRequestStep(t, &v, ts)
 		default:
 			log.Println("Stepのキャストに失敗")
 			t.FailNow()
 		}
 	}
+
+	log.Println("success")
+	log.Println()
 }
 
 func testHttpRequestStep(t *testing.T, s *httpRequestStep, ts *httptest.Server) {

@@ -23,7 +23,8 @@ const (
 )
 
 type httpRequestStep struct {
-	Type stepType
+	Type            stepType
+	StepDescription string
 
 	ReqMethod  string
 	ReqPath    string
@@ -104,12 +105,14 @@ func parseScenario(t string, name string) (*scenario, error) {
 		if !(len(sp) == 1 || len(sp) == 2) {
 			return nil, errors.New("stepヘッダ行が変")
 		}
+
 		switch {
 		case strings.HasPrefix(sp[0], string(stepTypeHttpRequest)):
 			step, err := parseHttpRequestStep(sp[1])
 			if err != nil {
 				return nil, err
 			}
+			step.StepDescription, _ = strings.CutPrefix(sp[0], string(stepTypeHttpRequest))
 			steps = append(steps, *step)
 		default:
 			return nil, fmt.Errorf("未知のstepType %s", sp[0])
