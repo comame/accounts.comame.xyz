@@ -1,3 +1,4 @@
+httpRequest OIDC Discovery エンドポイントが正しい値を返す
 GET /.well-known/openid-configuration
 
 

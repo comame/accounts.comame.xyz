@@ -13,6 +13,18 @@ import (
 type scenario struct {
 	Name string
 
+	Steps []interface{}
+}
+
+type stepType string
+
+const (
+	stepTypeHttpRequest stepType = "httpRequest"
+)
+
+type httpRequestStep struct {
+	Type stepType
+
 	ReqMethod  string
 	ReqPath    string
 	ReqHeaders http.Header
@@ -44,7 +56,7 @@ func GetScenarios() ([]scenario, error) {
 				return nil, err
 			}
 
-			s, err := parse(string(fs), file)
+			s, err := parseScenario(string(fs), file)
 			if err != nil {
 				return nil, err
 			}
@@ -80,17 +92,45 @@ func listFiles() ([]string, error) {
 	return r, nil
 }
 
-func parse(t string, name string) (*scenario, error) {
+func parseScenario(t string, name string) (*scenario, error) {
 	var s scenario
-
 	s.Name = name
+
+	var steps []interface{}
+
+	stepStrs := strings.Split(t, "\n\n\n\n\n") // 空行4つ
+	for _, stepStr := range stepStrs {
+		sp := strings.SplitN(stepStr, "\n", 2)
+		if !(len(sp) == 1 || len(sp) == 2) {
+			return nil, errors.New("stepヘッダ行が変")
+		}
+		switch {
+		case strings.HasPrefix(sp[0], string(stepTypeHttpRequest)):
+			step, err := parseHttpRequestStep(sp[1])
+			if err != nil {
+				return nil, err
+			}
+			steps = append(steps, *step)
+		default:
+			return nil, fmt.Errorf("未知のstepType %s", sp[0])
+		}
+	}
+
+	s.Steps = steps
+	return &s, nil
+}
+
+func parseHttpRequestStep(t string) (*httpRequestStep, error) {
+	var s httpRequestStep
+
+	s.Type = stepTypeHttpRequest
 
 	sp := strings.Split(t, "\n\n\n") // 空行2つ
 	if len(sp) != 2 {
 		return nil, errors.New("リクエストとレスポンス以外の何かが含まれてるorどっちがない")
 	}
 
-	srq, err := parseReq(sp[0])
+	srq, err := parseHttpRequestSection(sp[0])
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +139,7 @@ func parse(t string, name string) (*scenario, error) {
 	s.ReqHeaders = srq.ReqHeaders
 	s.ReqBody = srq.ReqBody
 
-	srs, err := parseRes(sp[1])
+	srs, err := parseHttpResponseSection(sp[1])
 	if err != nil {
 		return nil, err
 	}
@@ -110,8 +150,8 @@ func parse(t string, name string) (*scenario, error) {
 	return &s, nil
 }
 
-func parseReq(t string) (*scenario, error) {
-	var s scenario
+func parseHttpRequestSection(t string) (*httpRequestStep, error) {
+	var s httpRequestStep
 
 	lines := strings.Split(t, "\n")
 	if len(lines) == 0 {
@@ -136,7 +176,7 @@ func parseReq(t string) (*scenario, error) {
 			break
 		}
 
-		if err := parseHeader(&headers, l); err != nil {
+		if err := parseHeaderLine(&headers, l); err != nil {
 			return nil, err
 		}
 		lastHeaderLine += 1
@@ -151,8 +191,8 @@ func parseReq(t string) (*scenario, error) {
 	return &s, nil
 }
 
-func parseRes(t string) (*scenario, error) {
-	var s scenario
+func parseHttpResponseSection(t string) (*httpRequestStep, error) {
+	var s httpRequestStep
 
 	lines := strings.Split(t, "\n")
 	if len(lines) == 0 {
@@ -176,7 +216,7 @@ func parseRes(t string) (*scenario, error) {
 			break
 		}
 
-		if err := parseHeader(&headers, l); err != nil {
+		if err := parseHeaderLine(&headers, l); err != nil {
 			return nil, err
 		}
 		lastHeaderLine += 1
@@ -191,7 +231,7 @@ func parseRes(t string) (*scenario, error) {
 	return &s, nil
 }
 
-func parseHeader(mp *http.Header, line string) error {
+func parseHeaderLine(mp *http.Header, line string) error {
 	sp := strings.SplitN(line, ": ", 2)
 	if len(sp) != 2 {
 		return fmt.Errorf("ヘッダの形式が変 %s", line)
