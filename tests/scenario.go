@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type scenario struct {
@@ -20,6 +21,7 @@ type stepType string
 const (
 	stepTypeHttpRequest stepType = "httpRequest"
 	stepTypeSQL         stepType = "sql"
+	stepTypeTimeFreeze  stepType = "timeFreeze"
 )
 
 type httpRequestStep struct {
@@ -41,6 +43,13 @@ type sqlStep struct {
 	StepDescription string
 
 	Query string
+}
+
+type timeFreezeStep struct {
+	Type            stepType
+	StepDescription string
+
+	Datetime string
 }
 
 func GetScenarios() ([]scenario, error) {
@@ -127,6 +136,13 @@ func parseScenario(t string, name string) (*scenario, error) {
 				return nil, err
 			}
 			step.StepDescription, _ = strings.CutPrefix(sp[0], string(stepTypeSQL))
+			steps = append(steps, *step)
+		case strings.HasPrefix(sp[0], string(stepTypeTimeFreeze)):
+			step, err := parseTimeFreezeStep(sp[1])
+			if err != nil {
+				return nil, err
+			}
+			step.StepDescription, _ = strings.CutPrefix(sp[0], string(stepTypeTimeFreeze))
 			steps = append(steps, *step)
 		default:
 			return nil, fmt.Errorf("未知のstepType %s", sp[0])
@@ -268,5 +284,18 @@ func parseSQLStep(t string) (*sqlStep, error) {
 
 	s.Query = t
 	s.Type = stepTypeSQL
+	return &s, nil
+}
+
+func parseTimeFreezeStep(t string) (*timeFreezeStep, error) {
+	var s timeFreezeStep
+
+	dt := strings.TrimSpace(t)
+	if _, err := time.Parse(time.DateTime, t); err != nil {
+		return nil, fmt.Errorf("datetimeのフォーマットが変 %s", t)
+	}
+	s.Datetime = dt
+	s.Type = stepTypeTimeFreeze
+
 	return &s, nil
 }

@@ -27,6 +27,9 @@ func TestScenario(t *testing.T, s *scenario, ts *httptest.Server) {
 		case sqlStep:
 			log.Printf("step %d %s", i, v.StepDescription)
 			testSQLStep(t, &v)
+		case timeFreezeStep:
+			log.Printf("step %d %s", i, v.StepDescription)
+			testTimeFreezeStep(t, &v)
 		default:
 			log.Println("Stepのキャストに失敗")
 			t.FailNow()
@@ -99,6 +102,10 @@ func testSQLStep(t *testing.T, s *sqlStep) {
 		log.Println(err)
 		t.FailNow()
 	}
+}
+
+func testTimeFreezeStep(t *testing.T, s *timeFreezeStep) {
+	setTimeFreeze(s.Datetime)
 }
 
 var capturePattern = regexp.MustCompile(`{{([a-zA-Z0-9]+)}}`)
