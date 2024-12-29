@@ -1,4 +1,4 @@
-httpRequest response_typeがないとき、エラーを返す TODO: Interruptedになる
+httpRequest response_typeがないとき、エラーを返す
 GET /authenticate?client_id=demo.accounts.comame.dev&redirect_uri=http://localhost:8080/dev/callback.html&scope=openid&state=state&nonce=nonce
 
 
