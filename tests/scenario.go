@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -29,11 +28,11 @@ type httpRequestStep struct {
 
 	ReqMethod  string
 	ReqPath    string
-	ReqHeaders http.Header
+	ReqHeaders map[string]string
 	ReqBody    string
 
 	ResStatus  int
-	ResHeaders http.Header
+	ResHeaders map[string]string
 	ResBody    string
 }
 
@@ -187,7 +186,7 @@ func parseHttpRequestSection(t string) (*httpRequestStep, error) {
 	}
 	lines = lines[1:]
 
-	headers := make(http.Header)
+	headers := make(map[string]string)
 	lastHeaderLine := 0
 	for _, l := range lines {
 		if l == "" {
@@ -227,7 +226,7 @@ func parseHttpResponseSection(t string) (*httpRequestStep, error) {
 	}
 	lines = lines[1:]
 
-	headers := make(http.Header)
+	headers := make(map[string]string)
 	lastHeaderLine := 0
 	for _, l := range lines {
 		if l == "" {
@@ -249,12 +248,12 @@ func parseHttpResponseSection(t string) (*httpRequestStep, error) {
 	return &s, nil
 }
 
-func parseHeaderLine(mp *http.Header, line string) error {
+func parseHeaderLine(mp *map[string]string, line string) error {
 	sp := strings.SplitN(line, ": ", 2)
 	if len(sp) != 2 {
 		return fmt.Errorf("ヘッダの形式が変 %s", line)
 	}
-	(*mp)[sp[0]] = append((*mp)[sp[0]], sp[1])
+	(*mp)[sp[0]] = sp[1]
 
 	return nil
 }

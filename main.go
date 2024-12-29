@@ -28,6 +28,8 @@ func init() {
 
 	// TODO: 環境変数から読む
 	kvs.InitializeRedis("dev.accounts.comame.xyz", "redis.comame.dev:6379")
+
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 }
 
 func main() {
