@@ -1,0 +1,17 @@
+timeFreeze
+2024-12-01 00:00:00
+
+
+
+
+prepareKeyPair
+
+
+
+
+httpRequest requestパラメータ付きで Autehntication Endpoint をたたく
+GET /authenticate?client_id=demo.accounts.comame.dev&redirect_uri=http://localhost:8080/dev/callback.html&scope=openid&&response_type=code&request=eyJhbGciOiJub25lIn0.eyJzY29wZSI6Im9wZW5pZCIsInJlc3BvbnNlX3R5cGUiOiJjb2RlIiwicmVkaXJlY3RfdXJpIjoiaHR0cHM6Ly93d3cuY2VydGlmaWNhdGlvbi5vcGVuaWQubmV0L3Rlc3QvYS9pZC1jb21hbWUtZGV2L2NhbGxiYWNrIiwic3RhdGUiOiJDb3dDZUtxVWlGIiwibm9uY2UiOiJyN2FWR1BzMktwIiwiY2xpZW50X2lkIjoib2lkYy1jZXJ0aWZpY2F0aW9uIn0.
+
+
+302
+Location: http://localhost:8080/dev/callback.html?error=request_not_supported

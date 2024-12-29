@@ -32,6 +32,10 @@ func PreAuthenticate(req AuthenticationRequest) (string, error) {
 		}
 	}
 
+	if req.Request != "" {
+		return "", throw(ErrAuthenticationErrRequestNotSupported, true)
+	}
+
 	if req.Scope == "" || req.ResponseType == "" || req.ClientId == "" || req.RedirectURI == "" {
 		return "", throw(errMissingRequiredParameter, false)
 	}

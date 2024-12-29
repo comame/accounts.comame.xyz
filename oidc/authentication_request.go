@@ -21,6 +21,8 @@ type AuthenticationRequest struct {
 	// Negative MaxAge (-1) indicates unspecified.
 	MaxAge      int64
 	IDTokenHint string
+	// unsupported parameter
+	Request string
 }
 
 type LoginPrompt string
@@ -61,6 +63,7 @@ func ParseAuthenticationRequestFromQuery(q url.Values) (*AuthenticationRequest, 
 		Prompt:       LoginPrompt(q.Get("prompt")),
 		MaxAge:       maxAge,
 		IDTokenHint:  q.Get("id_token_hint"),
+		Request:      q.Get("request"),
 	}
 
 	return &req, nil
