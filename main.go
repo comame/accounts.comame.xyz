@@ -47,6 +47,11 @@ func main() {
 		return
 	}
 
+	log.Println("Start http://localhost:8080")
+	http.ListenAndServe(":8080", getAppHandler())
+}
+
+func getAppHandler() http.Handler {
 	router.Get("/signin", handle_GET_signin)
 
 	router.Get("/authenticate", handle_GET_authenticate)
@@ -67,8 +72,7 @@ func main() {
 		w.WriteHeader(http.StatusNotFound)
 	})
 
-	log.Println("Start http://localhost:8080")
-	http.ListenAndServe(":8080", router.Handler())
+	return router.Handler()
 }
 
 func handle_GET_signin(w http.ResponseWriter, r *http.Request) {
