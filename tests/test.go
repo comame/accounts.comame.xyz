@@ -104,6 +104,7 @@ func testSQLStep(t *testing.T, s *sqlStep) {
 var capturePattern = regexp.MustCompile(`{{([a-zA-Z0-9]+)}}`)
 var embedPattern = regexp.MustCompile(`\(\(([a-zA-Z0-9]+)\)\)`)
 
+// TODO: 別ファイルに移してテストも書く...
 func capture(template, target string, variables *map[string]string) string {
 	m := capturePattern.FindAllStringSubmatchIndex(template, -1)
 	patternStr := ""

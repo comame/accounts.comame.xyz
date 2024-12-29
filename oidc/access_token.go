@@ -6,10 +6,11 @@ import (
 
 	"github.com/comame/accounts.comame.xyz/db"
 	"github.com/comame/accounts.comame.xyz/random"
+	"github.com/comame/accounts.comame.xyz/timenow"
 )
 
 func CreateAccessToken(sub, scopes string) (token string, expiresIn int64, err error) {
-	now := time.Now()
+	now := timenow.Now()
 
 	t, err := random.String(32)
 	if err != nil {
@@ -33,7 +34,7 @@ func FindAccessToken(token string) (sub, scope string, err error) {
 		return "", "", err
 	}
 
-	now := time.Now()
+	now := timenow.Now()
 	exp, err := time.Parse(db.DatetimeFormat, createdAt)
 	if err != nil {
 		return "", "", err
