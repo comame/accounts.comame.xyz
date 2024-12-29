@@ -20,6 +20,7 @@ type stepType string
 
 const (
 	stepTypeHttpRequest stepType = "httpRequest"
+	stepTypeSQL         stepType = "sql"
 )
 
 type httpRequestStep struct {
@@ -34,6 +35,13 @@ type httpRequestStep struct {
 	ResStatus  int
 	ResHeaders http.Header
 	ResBody    string
+}
+
+type sqlStep struct {
+	Type            stepType
+	StepDescription string
+
+	Query string
 }
 
 func GetScenarios() ([]scenario, error) {
@@ -113,6 +121,13 @@ func parseScenario(t string, name string) (*scenario, error) {
 				return nil, err
 			}
 			step.StepDescription, _ = strings.CutPrefix(sp[0], string(stepTypeHttpRequest))
+			steps = append(steps, *step)
+		case strings.HasPrefix(sp[0], string(stepTypeSQL)):
+			step, err := parseSQLStep(sp[1])
+			if err != nil {
+				return nil, err
+			}
+			step.StepDescription, _ = strings.CutPrefix(sp[0], string(stepTypeSQL))
 			steps = append(steps, *step)
 		default:
 			return nil, fmt.Errorf("未知のstepType %s", sp[0])
@@ -242,4 +257,17 @@ func parseHeaderLine(mp *http.Header, line string) error {
 	(*mp)[sp[0]] = append((*mp)[sp[0]], sp[1])
 
 	return nil
+}
+
+func parseSQLStep(t string) (*sqlStep, error) {
+	var s sqlStep
+
+	q := strings.TrimSpace(t)
+	if len(q) == 0 {
+		return nil, errors.New("空のクエリ")
+	}
+
+	s.Query = t
+	s.Type = stepTypeSQL
+	return &s, nil
 }

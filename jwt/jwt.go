@@ -89,6 +89,9 @@ func DecodeRSAPrivKeyPem(pemString string) (*rsa.PrivateKey, error) {
 
 func DecodeRSAPubKeyPem(pemString string) (*rsa.PublicKey, error) {
 	block, _ := pem.Decode([]byte(pemString))
+	if block == nil {
+		return nil, errors.New("invalid pem format")
+	}
 
 	if block.Type != "PUBLIC KEY" {
 		return nil, errors.New("invalid pem format")

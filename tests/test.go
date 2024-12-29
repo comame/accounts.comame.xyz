@@ -9,6 +9,8 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/comame/accounts.comame.xyz/db"
 )
 
 func TestScenario(t *testing.T, s *scenario, ts *httptest.Server) {
@@ -19,6 +21,9 @@ func TestScenario(t *testing.T, s *scenario, ts *httptest.Server) {
 		case httpRequestStep:
 			log.Printf("step %d %s", i, v.StepDescription)
 			testHttpRequestStep(t, &v, ts)
+		case sqlStep:
+			log.Printf("step %d %s", i, v.StepDescription)
+			testSQLStep(t, &v)
 		default:
 			log.Println("Stepのキャストに失敗")
 			t.FailNow()
@@ -68,5 +73,13 @@ func testHttpRequestStep(t *testing.T, s *httpRequestStep, ts *httptest.Server) 
 		fmt.Println(string(resBody))
 		t.FailNow()
 		return
+	}
+}
+
+func testSQLStep(t *testing.T, s *sqlStep) {
+	if _, err := db.Conn().Exec(s.Query); err != nil {
+		log.Println("DBがエラーを返した")
+		log.Println(err)
+		t.FailNow()
 	}
 }
