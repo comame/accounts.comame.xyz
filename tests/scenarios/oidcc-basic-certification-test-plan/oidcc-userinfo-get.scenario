@@ -54,5 +54,6 @@ Authorization: Bearer ((accessToken))
 
 
 200
+Content-Type: application/json
 
 {"sub":"admin"}
