@@ -2,13 +2,13 @@ package oidc
 
 import (
 	"errors"
-	"time"
 
 	"github.com/comame/accounts.comame.xyz/auth"
 	"github.com/comame/accounts.comame.xyz/db"
 	"github.com/comame/accounts.comame.xyz/jwt"
 	"github.com/comame/accounts.comame.xyz/kvs"
 	"github.com/comame/accounts.comame.xyz/random"
+	"github.com/comame/accounts.comame.xyz/timenow"
 )
 
 // IDToken を発行する。sub が確定したのち呼ぶ。
@@ -33,7 +33,7 @@ func PostAuthentication(
 		return nil, err
 	}
 
-	now := time.Now().Unix()
+	now := timenow.Now().Unix()
 
 	// TODO: auth_at に対応する
 	// TODO: email, email_verified, name, preferred_username, profile, picture に対応する

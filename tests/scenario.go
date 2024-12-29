@@ -4,10 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type scenario struct {
@@ -19,8 +19,10 @@ type scenario struct {
 type stepType string
 
 const (
-	stepTypeHttpRequest stepType = "httpRequest"
-	stepTypeSQL         stepType = "sql"
+	stepTypeHttpRequest    stepType = "httpRequest"
+	stepTypeSQL            stepType = "sql"
+	stepTypeTimeFreeze     stepType = "timeFreeze"
+	stepTypePrepareKeyPair stepType = "prepareKeyPair"
 )
 
 type httpRequestStep struct {
@@ -29,11 +31,11 @@ type httpRequestStep struct {
 
 	ReqMethod  string
 	ReqPath    string
-	ReqHeaders http.Header
+	ReqHeaders map[string]string
 	ReqBody    string
 
 	ResStatus  int
-	ResHeaders http.Header
+	ResHeaders map[string]string
 	ResBody    string
 }
 
@@ -42,6 +44,18 @@ type sqlStep struct {
 	StepDescription string
 
 	Query string
+}
+
+type timeFreezeStep struct {
+	Type            stepType
+	StepDescription string
+
+	Datetime string
+}
+
+type prepareKeyPairStep struct {
+	Type            stepType
+	StepDescription string
 }
 
 func GetScenarios() ([]scenario, error) {
@@ -129,6 +143,19 @@ func parseScenario(t string, name string) (*scenario, error) {
 			}
 			step.StepDescription, _ = strings.CutPrefix(sp[0], string(stepTypeSQL))
 			steps = append(steps, *step)
+		case strings.HasPrefix(sp[0], string(stepTypeTimeFreeze)):
+			step, err := parseTimeFreezeStep(sp[1])
+			if err != nil {
+				return nil, err
+			}
+			step.StepDescription, _ = strings.CutPrefix(sp[0], string(stepTypeTimeFreeze))
+			steps = append(steps, *step)
+		case strings.HasPrefix(sp[0], string(stepTypePrepareKeyPair)):
+			step := prepareKeyPairStep{
+				Type: stepTypePrepareKeyPair,
+			}
+			step.StepDescription, _ = strings.CutPrefix(sp[0], string(stepTypePrepareKeyPair))
+			steps = append(steps, step)
 		default:
 			return nil, fmt.Errorf("未知のstepType %s", sp[0])
 		}
@@ -187,7 +214,7 @@ func parseHttpRequestSection(t string) (*httpRequestStep, error) {
 	}
 	lines = lines[1:]
 
-	headers := make(http.Header)
+	headers := make(map[string]string)
 	lastHeaderLine := 0
 	for _, l := range lines {
 		if l == "" {
@@ -227,7 +254,7 @@ func parseHttpResponseSection(t string) (*httpRequestStep, error) {
 	}
 	lines = lines[1:]
 
-	headers := make(http.Header)
+	headers := make(map[string]string)
 	lastHeaderLine := 0
 	for _, l := range lines {
 		if l == "" {
@@ -249,12 +276,12 @@ func parseHttpResponseSection(t string) (*httpRequestStep, error) {
 	return &s, nil
 }
 
-func parseHeaderLine(mp *http.Header, line string) error {
+func parseHeaderLine(mp *map[string]string, line string) error {
 	sp := strings.SplitN(line, ": ", 2)
 	if len(sp) != 2 {
 		return fmt.Errorf("ヘッダの形式が変 %s", line)
 	}
-	(*mp)[sp[0]] = append((*mp)[sp[0]], sp[1])
+	(*mp)[sp[0]] = sp[1]
 
 	return nil
 }
@@ -269,5 +296,18 @@ func parseSQLStep(t string) (*sqlStep, error) {
 
 	s.Query = t
 	s.Type = stepTypeSQL
+	return &s, nil
+}
+
+func parseTimeFreezeStep(t string) (*timeFreezeStep, error) {
+	var s timeFreezeStep
+
+	dt := strings.TrimSpace(t)
+	if _, err := time.Parse(time.DateTime, t); err != nil {
+		return nil, fmt.Errorf("datetimeのフォーマットが変 %s", t)
+	}
+	s.Datetime = dt
+	s.Type = stepTypeTimeFreeze
+
 	return &s, nil
 }

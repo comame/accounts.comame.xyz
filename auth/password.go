@@ -5,9 +5,9 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"strings"
-	"time"
 
 	"github.com/comame/accounts.comame.xyz/db"
+	"github.com/comame/accounts.comame.xyz/timenow"
 )
 
 func CalculatePasswordHash(password string, salt string) string {
@@ -32,7 +32,7 @@ func AuthenticateByPassword(ctx context.Context, sub, password, aud, userAgentID
 		return false, err
 	}
 
-	now := time.Now().Unix()
+	now := timenow.Now().Unix()
 
 	if err := CreateAuthentication(con, aud, sub, userAgentID, AuthenticationMethodPassword, now); err != nil {
 		return false, err

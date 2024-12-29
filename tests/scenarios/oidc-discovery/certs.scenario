@@ -1,0 +1,23 @@
+prepareKeyPair
+
+
+
+
+httpRequest certsエンドポイントが正しい値を返す
+GET /certs
+
+
+200
+
+{
+    "keys": [
+        {
+            "n": "sicr_hIYRFhuKCQ-NBaxZeNj3_yTcqu6PKVC7-9X6R74ITXTnweArSaoASKNyaWmanuEGvNmE4cZm3_4BMzJ2YW6V5X6qj5xM7tolYAZ2VCCCcwPLbK54q3tgrzPZtPl_QpiJ4hCx17ajBvemOfSOCXYoPy-IFL2ISiReqibiQJU7amZvVb-KmRnfCE2az-3Cj8D-fEd1SZQ-BWcDb36L6Iw_1mvP5F58GrnkSwOQ2UvZESwR74DhlP2AoeTUw_lUbmgBLhz_P0Clk0RBuLEHR6_VPLQVwa7PRSsawJKAAA1Ha9SCb9fWD6AJ6Q6pJ5taAqvwGe1w-wZOPMyTv0gYw",
+            "e": "AQAB",
+            "kty": "RSA",
+            "alg": "RS256",
+            "kid": "TNkhLzSn",
+            "use": "sig"
+        }
+    ]
+}

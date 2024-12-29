@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/comame/accounts.comame.xyz/db"
+	"github.com/comame/accounts.comame.xyz/timenow"
 )
 
 type AuthenticationMethod string
@@ -20,7 +21,7 @@ func CreateAuthentication(
 	method AuthenticationMethod,
 	authenticatedAt int64,
 ) error {
-	now := time.Now().Format(db.DatetimeFormat)
+	now := timenow.Now().Format(db.DatetimeFormat)
 	at := time.Unix(authenticatedAt, 0).Format(db.DatetimeFormat)
 	if err := db.Authentication_insertInTransaction(tx, aud, sub, userAgentID, string(method), now, at); err != nil {
 		return err

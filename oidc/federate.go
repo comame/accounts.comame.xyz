@@ -10,13 +10,13 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"time"
 
 	"github.com/comame/accounts.comame.xyz/auth"
 	"github.com/comame/accounts.comame.xyz/db"
 	"github.com/comame/accounts.comame.xyz/jwt"
 	"github.com/comame/accounts.comame.xyz/kvs"
 	"github.com/comame/accounts.comame.xyz/random"
+	"github.com/comame/accounts.comame.xyz/timenow"
 )
 
 func GenerateGoogleAuthURL(loginSessionID, clientID, clientSecret string) (state, redirect string, err error) {
@@ -105,7 +105,7 @@ func CallbackGoogle(code, state, clientID, clientSecret string) (*Authentication
 		return nil, err
 	}
 
-	now := time.Now().Unix()
+	now := timenow.Now().Unix()
 
 	if claim.Iss != "https://accounts.google.com" {
 		return nil, errors.New("iss が Google でない")
