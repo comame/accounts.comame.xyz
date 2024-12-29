@@ -48,9 +48,24 @@ grant_type=authorization_code&code=((code))&redirect_uri=http%3A%2F%2Flocalhost%
 
 
 
-httpRequest UserInfo Endpoint をたたく
+httpRequest UserInfo Endpoint を叩く
 GET /userinfo
 Authorization: Bearer ((accessToken))
+
+
+200
+Content-Type: application/json
+
+{"sub":"admin"}
+
+
+
+
+httpRequest UserInfo Endpointを叩く (POST)
+POST /userinfo
+Content-Type: application/x-www-form-urlencoded
+
+access_token=((accessToken))
 
 
 200
