@@ -6,9 +6,10 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"reflect"
-	"regexp"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/comame/accounts.comame.xyz/db"
@@ -32,6 +33,18 @@ func TestScenario(t *testing.T, s *scenario, ts *httptest.Server) {
 		case timeFreezeStep:
 			log.Printf("step %d %s", i, v.StepDescription)
 			testTimeFreezeStep(t, &v)
+		case assertIncomingRequestStep:
+			log.Printf("step %d %s", i, v.StepDescription)
+			testAssertIncomingRequestStep(t, &v, ts, &variables)
+		case printStep:
+			log.Printf("step %d %s", i, v.StepDescription)
+			testPrintStep(t, &v, &variables)
+		case interactiveStep:
+			if os.Getenv("INTERACTIVE") == "" {
+				log.Printf("skip interactive test")
+				log.Println()
+				return
+			}
 		default:
 			log.Println("Stepのキャストに失敗")
 			t.FailNow()
@@ -110,74 +123,72 @@ func testTimeFreezeStep(_ *testing.T, s *timeFreezeStep) {
 	setTimeFreeze(s.Datetime)
 }
 
+func testAssertIncomingRequestStep(t *testing.T, s *assertIncomingRequestStep, ts *httptest.Server, variables *map[string]string) {
+	srv := &http.Server{
+		Addr: ":8080",
+	}
+
+	var wg sync.WaitGroup
+	var mut sync.Mutex
+
+	failed := false
+
+	srv.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !mut.TryLock() {
+			// 複数回リクエストを受け付けたときは 500 を返して処理しない
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		expectedPath := capture(s.Path, r.URL.Path, variables)
+
+		if r.Method != s.Method {
+			failed = true
+			log.Printf("メソッドが異なる expected %s got %s", s.Method, r.Method)
+		}
+		if r.URL.Path != expectedPath {
+			failed = true
+			log.Printf("パスが異なる expected %s got %s", expectedPath, r.URL.Path)
+		}
+		if failed {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		for k, v := range s.AdditionalHeader {
+			r.Header.Add(k, capture(v, v, variables))
+		}
+		ts.Config.Handler.ServeHTTP(w, r)
+
+		// TODO: 後で消す
+		failed = true
+
+		// リクエストを受け取ったら進行する
+		wg.Done()
+	})
+
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			// テストの Goroutine ではないので、t.FailNow ではなく panic する
+			panic(err)
+		}
+	}()
+
+	wg.Add(1)
+	wg.Wait()
+
+	if failed {
+		t.FailNow()
+	}
+}
+
+func testPrintStep(_ *testing.T, s *printStep, variables *map[string]string) {
+	log.Println(capture(s.Message, s.Message, variables))
+}
+
 func testPrepare(t *testing.T) {
 	if err := setup(); err != nil {
 		log.Println(err)
 		t.FailNow()
 	}
-}
-
-var capturePattern = regexp.MustCompile(`{{([a-zA-Z0-9]+)}}`)
-var embedPattern = regexp.MustCompile(`\(\(([a-zA-Z0-9]+)\)\)`)
-
-// TODO: 別ファイルに移してテストも書く...
-func capture(template, target string, variables *map[string]string) string {
-	m := capturePattern.FindAllStringSubmatchIndex(template, -1)
-	patternStr := ""
-	last := 0
-	var names []string
-	for _, match := range m {
-		patternStr += regexp.QuoteMeta(template[last:match[0]])
-		patternStr += "([a-zA-Z0-9-_=\\.]+)"
-		last = match[1]
-		names = append(names, template[match[2]:match[3]])
-	}
-	patternStr += regexp.QuoteMeta(template[last:])
-
-	pattern, err := regexp.Compile(patternStr)
-	if err != nil {
-		return template
-	}
-	ms := pattern.FindStringSubmatch(target)
-
-	if len(ms) >= 2 {
-		for i, name := range names {
-			(*variables)[name] = ms[i+1]
-		}
-	}
-
-	replaced := ""
-	last = 0
-	for _, match := range m {
-		replaced += template[last:match[0]]
-		v, ok := (*variables)[template[match[2]:match[3]]]
-		if ok {
-			replaced += v
-		} else {
-			replaced += template[match[2]:match[3]]
-		}
-		last = match[1]
-	}
-	replaced += template[last:]
-
-	me := embedPattern.FindAllStringSubmatchIndex(template, -1)
-	if len(me) == 0 {
-		return replaced
-	}
-	embed := ""
-	last = 0
-	for _, match := range me {
-		embed += template[last:match[0]]
-
-		v, ok := (*variables)[template[match[2]:match[3]]]
-		if ok {
-			embed += v
-		} else {
-			embed += template[match[0]:match[1]]
-		}
-
-		last = match[1]
-	}
-	embed += template[last:]
-	return embed
 }
