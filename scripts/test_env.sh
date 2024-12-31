@@ -54,6 +54,3 @@ set +a
 mysql -uroot -hlocalhost -P33063 --protocol tcp -e"DROP DATABASE IF EXISTS id_dev"
 mysql -uroot -hlocalhost -P33063 --protocol tcp -e"CREATE DATABASE id_dev"
 mysql -uroot -hlocalhost -P33063 --protocol tcp -Did_dev < ./tables.sql
-
-go run . script setup_default admin dashboard_client_secret
-go run . script create_demo_rp
