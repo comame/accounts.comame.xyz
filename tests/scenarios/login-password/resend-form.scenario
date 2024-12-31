@@ -1,0 +1,39 @@
+prepareKeyPair
+
+
+
+
+httpRequest Authentication Endpoint をたたくと、ログインページを開く
+GET /authenticate?client_id=demo.accounts.comame.dev&redirect_uri=http://localhost:8080/dev/callback.html&scope=openid&state=state&nonce=nonce&response_type=code
+
+
+302
+Location: /signin?sid={{sid}}&cid=demo.accounts.comame.dev
+
+
+
+
+httpRequest パスワードログイン
+POST /api/signin-password
+Content-Type: application/json
+
+{"user_id":"admin","password":"admin","csrf_token":"$CSRF","relying_party_id":"demo.accounts.comame.dev","user_agent_id":"foooo","state_id":"((sid))"}
+
+
+200
+
+{ "location": "http://localhost:8080/dev/callback.html?code={{code}}&state=state" }
+
+
+
+
+httpRequest パスワードログイン (2回目は失敗)
+POST /api/signin-password
+Content-Type: application/json
+
+{"user_id":"admin","password":"admin","csrf_token":"$CSRF","relying_party_id":"demo.accounts.comame.dev","user_agent_id":"foooo","state_id":"((sid))"}
+
+
+400
+
+{ "error": "bad_request" }
