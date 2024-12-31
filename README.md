@@ -1,6 +1,11 @@
+# 前提
+
+- mysql-server
+- redis-server
+
 # 開発環境の起動
 
-1. `scripts/test_env.sh`
+1. `scripts/dev_db.sh`
 1. `./prebuild.sh`
 1. `set -a; . .env; set +a`
 1. `readenv .env`
@@ -15,7 +20,7 @@
 
 ## E2Eテスト (自動)
 
-1. `scripts/test_env.sh`
+1. `scripts/dev_db.sh`
 1. `readenv .env`
 1. `go test ./`
 

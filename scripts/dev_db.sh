@@ -26,13 +26,20 @@ start_local_mysql() {
     mysqld --datadir="$DATADIR" --log-error="$DATADIR/mysql.log" --socket="$DATADIR/mysql.sock" --port=$MYSQL_PORT &
     local MYSQL_PID=$!
 
-    echo "$MYSQL_PID"
+    echo "mysql $MYSQL_PID"
 }
 
-function wait_until_start() {
+start_local_redis() {
+    redis-server --port 33064 &
+    local REDIS_PID=$!
+
+    echo "redis $REDIS_PID"
+}
+
+function wait_until_listen() {
     local last_status=1
     while [ $last_status -ne 0 ]; do
-        nc -z -v localhost 33063 > /dev/null 2>&1
+        nc -z -v localhost $1 > /dev/null 2>&1
         if [ $? -eq 0 ]; then
             local last_status=0
         else
@@ -43,7 +50,12 @@ function wait_until_start() {
 
 # MySQL の起動
 start_local_mysql
-wait_until_start
+wait_until_listen 33063
+
+# redis の起動
+start_local_redis
+wait_until_listen 33064
+
 
 # 環境変数に読み込み
 set -a

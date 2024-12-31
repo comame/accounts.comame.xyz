@@ -27,7 +27,11 @@ func init() {
 	db.Initialize()
 
 	// TODO: 環境変数から読む
-	kvs.InitializeRedis("dev.accounts.comame.xyz", "redis.comame.dev:6379")
+	rhost := os.Getenv("REDIS_HOST")
+	if rhost == "" {
+		panic("REDIS_HOSTが未指定")
+	}
+	kvs.InitializeRedis("dev.accounts.comame.xyz", rhost)
 
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 }
