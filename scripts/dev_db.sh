@@ -2,6 +2,13 @@
 
 MYSQL_PORT=33063
 
+stop_mysql_redis() {
+    if [ -e .pid ]; then
+        cat .pid | awk '{ print $2 }' | xargs kill
+        rm .pid
+    fi
+}
+
 start_local_mysql() {
     DATADIR="$(pwd)/.testdb"
 
@@ -26,14 +33,14 @@ start_local_mysql() {
     mysqld --datadir="$DATADIR" --log-error="$DATADIR/mysql.log" --socket="$DATADIR/mysql.sock" --port=$MYSQL_PORT &
     local MYSQL_PID=$!
 
-    echo "mysql $MYSQL_PID"
+    echo "mysql $MYSQL_PID" >> .pid
 }
 
 start_local_redis() {
     redis-server --port 33064 &
     local REDIS_PID=$!
 
-    echo "redis $REDIS_PID"
+    echo "redis $REDIS_PID" >> .pid
 }
 
 function wait_until_listen() {
@@ -47,6 +54,14 @@ function wait_until_listen() {
         fi
     done
 }
+
+if [ "$1" = 'stop' ]; then
+    stop_mysql_redis
+    exit
+fi
+
+# 起動中なら止める
+stop_mysql_redis
 
 # MySQL の起動
 start_local_mysql
