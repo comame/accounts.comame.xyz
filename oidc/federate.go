@@ -19,7 +19,7 @@ import (
 	"github.com/comame/accounts.comame.xyz/timenow"
 )
 
-func GenerateGoogleAuthURL(loginSessionID, clientID, clientSecret string) (state, redirect string, err error) {
+func GenerateGoogleAuthURL(loginSessionID, clientID, clientSecret, myOrigin string) (state, redirect string, err error) {
 	_, err = kvs.LoginSession_get(loginSessionID)
 	if err != nil {
 		return "", "", err
@@ -45,7 +45,7 @@ func GenerateGoogleAuthURL(loginSessionID, clientID, clientSecret string) (state
 	q.Set("client_id", clientID)
 	q.Set("response_type", "code")
 	q.Set("scope", "openid email profile")
-	q.Set("redirect_uri", "https://accounts.comame.xyz/oidc-callback/google")
+	q.Set("redirect_uri", myOrigin+"/oidc-callback/google")
 	q.Set("state", state)
 	q.Set("nonce", nonce)
 	u.RawQuery = q.Encode()

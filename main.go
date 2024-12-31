@@ -268,7 +268,7 @@ func handle_POST_signinGoogle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	state, redirect, err := oidc.GenerateGoogleAuthURL(req.SessionID, os.Getenv("GOOGLE_OIDC_CLIENT_ID"), os.Getenv("GOOGLE_OIDC_CLIENT_ID"))
+	state, redirect, err := oidc.GenerateGoogleAuthURL(req.SessionID, os.Getenv("GOOGLE_OIDC_CLIENT_ID"), os.Getenv("GOOGLE_OIDC_CLIENT_ID"), os.Getenv("HOST"))
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
