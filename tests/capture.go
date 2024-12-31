@@ -18,14 +18,14 @@ func capture(template, target string, variables *map[string]string) string {
 	var names []string
 	for _, match := range variableDefinitionMatches {
 		patternStr += regexp.QuoteMeta(template[last:match[0]])
-		patternStr += "([a-zA-Z0-9-_=\\.]+)"
+		patternStr += "([a-zA-Z0-9-_=%\\+\\.]+)"
 		last = match[1]
 		names = append(names, template[match[2]:match[3]])
 	}
 	patternStr += regexp.QuoteMeta(template[last:])
 
 	// 埋め込み用のパターン部分を避ける
-	patternStr = regexp.MustCompile(`\\\(\\\([a-zA-Z0-9_]+\\\)\\\)`).ReplaceAllString(patternStr, "[a-zA-Z0-9-_=\\.]+")
+	patternStr = regexp.MustCompile(`\\\(\\\([a-zA-Z0-9_]+\\\)\\\)`).ReplaceAllString(patternStr, "[a-zA-Z0-9-_=%\\+\\.]+")
 
 	pattern, err := regexp.Compile(patternStr)
 	if err != nil {

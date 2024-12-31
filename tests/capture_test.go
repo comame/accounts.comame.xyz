@@ -74,3 +74,27 @@ func Test両方ができる(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func Test両方ができる2(t *testing.T) {
+	v := map[string]string{
+		"foo": "foo_value",
+	}
+	ret := capture(
+		"aaa{{bar}}aaa((foo))",
+		"aaabar_valueaaafoo_value",
+		&v,
+	)
+
+	if len(v) != 2 {
+		t.Fail()
+	}
+	if v["foo"] != "foo_value" {
+		t.Fail()
+	}
+	if v["bar"] != "bar_value" {
+		t.Fail()
+	}
+	if ret != "aaabar_valueaaafoo_value" {
+		t.Fail()
+	}
+}

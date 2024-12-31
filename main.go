@@ -315,7 +315,7 @@ func handle_GET_oidCallbackGoogle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := oidc.CallbackGoogle(code, state, os.Getenv("GOOGLE_OIDC_CLIENT_ID"), os.Getenv("GOOGLE_OIDC_CLIENT_SECRET"))
+	res, err := oidc.CallbackGoogle(code, state, os.Getenv("GOOGLE_OIDC_CLIENT_ID"), os.Getenv("GOOGLE_OIDC_CLIENT_SECRET"), os.Getenv("HOST"))
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)

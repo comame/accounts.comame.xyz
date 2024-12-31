@@ -1,0 +1,61 @@
+interactive
+
+
+
+
+sql
+insert into role_access
+set
+    role = 'google',
+    relying_party_id = 'demo.accounts.comame.dev'
+
+
+
+
+httpRequest Authentication Endpoint をたたくと、ログインページを開く
+GET /authenticate?client_id=demo.accounts.comame.dev&redirect_uri=http://localhost:8080/dev/callback.html&scope=openid&state=state&nonce=nonce&response_type=code
+
+
+302
+Location: /signin?sid={{sid}}&cid=demo.accounts.comame.dev
+
+
+
+
+httpRequest Googleログインを開始
+POST /signin/google
+
+{ "state_id": "((sid))", "user_agent_id": "user_agent_id" }
+
+
+200
+Set-Cookie: rp={{cookie_rp}}; Path=/; Max-Age=120; HttpOnly; Secure
+
+{ "location": "https://accounts.google.com/o/oauth2/v2/auth?client_id={{google_client_id}}&nonce={{google_nonce}}&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Foidc-callback%2Fgoogle&response_type=code&scope=openid+email+profile&state={{google_state}}"}
+
+
+
+
+print
+Googleでログインしてテストを続行: https://accounts.google.com/o/oauth2/v2/auth?client_id=((google_client_id))&nonce=((google_nonce))&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Foidc-callback%2Fgoogle&response_type=code&scope=openid+email+profile&state=((google_state))
+
+
+
+
+assertIncomingRequest Googleからのコールバック
+GET /oidc-callback/google?state=((google_state))&code={{google_code}}&scope={{google_scope}}&authuser=1&hd=comame.xyz&prompt=none
+
+
+Cookie: rp=((cookie_rp))
+
+
+
+
+assertIncomingRequest
+GET /dev/callback.html?code={{google_code}}&state=state
+
+
+
+
+print
+OK

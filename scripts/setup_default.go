@@ -58,6 +58,10 @@ func SetupDefault(args ...string) error {
 		return err
 	}
 
+	if err := db.Role_insert("google"); err != nil {
+		return err
+	}
+
 	if err := db.UserRole_insert("admin", "admin"); err != nil {
 		return err
 	}
