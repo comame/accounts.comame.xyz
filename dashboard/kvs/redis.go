@@ -21,7 +21,7 @@ var env env_t
 func init() {
 	readenv.Read(&env)
 	client = redis.NewClient(&redis.Options{
-		Addr: env.Host + ":6379",
+		Addr: env.Host,
 	})
 }
 
