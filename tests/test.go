@@ -68,7 +68,7 @@ func testHttpRequestStep(t *testing.T, s *httpRequestStep, ts *httptest.Server, 
 	if s.ReqBody != "" {
 		reqBody = strings.NewReader(capture(s.ReqBody, s.ReqBody, variables))
 	}
-	req, _ := http.NewRequest(s.ReqMethod, ts.URL+s.ReqPath, reqBody)
+	req, _ := http.NewRequest(s.ReqMethod, ts.URL+capture(s.ReqPath, s.ReqPath, variables), reqBody)
 	for k, v := range s.ReqHeaders {
 		v = capture(v, v, variables)
 		req.Header[k] = []string{v}
