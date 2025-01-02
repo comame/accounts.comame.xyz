@@ -31,8 +31,9 @@ func NewInteractiveServer(ts *httptest.Server) *interactiveServer {
 
 func (s *interactiveServer) Shutdown() {
 	if !s.listening {
-		s.srv.Shutdown(context.Background())
+		return
 	}
+	s.srv.Shutdown(context.Background())
 }
 
 func (s *interactiveServer) SetAssertion(t *testing.T, step *assertIncomingRequestStep, variables *map[string]string) {
