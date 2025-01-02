@@ -51,7 +51,7 @@ Cookie: rp=((cookie_rp))
 
 
 
-assertIncomingRequest
+assertIncomingRequest コールバック
 GET /dev/callback.html?code={{google_code}}&state=state
 
 

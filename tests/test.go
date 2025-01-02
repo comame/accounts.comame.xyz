@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"log"
@@ -10,7 +9,6 @@ import (
 	"os"
 	"reflect"
 	"strings"
-	"sync"
 	"testing"
 
 	"github.com/comame/accounts.comame.xyz/db"
@@ -20,6 +18,8 @@ func TestScenario(t *testing.T, s *scenario, ts *httptest.Server) {
 	log.Println(s.Name)
 
 	variables := make(map[string]string)
+	is := NewInteractiveServer(ts)
+	defer is.Shutdown()
 
 	testPrepare(t)
 
@@ -36,7 +36,7 @@ func TestScenario(t *testing.T, s *scenario, ts *httptest.Server) {
 			testTimeFreezeStep(t, &v)
 		case assertIncomingRequestStep:
 			log.Printf("step %d %s", i, v.StepDescription)
-			testAssertIncomingRequestStep(t, &v, ts, &variables)
+			testAssertIncomingRequestStep(t, &v, is, &variables)
 		case printStep:
 			log.Printf("step %d %s", i, v.StepDescription)
 			testPrintStep(t, &v, &variables)
@@ -124,58 +124,8 @@ func testTimeFreezeStep(_ *testing.T, s *timeFreezeStep) {
 	setTimeFreeze(s.Datetime)
 }
 
-func testAssertIncomingRequestStep(t *testing.T, s *assertIncomingRequestStep, ts *httptest.Server, variables *map[string]string) {
-	srv := &http.Server{
-		Addr: ":8080",
-	}
-
-	var wg sync.WaitGroup
-
-	failed := false
-
-	srv.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		gotPath := r.URL.Path
-		if len(r.URL.RawQuery) > 0 {
-			gotPath += "?" + r.URL.RawQuery
-		}
-		expectedPath := capture(s.Path, gotPath, variables)
-
-		if r.Method != s.Method {
-			failed = true
-			log.Printf("メソッドが異なる expected %s got %s", s.Method, r.Method)
-		}
-		if gotPath != expectedPath {
-			failed = true
-			log.Printf("パスが異なる expected %s got %s", expectedPath, gotPath)
-		}
-
-		for k, v := range s.AdditionalHeader {
-			r.Header.Add(k, capture(v, v, variables))
-		}
-		ts.Config.Handler.ServeHTTP(w, r)
-
-		// 成功したら次に進む
-		if !failed {
-			// FIXME: 連続してリクエストが来ると処理が追い付かないことがある
-			srv.Shutdown(context.Background())
-		}
-	})
-
-	go func() {
-		if err := srv.ListenAndServe(); err != nil {
-			if err == http.ErrServerClosed {
-				log.Println("close")
-				wg.Done()
-				return
-			}
-			panic(err)
-		}
-	}()
-
-	wg.Add(1)
-	log.Println("想定したリクエストを受け取るまで待機...")
-	wg.Wait()
-	log.Println("受け取ったので進行")
+func testAssertIncomingRequestStep(t *testing.T, s *assertIncomingRequestStep, is *interactiveServer, variables *map[string]string) {
+	is.SetAssertion(t, s, variables)
 }
 
 func testPrintStep(_ *testing.T, s *printStep, variables *map[string]string) {
