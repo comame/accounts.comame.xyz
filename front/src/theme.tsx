@@ -1,20 +1,20 @@
 import React from "react"
-import styled, { ThemeProvider } from "styled-components"
+import { CharcoalProvider } from "@charcoal-ui/react"
 
+import "@charcoal-ui/react/dist/layered.css"
+import { TokenInjector } from "@charcoal-ui/styled"
 import { CharcoalTheme, light } from "@charcoal-ui/theme"
-import { TokenInjector, createTheme } from "@charcoal-ui/styled"
+import { ThemeProvider } from "styled-components"
 
 declare module "styled-components" {
     export interface DefaultTheme extends CharcoalTheme {}
 }
 
 const Themed = (props: { children: React.ReactNode }) => (
-    <ThemeProvider theme={light}>
-        <TokenInjector theme={{ ":root": light }} />
-        {props.children}
-    </ThemeProvider>
+    <CharcoalProvider>
+        <TokenInjector theme={{ ":root": light }}></TokenInjector>
+        <ThemeProvider theme={light}>{props.children}</ThemeProvider>
+    </CharcoalProvider>
 )
 
-const theme = createTheme(styled)
-
-export { Themed, theme }
+export { Themed }

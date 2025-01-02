@@ -5,12 +5,15 @@ import { Button, TextField } from "@charcoal-ui/react"
 import { Themed } from "../theme"
 import { useQueryParams } from "./useQueryParams"
 import {
+    Bold,
+    ButtonsContainer,
+    Global,
+    InputContainer,
     Layout,
     LayoutItem,
     LayoutItemBody,
     LayoutItemHeader,
-} from "@charcoal-ui/react-sandbox"
-import { Bold, ButtonsContainer, Global, InputContainer } from "./layouts"
+} from "./layouts"
 import { getUserAgentId } from "./getUserAgentId"
 import { fetchApi } from "./fetchApi"
 
@@ -97,8 +100,8 @@ const App = () => {
 
     return (
         <Themed>
-            <Layout center wide>
-                <LayoutItem span={3}>
+            <Layout>
+                <LayoutItem>
                     <LayoutItemHeader>
                         <div>
                             <Bold>{relyingPartyId}</Bold> にログイン
@@ -121,8 +124,8 @@ const App = () => {
                                         invalidCredential
                                             ? "ID またはパスワードが正しくありません"
                                             : isEmptyId
-                                            ? "ID を入力してください"
-                                            : undefined
+                                              ? "ID を入力してください"
+                                              : undefined
                                     }
                                     ref={idRef}
                                 ></TextField>
@@ -143,8 +146,8 @@ const App = () => {
                                         invalidCredential
                                             ? "ID またはパスワードが正しくありません"
                                             : isEmptyPassword
-                                            ? "パスワードを入力してください"
-                                            : undefined
+                                              ? "パスワードを入力してください"
+                                              : undefined
                                     }
                                     ref={passwordRef}
                                 ></TextField>
