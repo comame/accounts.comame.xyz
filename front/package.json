@@ -18,21 +18,18 @@
     },
     "homepage": "https://github.com/comame/id#readme",
     "devDependencies": {
-        "@types/react": "^18.0.21",
-        "@types/react-dom": "^18.0.6",
-        "@types/styled-components": "^5.1.26",
-        "prettier": "^2.7.1",
-        "typescript": "^4.8.4",
-        "vite": "^4.3.9"
+        "@types/react": "^19.0.2",
+        "@types/react-dom": "^19.0.2",
+        "prettier": "^3.4.2",
+        "typescript": "^5.7.2",
+        "vite": "^6.0.6"
     },
     "dependencies": {
-        "@charcoal-ui/react": "3.3.0",
-        "@charcoal-ui/react-sandbox": "3.3.0",
-        "@charcoal-ui/styled": "3.3.0",
-        "@charcoal-ui/theme": "3.3.0",
-        "@charcoal-ui/utils": "3.3.0",
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0",
-        "styled-components": "^5.3.6"
+        "@charcoal-ui/react": "^4.0.0",
+        "@charcoal-ui/styled": "^4.0.0",
+        "@charcoal-ui/theme": "^4.0.0",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1",
+        "styled-components": "^6.1.13"
     }
 }
