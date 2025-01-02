@@ -89,7 +89,7 @@ func GetScenarios() ([]scenario, error) {
 	for _, file := range files {
 		s, err := func() (*scenario, error) {
 			file := file
-			f, err := os.Open("tests/scenarios/" + file)
+			f, err := os.Open("tests/scenarios/" + file + ".scenario")
 			if err != nil {
 				return nil, err
 			}
@@ -129,7 +129,11 @@ func listFiles() ([]string, error) {
 			return nil, err
 		}
 		for _, file := range files {
-			r = append(r, dir.Name()+"/"+file.Name())
+			fname := file.Name()
+			if !strings.HasSuffix(fname, ".scenario") {
+				continue
+			}
+			r = append(r, dir.Name()+"/"+strings.TrimSuffix(fname, ".scenario"))
 		}
 	}
 

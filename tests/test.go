@@ -15,6 +15,13 @@ import (
 )
 
 func TestScenario(t *testing.T, s *scenario, ts *httptest.Server) {
+	flagInteractive := os.Getenv("INTERACTIVE")
+	flagFilter := os.Getenv("FILTER")
+
+	if flagFilter != "" && !strings.Contains(s.Name, flagFilter) {
+		return
+	}
+
 	log.Println(s.Name)
 
 	variables := make(map[string]string)
@@ -41,7 +48,7 @@ func TestScenario(t *testing.T, s *scenario, ts *httptest.Server) {
 			log.Printf("step %d %s", i, v.StepDescription)
 			testPrintStep(t, &v, &variables)
 		case interactiveStep:
-			if os.Getenv("INTERACTIVE") == "" {
+			if flagInteractive == "" {
 				log.Printf("skip interactive test")
 				log.Println()
 				return
