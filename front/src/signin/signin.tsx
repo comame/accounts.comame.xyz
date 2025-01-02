@@ -1,14 +1,12 @@
-import React, { useEffect, useMemo, useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { createRoot } from "react-dom/client"
 
+import styled from "styled-components"
 import { Button, TextField } from "@charcoal-ui/react"
 import { Themed } from "../theme"
 import { useQueryParams } from "./useQueryParams"
 import {
-    Bold,
-    ButtonsContainer,
     Global,
-    InputContainer,
     Layout,
     LayoutItem,
     LayoutItemBody,
@@ -103,9 +101,7 @@ const App = () => {
             <Layout>
                 <LayoutItem>
                     <LayoutItemHeader>
-                        <div>
-                            <Bold>{relyingPartyId}</Bold> にログイン
-                        </div>
+                        <div>{relyingPartyId} にログイン</div>
                     </LayoutItemHeader>
                     <LayoutItemBody>
                         <form ref={formRef}>
@@ -179,5 +175,19 @@ const App = () => {
         </Themed>
     )
 }
+
+const InputContainer = styled.div`
+    display: grid;
+    gap: ${({ theme }) => theme.spacing[24]}px;
+
+    margin-bottom: ${(props) => props.theme.spacing[40]}px;
+`
+
+const ButtonsContainer = styled.div`
+    display: grid;
+    gap: ${({ theme }) => theme.spacing[24]}px;
+
+    margin-bottom: ${(props) => props.theme.spacing[40]}px;
+`
 
 createRoot(document.getElementById("app")!).render(<App />)
