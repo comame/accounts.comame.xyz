@@ -19,10 +19,12 @@ type scenario struct {
 type stepType string
 
 const (
-	stepTypeHttpRequest    stepType = "httpRequest"
-	stepTypeSQL            stepType = "sql"
-	stepTypeTimeFreeze     stepType = "timeFreeze"
-	stepTypePrepareKeyPair stepType = "prepareKeyPair"
+	stepTypeHttpRequest           stepType = "httpRequest"
+	stepTypeSQL                   stepType = "sql"
+	stepTypeTimeFreeze            stepType = "timeFreeze"
+	stepTypeAssertIncomingRequest stepType = "assertIncomingRequest"
+	stepTypePrint                 stepType = "print"
+	stepTypeInteractive           stepType = "interactive"
 )
 
 type httpRequestStep struct {
@@ -53,7 +55,26 @@ type timeFreezeStep struct {
 	Datetime string
 }
 
-type prepareKeyPairStep struct {
+type assertIncomingRequestStep struct {
+	Type            stepType
+	StepDescription string
+
+	Method  string
+	Path    string
+	Headers map[string]string
+	Body    string
+
+	AdditionalHeader map[string]string
+}
+
+type printStep struct {
+	Type            stepType
+	StepDescription string
+
+	Message string
+}
+
+type interactiveStep struct {
 	Type            stepType
 	StepDescription string
 }
@@ -150,12 +171,25 @@ func parseScenario(t string, name string) (*scenario, error) {
 			}
 			step.StepDescription, _ = strings.CutPrefix(sp[0], string(stepTypeTimeFreeze))
 			steps = append(steps, *step)
-		case strings.HasPrefix(sp[0], string(stepTypePrepareKeyPair)):
-			step := prepareKeyPairStep{
-				Type: stepTypePrepareKeyPair,
+		case strings.HasPrefix(sp[0], string(stepTypeAssertIncomingRequest)):
+			step, err := parseAssertIncomingRequestStep(sp[1])
+			if err != nil {
+				return nil, err
 			}
-			step.StepDescription, _ = strings.CutPrefix(sp[0], string(stepTypePrepareKeyPair))
-			steps = append(steps, step)
+			step.StepDescription, _ = strings.CutPrefix(sp[0], string(stepTypeAssertIncomingRequest))
+			steps = append(steps, *step)
+		case strings.HasPrefix(sp[0], string(stepTypePrint)):
+			step, err := parsePrintStep(sp[1])
+			if err != nil {
+				return nil, err
+			}
+			step.StepDescription, _ = strings.CutPrefix(sp[0], string(stepTypePrint))
+			steps = append(steps, *step)
+		case strings.HasPrefix(sp[0], string(stepTypeInteractive)):
+			var s interactiveStep
+			s.Type = stepTypeInteractive
+			s.StepDescription, _ = strings.CutPrefix(sp[0], string(stepTypeInteractive))
+			steps = append(steps, s)
 		default:
 			return nil, fmt.Errorf("未知のstepType %s", sp[0])
 		}
@@ -309,5 +343,41 @@ func parseTimeFreezeStep(t string) (*timeFreezeStep, error) {
 	s.Datetime = dt
 	s.Type = stepTypeTimeFreeze
 
+	return &s, nil
+}
+
+func parseAssertIncomingRequestStep(t string) (*assertIncomingRequestStep, error) {
+	var s assertIncomingRequestStep
+	s.Type = stepTypeAssertIncomingRequest
+
+	// 空行2つ
+	st := strings.SplitN(t, "\n\n\n", 2)
+	if len(st) == 0 || len(st) >= 3 {
+		return nil, errors.New("assertIncomingRequestの形式が変")
+	}
+
+	srq, err := parseHttpRequestSection(st[0])
+	if err != nil {
+		return nil, err
+	}
+	s.Method = srq.ReqMethod
+	s.Path = srq.ReqPath
+	s.Headers = srq.ReqHeaders
+	s.Body = srq.ReqBody
+
+	if len(st) == 2 {
+		s.AdditionalHeader = make(map[string]string)
+		for _, l := range strings.Split(st[1], "\n") {
+			parseHeaderLine(&s.AdditionalHeader, l)
+		}
+	}
+
+	return &s, nil
+}
+
+func parsePrintStep(t string) (*printStep, error) {
+	var s printStep
+	s.Type = stepTypePrint
+	s.Message = t
 	return &s, nil
 }

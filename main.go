@@ -27,7 +27,11 @@ func init() {
 	db.Initialize()
 
 	// TODO: 環境変数から読む
-	kvs.InitializeRedis("dev.accounts.comame.xyz", "redis.comame.dev:6379")
+	rhost := os.Getenv("REDIS_HOST")
+	if rhost == "" {
+		panic("REDIS_HOSTが未指定")
+	}
+	kvs.InitializeRedis("dev.accounts.comame.xyz", rhost)
 
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 }
@@ -264,7 +268,7 @@ func handle_POST_signinGoogle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	state, redirect, err := oidc.GenerateGoogleAuthURL(req.SessionID, os.Getenv("GOOGLE_OIDC_CLIENT_ID"), os.Getenv("GOOGLE_OIDC_CLIENT_ID"))
+	state, redirect, err := oidc.GenerateGoogleAuthURL(req.SessionID, os.Getenv("GOOGLE_OIDC_CLIENT_ID"), os.Getenv("GOOGLE_OIDC_CLIENT_ID"), os.Getenv("HOST"))
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -311,7 +315,7 @@ func handle_GET_oidCallbackGoogle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := oidc.CallbackGoogle(code, state, os.Getenv("GOOGLE_OIDC_CLIENT_ID"), os.Getenv("GOOGLE_OIDC_CLIENT_SECRET"))
+	res, err := oidc.CallbackGoogle(code, state, os.Getenv("GOOGLE_OIDC_CLIENT_ID"), os.Getenv("GOOGLE_OIDC_CLIENT_SECRET"), os.Getenv("HOST"))
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)

@@ -9,3 +9,5 @@ dashboard/web/dist
 go.work
 go.work.sum
 .testdb/
+.pid
+dump.rdb

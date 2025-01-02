@@ -4,11 +4,6 @@ timeFreeze
 
 
 
-prepareKeyPair
-
-
-
-
 sql userinfoにデータを入れる
 insert into userinfo
 (sub, value)

@@ -2,6 +2,13 @@
 
 MYSQL_PORT=33063
 
+stop_mysql_redis() {
+    if [ -e .pid ]; then
+        cat .pid | awk '{ print $2 }' | xargs kill
+        rm .pid
+    fi
+}
+
 start_local_mysql() {
     DATADIR="$(pwd)/.testdb"
 
@@ -26,13 +33,20 @@ start_local_mysql() {
     mysqld --datadir="$DATADIR" --log-error="$DATADIR/mysql.log" --socket="$DATADIR/mysql.sock" --port=$MYSQL_PORT &
     local MYSQL_PID=$!
 
-    echo "$MYSQL_PID"
+    echo "mysql $MYSQL_PID" >> .pid
 }
 
-function wait_until_start() {
+start_local_redis() {
+    redis-server --port 33064 &
+    local REDIS_PID=$!
+
+    echo "redis $REDIS_PID" >> .pid
+}
+
+function wait_until_listen() {
     local last_status=1
     while [ $last_status -ne 0 ]; do
-        nc -z -v localhost 33063 > /dev/null 2>&1
+        nc -z -v localhost $1 > /dev/null 2>&1
         if [ $? -eq 0 ]; then
             local last_status=0
         else
@@ -41,9 +55,22 @@ function wait_until_start() {
     done
 }
 
+if [ "$1" = 'stop' ]; then
+    stop_mysql_redis
+    exit
+fi
+
+# 起動中なら止める
+stop_mysql_redis
+
 # MySQL の起動
 start_local_mysql
-wait_until_start
+wait_until_listen 33063
+
+# redis の起動
+start_local_redis
+wait_until_listen 33064
+
 
 # 環境変数に読み込み
 set -a
@@ -54,6 +81,3 @@ set +a
 mysql -uroot -hlocalhost -P33063 --protocol tcp -e"DROP DATABASE IF EXISTS id_dev"
 mysql -uroot -hlocalhost -P33063 --protocol tcp -e"CREATE DATABASE id_dev"
 mysql -uroot -hlocalhost -P33063 --protocol tcp -Did_dev < ./tables.sql
-
-go run . script setup_default admin dashboard_client_secret
-go run . script create_demo_rp

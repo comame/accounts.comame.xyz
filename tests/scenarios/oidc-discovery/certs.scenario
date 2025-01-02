@@ -1,8 +1,3 @@
-prepareKeyPair
-
-
-
-
 httpRequest certsエンドポイントが正しい値を返す
 GET /certs
 

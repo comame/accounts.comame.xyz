@@ -19,7 +19,7 @@ import (
 	"github.com/comame/accounts.comame.xyz/timenow"
 )
 
-func GenerateGoogleAuthURL(loginSessionID, clientID, clientSecret string) (state, redirect string, err error) {
+func GenerateGoogleAuthURL(loginSessionID, clientID, clientSecret, myOrigin string) (state, redirect string, err error) {
 	_, err = kvs.LoginSession_get(loginSessionID)
 	if err != nil {
 		return "", "", err
@@ -45,7 +45,7 @@ func GenerateGoogleAuthURL(loginSessionID, clientID, clientSecret string) (state
 	q.Set("client_id", clientID)
 	q.Set("response_type", "code")
 	q.Set("scope", "openid email profile")
-	q.Set("redirect_uri", "https://accounts.comame.xyz/oidc-callback/google")
+	q.Set("redirect_uri", myOrigin+"/oidc-callback/google")
 	q.Set("state", state)
 	q.Set("nonce", nonce)
 	u.RawQuery = q.Encode()
@@ -53,7 +53,7 @@ func GenerateGoogleAuthURL(loginSessionID, clientID, clientSecret string) (state
 	return state, u.String(), nil
 }
 
-func CallbackGoogle(code, state, clientID, clientSecret string) (*AuthenticationResponse, error) {
+func CallbackGoogle(code, state, clientID, clientSecret, myOrigin string) (*AuthenticationResponse, error) {
 	saved, err := kvs.ExternalLoginSession_get(state)
 	if err != nil {
 		return nil, err
@@ -69,7 +69,7 @@ func CallbackGoogle(code, state, clientID, clientSecret string) (*Authentication
 		return nil, err
 	}
 
-	codeRes, err := doGoogleCodeRequest(code, clientID, clientSecret)
+	codeRes, err := doGoogleCodeRequest(code, clientID, clientSecret, myOrigin)
 	if err != nil {
 		return nil, err
 	}
@@ -168,13 +168,13 @@ func CallbackGoogle(code, state, clientID, clientSecret string) (*Authentication
 	return res, nil
 }
 
-func doGoogleCodeRequest(code, clientID, clientSecret string) (*codeResponse, error) {
+func doGoogleCodeRequest(code, clientID, clientSecret, myOrigin string) (*codeResponse, error) {
 	q := make(url.Values)
 	q.Set("client_id", clientID)
 	q.Set("client_secret", clientSecret)
 	q.Set("grant_type", "authorization_code")
 	q.Set("code", code)
-	q.Set("redirect_uri", "https://accounts.comame.xyz/oidc-callback/google")
+	q.Set("redirect_uri", myOrigin+"/oidc-callback/google")
 
 	bod := q.Encode()
 	buf := bytes.NewBufferString(bod)
