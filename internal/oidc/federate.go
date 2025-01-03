@@ -13,6 +13,7 @@ import (
 
 	"github.com/comame/accounts.comame.xyz/internal/auth"
 	"github.com/comame/accounts.comame.xyz/internal/db"
+	"github.com/comame/accounts.comame.xyz/internal/httpclient"
 	"github.com/comame/accounts.comame.xyz/internal/jwt"
 	"github.com/comame/accounts.comame.xyz/internal/kvs"
 	"github.com/comame/accounts.comame.xyz/internal/random"
@@ -184,7 +185,7 @@ func doGoogleCodeRequest(code, clientID, clientSecret, myOrigin string) (*codeRe
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	res, err := http.DefaultClient.Do(req)
+	res, err := httpclient.Client().Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -203,7 +204,7 @@ func doGoogleCodeRequest(code, clientID, clientSecret, myOrigin string) (*codeRe
 }
 
 func getGoogleKeys() ([]jwt.JWKKey, error) {
-	res, err := http.Get("https://www.googleapis.com/oauth2/v3/certs")
+	res, err := httpclient.Client().Get("https://www.googleapis.com/oauth2/v3/certs")
 	if err != nil {
 		return nil, err
 	}

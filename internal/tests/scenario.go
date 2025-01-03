@@ -25,6 +25,7 @@ const (
 	stepTypeAssertIncomingRequest stepType = "assertIncomingRequest"
 	stepTypePrint                 stepType = "print"
 	stepTypeInteractive           stepType = "interactive"
+	stepTypeHttpMock              stepType = "httpMock"
 )
 
 type httpRequestStep struct {
@@ -77,6 +78,13 @@ type printStep struct {
 type interactiveStep struct {
 	Type            stepType
 	StepDescription string
+}
+
+type httpMockStep struct {
+	Type            stepType
+	StepDescription string
+
+	m httpMock
 }
 
 func GetScenarios(dir string) ([]scenario, error) {
@@ -194,6 +202,13 @@ func parseScenario(t string, name string) (*scenario, error) {
 			s.Type = stepTypeInteractive
 			s.StepDescription, _ = strings.CutPrefix(sp[0], string(stepTypeInteractive))
 			steps = append(steps, s)
+		case strings.HasPrefix(sp[0], string(stepTypeHttpMock)):
+			step, err := parseHttpMockStep(sp[1])
+			if err != nil {
+				return nil, err
+			}
+			step.StepDescription, _ = strings.CutPrefix(sp[0], string(stepTypeHttpMock))
+			steps = append(steps, *step)
 		default:
 			return nil, fmt.Errorf("未知のstepType %s", sp[0])
 		}
@@ -383,5 +398,24 @@ func parsePrintStep(t string) (*printStep, error) {
 	var s printStep
 	s.Type = stepTypePrint
 	s.Message = t
+	return &s, nil
+}
+
+func parseHttpMockStep(t string) (*httpMockStep, error) {
+	var s httpMockStep
+	s.Type = stepTypeHttpMock
+
+	// 形式は同一
+	reqStep, err := parseHttpRequestStep(t)
+	if err != nil {
+		return nil, err
+	}
+
+	s.m.Method = reqStep.ReqMethod
+	s.m.URL = reqStep.ReqPath
+	s.m.Headers = reqStep.ReqHeaders
+	s.m.Body = reqStep.ReqBody
+	s.m.Res = createMockResponse(reqStep.ResStatus, reqStep.ResHeaders, reqStep.ResBody)
+
 	return &s, nil
 }
