@@ -6,8 +6,8 @@ import (
 	"encoding/hex"
 	"strings"
 
-	"github.com/comame/accounts.comame.xyz/db"
-	"github.com/comame/accounts.comame.xyz/timenow"
+	"github.com/comame/accounts.comame.xyz/internal/db"
+	"github.com/comame/accounts.comame.xyz/internal/timenow"
 )
 
 func CalculatePasswordHash(password string, salt string) string {

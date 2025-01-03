@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/comame/accounts.comame.xyz/random"
+	"github.com/comame/accounts.comame.xyz/internal/random"
 )
 
 type loginSession struct {

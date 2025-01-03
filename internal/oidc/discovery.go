@@ -3,8 +3,8 @@ package oidc
 import (
 	"encoding/json"
 
-	"github.com/comame/accounts.comame.xyz/db"
-	"github.com/comame/accounts.comame.xyz/jwt"
+	"github.com/comame/accounts.comame.xyz/internal/db"
+	"github.com/comame/accounts.comame.xyz/internal/jwt"
 )
 
 type discovery struct {

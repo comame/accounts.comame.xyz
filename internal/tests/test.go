@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/comame/accounts.comame.xyz/db"
+	"github.com/comame/accounts.comame.xyz/internal/db"
 )
 
 func TestScenario(t *testing.T, s *scenario, ts *httptest.Server) {

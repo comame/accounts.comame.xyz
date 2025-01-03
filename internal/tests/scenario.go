@@ -79,8 +79,8 @@ type interactiveStep struct {
 	StepDescription string
 }
 
-func GetScenarios() ([]scenario, error) {
-	files, err := listFiles()
+func GetScenarios(dir string) ([]scenario, error) {
+	files, err := listFiles(dir)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func GetScenarios() ([]scenario, error) {
 	for _, file := range files {
 		s, err := func() (*scenario, error) {
 			file := file
-			f, err := os.Open("tests/scenarios/" + file + ".scenario")
+			f, err := os.Open(dir + "/" + file + ".scenario")
 			if err != nil {
 				return nil, err
 			}
@@ -116,15 +116,15 @@ func GetScenarios() ([]scenario, error) {
 	return r, nil
 }
 
-func listFiles() ([]string, error) {
+func listFiles(dirname string) ([]string, error) {
 	var r []string
 
-	dirs, err := os.ReadDir("tests/scenarios")
+	dirs, err := os.ReadDir(dirname)
 	if err != nil {
 		return nil, err
 	}
 	for _, dir := range dirs {
-		files, err := os.ReadDir("tests/scenarios/" + dir.Name())
+		files, err := os.ReadDir(dirname + "/" + dir.Name())
 		if err != nil {
 			return nil, err
 		}

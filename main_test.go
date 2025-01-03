@@ -4,7 +4,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/comame/accounts.comame.xyz/tests"
+	"github.com/comame/accounts.comame.xyz/internal/tests"
 )
 
 func TestPerformScenarios(t *testing.T) {
@@ -15,7 +15,7 @@ func TestPerformScenarios(t *testing.T) {
 
 	ts := httptest.NewServer(getAppHandler())
 
-	scenarios, err := tests.GetScenarios()
+	scenarios, err := tests.GetScenarios("scenarios")
 	if err != nil {
 		t.Fatal(err)
 	}

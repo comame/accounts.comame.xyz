@@ -3,7 +3,7 @@ package scripts
 import (
 	"fmt"
 
-	"github.com/comame/accounts.comame.xyz/auth"
+	"github.com/comame/accounts.comame.xyz/internal/auth"
 )
 
 func init() {

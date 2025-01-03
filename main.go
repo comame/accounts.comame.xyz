@@ -12,11 +12,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/comame/accounts.comame.xyz/auth"
-	"github.com/comame/accounts.comame.xyz/db"
-	"github.com/comame/accounts.comame.xyz/kvs"
-	"github.com/comame/accounts.comame.xyz/oidc"
-	"github.com/comame/accounts.comame.xyz/scripts"
+	"github.com/comame/accounts.comame.xyz/internal/auth"
+	"github.com/comame/accounts.comame.xyz/internal/db"
+	"github.com/comame/accounts.comame.xyz/internal/kvs"
+	"github.com/comame/accounts.comame.xyz/internal/oidc"
+	"github.com/comame/accounts.comame.xyz/internal/scripts"
 	"github.com/comame/router-go"
 )
 

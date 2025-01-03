@@ -3,8 +3,8 @@
 package tests
 
 import (
-	"github.com/comame/accounts.comame.xyz/db"
-	"github.com/comame/accounts.comame.xyz/scripts"
+	"github.com/comame/accounts.comame.xyz/internal/db"
+	"github.com/comame/accounts.comame.xyz/internal/scripts"
 )
 
 func setup() error {

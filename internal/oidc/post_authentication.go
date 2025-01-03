@@ -3,12 +3,12 @@ package oidc
 import (
 	"errors"
 
-	"github.com/comame/accounts.comame.xyz/auth"
-	"github.com/comame/accounts.comame.xyz/db"
-	"github.com/comame/accounts.comame.xyz/jwt"
-	"github.com/comame/accounts.comame.xyz/kvs"
-	"github.com/comame/accounts.comame.xyz/random"
-	"github.com/comame/accounts.comame.xyz/timenow"
+	"github.com/comame/accounts.comame.xyz/internal/auth"
+	"github.com/comame/accounts.comame.xyz/internal/db"
+	"github.com/comame/accounts.comame.xyz/internal/jwt"
+	"github.com/comame/accounts.comame.xyz/internal/kvs"
+	"github.com/comame/accounts.comame.xyz/internal/random"
+	"github.com/comame/accounts.comame.xyz/internal/timenow"
 )
 
 // IDToken を発行する。sub が確定したのち呼ぶ。
