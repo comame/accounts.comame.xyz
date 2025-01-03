@@ -15,7 +15,7 @@ func TestPerformScenarios(t *testing.T) {
 
 	ts := httptest.NewServer(getAppHandler())
 
-	scenarios, err := tests.GetScenarios()
+	scenarios, err := tests.GetScenarios("scenarios")
 	if err != nil {
 		t.Fatal(err)
 	}
