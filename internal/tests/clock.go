@@ -3,7 +3,7 @@ package tests
 import (
 	"time"
 
-	"github.com/comame/accounts.comame.xyz/timenow"
+	"github.com/comame/accounts.comame.xyz/internal/timenow"
 )
 
 type c struct {

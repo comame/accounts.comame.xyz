@@ -4,7 +4,7 @@ import (
 	"log"
 	"testing"
 
-	"github.com/comame/accounts.comame.xyz/jwt"
+	"github.com/comame/accounts.comame.xyz/internal/jwt"
 )
 
 const privPem = `-----BEGIN RSA PRIVATE KEY-----

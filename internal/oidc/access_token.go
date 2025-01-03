@@ -4,9 +4,9 @@ import (
 	"errors"
 	"time"
 
-	"github.com/comame/accounts.comame.xyz/db"
-	"github.com/comame/accounts.comame.xyz/random"
-	"github.com/comame/accounts.comame.xyz/timenow"
+	"github.com/comame/accounts.comame.xyz/internal/db"
+	"github.com/comame/accounts.comame.xyz/internal/random"
+	"github.com/comame/accounts.comame.xyz/internal/timenow"
 )
 
 func CreateAccessToken(sub, scopes string) (token string, expiresIn int64, err error) {

@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/comame/accounts.comame.xyz/db"
-	"github.com/comame/accounts.comame.xyz/timenow"
+	"github.com/comame/accounts.comame.xyz/internal/db"
+	"github.com/comame/accounts.comame.xyz/internal/timenow"
 )
 
 type AuthenticationMethod string

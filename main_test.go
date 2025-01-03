@@ -4,7 +4,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/comame/accounts.comame.xyz/tests"
+	"github.com/comame/accounts.comame.xyz/internal/tests"
 )
 
 func TestPerformScenarios(t *testing.T) {

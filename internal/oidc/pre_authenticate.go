@@ -3,8 +3,8 @@ package oidc
 import (
 	"errors"
 
-	"github.com/comame/accounts.comame.xyz/db"
-	"github.com/comame/accounts.comame.xyz/kvs"
+	"github.com/comame/accounts.comame.xyz/internal/db"
+	"github.com/comame/accounts.comame.xyz/internal/kvs"
 	"golang.org/x/exp/slices"
 )
 

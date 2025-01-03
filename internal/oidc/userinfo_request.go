@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/comame/accounts.comame.xyz/db"
+	"github.com/comame/accounts.comame.xyz/internal/db"
 	"github.com/comame/json-go/builder"
 )
 

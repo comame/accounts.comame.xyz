@@ -5,9 +5,9 @@ import (
 	"errors"
 	"net/url"
 
-	"github.com/comame/accounts.comame.xyz/auth"
-	"github.com/comame/accounts.comame.xyz/db"
-	"github.com/comame/accounts.comame.xyz/kvs"
+	"github.com/comame/accounts.comame.xyz/internal/auth"
+	"github.com/comame/accounts.comame.xyz/internal/db"
+	"github.com/comame/accounts.comame.xyz/internal/kvs"
 )
 
 type codeRequest struct {

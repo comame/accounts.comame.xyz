@@ -1,8 +1,8 @@
 package scripts
 
 import (
-	"github.com/comame/accounts.comame.xyz/auth"
-	"github.com/comame/accounts.comame.xyz/db"
+	"github.com/comame/accounts.comame.xyz/internal/auth"
+	"github.com/comame/accounts.comame.xyz/internal/db"
 )
 
 func init() {
