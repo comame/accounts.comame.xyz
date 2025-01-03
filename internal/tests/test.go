@@ -53,6 +53,9 @@ func TestScenario(t *testing.T, s *scenario, ts *httptest.Server) {
 				log.Println()
 				return
 			}
+		case httpMockStep:
+			log.Printf("step %d %s", i, v.StepDescription)
+			testHttpMockStep(t, &v, &variables)
 		default:
 			log.Println("Stepのキャストに失敗")
 			t.FailNow()
@@ -144,4 +147,8 @@ func testPrepare(t *testing.T) {
 		log.Println(err)
 		t.FailNow()
 	}
+}
+
+func testHttpMockStep(_ *testing.T, s *httpMockStep, variables *map[string]string) {
+	setMockRequestForTest(s.m, variables)
 }
