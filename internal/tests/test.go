@@ -29,6 +29,8 @@ func TestScenario(t *testing.T, s *scenario, ts *httptest.Server) {
 	defer is.Shutdown()
 
 	testPrepare(t)
+	defer clearMockHTTPClient()
+	defer clearTimeFreeze()
 
 	for i, step := range s.Steps {
 		switch v := step.(type) {

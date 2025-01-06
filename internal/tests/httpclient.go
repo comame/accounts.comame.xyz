@@ -100,3 +100,7 @@ func setMockRequestForTest(m httpMock, variables *map[string]string) {
 
 	tr.mocks = append(tr.mocks, m)
 }
+
+func clearMockHTTPClient() {
+	httpclient.SetClientForTest(nil)
+}

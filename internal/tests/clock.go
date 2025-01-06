@@ -24,3 +24,7 @@ func setTimeFreeze(datetime string) {
 		unix: t.Unix(),
 	})
 }
+
+func clearTimeFreeze() {
+	timenow.SetClockForTest(nil)
+}
