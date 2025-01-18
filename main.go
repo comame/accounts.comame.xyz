@@ -70,7 +70,8 @@ func getAppHandler() http.Handler {
 	router.Post("/api/signin-password", handle_GET_apiSigninPassword)
 	router.Get("/oidc-callback/google", handle_GET_oidCallbackGoogle)
 
-	router.Post("/demo/passkey/register-options", handle_Post_passkeyRegister)
+	router.Post("/demo/passkey/register-options", handle_Post_passkeyRegisterOptions)
+	router.Post("/demo/passkey/register", handle_Post_passkeyRegister)
 
 	router.Get("/*", handle_GET_rest)
 
@@ -359,7 +360,9 @@ func handle_GET_certs(w http.ResponseWriter, _ *http.Request) {
 	w.Write(js)
 }
 
-func handle_Post_passkeyRegister(w http.ResponseWriter, _ *http.Request) {
+var demoAttestation *passkey.PublicCredentialAttestation
+
+func handle_Post_passkeyRegisterOptions(w http.ResponseWriter, _ *http.Request) {
 	userID := "test_user"
 
 	challenge, err := passkey.CreateChallengeAndBindSession(userID, w)
@@ -370,6 +373,9 @@ func handle_Post_passkeyRegister(w http.ResponseWriter, _ *http.Request) {
 	}
 
 	var excludeKeyIDs []string
+	if demoAttestation != nil {
+		excludeKeyIDs = append(excludeKeyIDs, demoAttestation.ID)
+	}
 
 	opt := passkey.CreateOptions(
 		passkey.RelyingPartyID(),
@@ -387,7 +393,35 @@ func handle_Post_passkeyRegister(w http.ResponseWriter, _ *http.Request) {
 		return
 	}
 
+	w.Header().Add("Content-Type", "application/json")
 	w.Write(j)
+}
+
+func handle_Post_passkeyRegister(w http.ResponseWriter, r *http.Request) {
+	userID := "test_user"
+
+	challenge, err := passkey.GetChallengeFromSession(userID, r)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	attestation, err := passkey.ParseAttestationForRegistration(r.Body, challenge, os.Getenv("HOST"))
+	if err != nil {
+		log.Println("不正なAttestationを渡された", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	demoAttestation = attestation
+
+	{
+		js, _ := json.MarshalIndent(attestation, "", "  ")
+		log.Println(string(js))
+	}
+
+	w.Write([]byte{})
 }
 
 func handle_GET_rest(w http.ResponseWriter, r *http.Request) {

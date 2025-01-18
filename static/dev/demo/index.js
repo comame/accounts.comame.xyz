@@ -6,7 +6,7 @@ import { decodeBase64URIToUint8Array } from "./conv.js";
 let autofillAbortController = null;
 
 /**
- * @typedef {CredentialCreationOptions & { publicKey: { challenge_base64: string, user: { id_base64: string }}}} createOptions
+ * @typedef {CredentialCreationOptions & { publicKey: { challenge_base64: string, user: { id_base64: string }, excludeCredentials: { id_base64: string }[] }}} createOptions
  */
 
 /**
@@ -37,6 +37,13 @@ async function createCredentialsCreateOptions() {
   opt.publicKey.user.id = decodeBase64URIToUint8Array(
     opt.publicKey.user.id_base64
   );
+  if (opt.publicKey.excludeCredentials) {
+    for (let i = 0; i < opt.publicKey.excludeCredentials.length; i += 1) {
+      opt.publicKey.excludeCredentials[i].id = decodeBase64URIToUint8Array(
+        opt.publicKey.excludeCredentials[i].id_base64
+      );
+    }
+  }
 
   return opt;
 }
@@ -53,13 +60,6 @@ function getRelyingPartyID() {
  */
 function createChallenge() {
   return new Uint8Array([0, 1, 2, 3, 4, 5]);
-}
-
-/**
- * @returns {Uint8Array}
- */
-function createUserID() {
-  return new Uint8Array([6, 7, 8, 9, 10]);
 }
 
 async function setupPasskeyAutofill() {
@@ -178,39 +178,17 @@ registerPasskeyButton.addEventListener("click", async () => {
     return;
   }
 
-  const keyID = res.id;
-  saveKey(keyID);
-
+  outputToLog(`キーペアが作成された`);
   outputToLog(JSON.stringify(res, null, 2));
-  outputToLog(`キーペアが作成された ${keyID}`);
+
+  await fetch("/demo/passkey/register", {
+    method: "POST",
+    body: JSON.stringify(res),
+    credentials: "include",
+  });
 
   setupPasskeyAutofill();
 });
-
-/**
- * @param {string} id
- */
-function saveKey(id) {
-  localStorage.setItem("webauthnsamplekey", id);
-  displaySavedKey();
-}
-
-function deleteKey() {
-  localStorage.removeItem("webauthnsamplekey");
-  displaySavedKey();
-}
-
-/**
- * @returns {string|null}
- */
-function getSavedKeyID() {
-  const saved = localStorage.getItem("webauthnsamplekey");
-  if (!saved) {
-    return null;
-  }
-
-  return saved;
-}
 
 /**
  * @param {string} msg
@@ -231,18 +209,6 @@ async function checkPasskeyCapabilities() {
   outputToLog(`isCMA: ${isCMA ? "true" : "false"}`);
   outputToLog(`isUVPAA: ${isUVPAA ? "true" : "false"}`);
 }
-
-function displaySavedKey() {
-  /** @type {any} */
-  const displayElement = document.getElementById("saved-key");
-  displayElement.value = getSavedKeyID() ?? "";
-}
-
-document.getElementById("delete-key")?.addEventListener("click", () => {
-  deleteKey();
-});
-
-displaySavedKey();
 
 checkPasskeyCapabilities();
 

@@ -1,5 +1,6 @@
 package passkey
 
+// navigator.credentials.create の引数を表す
 type credentialCreationOptions struct {
 	PublicKey credentialCreationPublicKeyOptions `json:"publicKey"`
 }
@@ -23,6 +24,8 @@ type credentialCreationAuthenticatorSelectionOptions struct {
 type credentialCreationPubKeyCredParamsOptions struct {
 	Type string `json:"type"`
 	Alg  int    `json:"alg"`
+
+	algName string
 }
 
 type credentialCreationRPOptions struct {
@@ -39,4 +42,33 @@ type credentialCreationUserOptions struct {
 type credentialCreationExcludeCredentialsOptions struct {
 	Type     string `json:"type"`
 	IDBase64 string `json:"id_base64"`
+}
+
+// navigator.credentials.create の返り値を表す
+// TODO: 今後 Public にしておく必要はないと思うので、private に戻しておく
+type PublicCredentialAttestation struct {
+	Type     string                           `json:"type"`
+	ID       string                           `json:"id"`
+	RawID    string                           `json:"rawId"`
+	Response authenticatorAttestationResponse `json:"response"`
+}
+
+type authenticatorAttestationResponse struct {
+	ClientDataJSON string `json:"clientDataJSON"`
+	// base64uri エンコードされた AuthenticatorAttestationResponse.getPublicKey()
+	PublicKey string `json:"publicKey"`
+	// AuthenticatorAttestationResponse.getPublicKeyAlgorithm()
+	PublicKeyAlgorithm int `json:"publicKeyAlgorithm"`
+	// AuthenticatorAttestationResponse.getTransports()
+	Transports []string `json:"transports"`
+
+	clientData authenticatorAttestationResponseClientData
+}
+
+// AuthenticatorAttestationResponse.clientDataJSON
+type authenticatorAttestationResponseClientData struct {
+	Type        string `json:"type"`
+	Challenge   string `json:"challenge"`
+	Origin      string `json:"origin"`
+	CrossOrigin bool   `json:"crossOrigin"`
 }
