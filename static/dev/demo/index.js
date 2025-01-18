@@ -6,6 +6,10 @@ import { decodeBase64URIToUint8Array } from "./conv.js";
 let autofillAbortController = null;
 
 /**
+ * @typedef {CredentialCreationOptions & { publicKey: { challenge_base64: string, user: { id_base64: string }}}} createOptions
+ */
+
+/**
  * @returns {Promise<CredentialRequestOptions>}
  */
 async function createCredentailsGetOptions() {
@@ -21,53 +25,20 @@ async function createCredentailsGetOptions() {
  * @returns {Promise<CredentialCreationOptions>}
  */
 async function createCredentialsCreateOptions() {
-  /** @type {CredentialCreationOptions} */
-  const param = {
-    publicKey: {
-      challenge: createChallenge(),
-      authenticatorSelection: {
-        authenticatorAttachment: "platform",
-        requireResidentKey: true,
-        residentKey: "required",
-        userVerification: "required",
-      },
-      pubKeyCredParams: [
-        {
-          type: "public-key",
-          alg: -257, // RS256
-        },
-        // {
-        //   type: "public-key",
-        //   alg: -8, // Ed25519
-        // },
-        // {
-        //   type: "public-key",
-        //   alg: -7, // ES256
-        // },
-      ],
-      rp: {
-        id: getRelyingPartyID(),
-        name: "demo.accounts.comame.xyz",
-      },
-      user: {
-        id: createUserID(),
-        name: "Test User",
-        displayName: "Test User",
-      },
-    },
-  };
+  /** @type {createOptions} */
+  const opt = await fetch("/demo/passkey/register-options", {
+    method: "POST",
+    credentials: "include",
+  }).then((res) => res.json());
 
-  const existID = getSavedKeyID();
-  if (param.publicKey && existID) {
-    param.publicKey.excludeCredentials = [
-      {
-        type: "public-key",
-        id: decodeBase64URIToUint8Array(existID),
-      },
-    ];
-  }
+  opt.publicKey.challenge = decodeBase64URIToUint8Array(
+    opt.publicKey.challenge_base64
+  );
+  opt.publicKey.user.id = decodeBase64URIToUint8Array(
+    opt.publicKey.user.id_base64
+  );
 
-  return param;
+  return opt;
 }
 
 /**

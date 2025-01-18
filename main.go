@@ -16,6 +16,7 @@ import (
 	"github.com/comame/accounts.comame.xyz/internal/db"
 	"github.com/comame/accounts.comame.xyz/internal/kvs"
 	"github.com/comame/accounts.comame.xyz/internal/oidc"
+	"github.com/comame/accounts.comame.xyz/internal/passkey"
 	"github.com/comame/accounts.comame.xyz/internal/scripts"
 	"github.com/comame/router-go"
 )
@@ -68,6 +69,8 @@ func getAppHandler() http.Handler {
 	router.Post("/signin/google", handle_POST_signinGoogle)
 	router.Post("/api/signin-password", handle_GET_apiSigninPassword)
 	router.Get("/oidc-callback/google", handle_GET_oidCallbackGoogle)
+
+	router.Post("/demo/passkey/register-options", handle_Post_passkeyRegister)
 
 	router.Get("/*", handle_GET_rest)
 
@@ -354,6 +357,37 @@ func handle_GET_certs(w http.ResponseWriter, _ *http.Request) {
 	}
 
 	w.Write(js)
+}
+
+func handle_Post_passkeyRegister(w http.ResponseWriter, _ *http.Request) {
+	userID := "test_user"
+
+	challenge, err := passkey.CreateChallengeAndBindSession(userID, w)
+	if err != nil {
+		log.Printf("パスキーのチャンレジ作成に失敗した %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	var excludeKeyIDs []string
+
+	opt := passkey.CreateOptions(
+		passkey.RelyingPartyID(),
+		"accounts.comame.xyz",
+		[]byte(userID),
+		userID,
+		userID,
+		excludeKeyIDs,
+		challenge,
+	)
+
+	j, err := json.Marshal(opt)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(j)
 }
 
 func handle_GET_rest(w http.ResponseWriter, r *http.Request) {
