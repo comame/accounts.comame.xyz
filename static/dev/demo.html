@@ -7,6 +7,7 @@
   </head>
   <body>
     <fieldset>
+      <p>Conditional Mediation (Autofill) 用のフォーム</p>
       <input autocomplete="username webauthn" placeholder="ユーザー名" />
       <input
         type="password"
@@ -27,6 +28,12 @@
       <button id="signin-passkey">パスキーでログイン</button>
 
       <button id="register-passkey">パスキーを作成</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>サーバーに保存されたパスキー</legend>
+      <label>Key ID:<input id="saved-key" readonly /></label>
+      <button id="delete-key">サーバーから削除</button>
     </fieldset>
 
     <fieldset>

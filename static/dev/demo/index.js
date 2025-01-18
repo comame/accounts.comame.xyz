@@ -34,16 +34,16 @@ async function createCredentialsCreateOptions() {
       pubKeyCredParams: [
         {
           type: "public-key",
-          alg: -8, // Ed25519
-        },
-        {
-          type: "public-key",
-          alg: -7, // ES256
-        },
-        {
-          type: "public-key",
           alg: -257, // RS256
         },
+        // {
+        //   type: "public-key",
+        //   alg: -8, // Ed25519
+        // },
+        // {
+        //   type: "public-key",
+        //   alg: -7, // ES256
+        // },
       ],
       rp: {
         id: getRelyingPartyID(),
@@ -62,7 +62,7 @@ async function createCredentialsCreateOptions() {
     param.publicKey.excludeCredentials = [
       {
         type: "public-key",
-        id: existID,
+        id: decodeBase64URIToUint8Array(existID),
       },
     ];
   }
@@ -136,7 +136,7 @@ async function setupPasskeyAutofill() {
     return;
   }
 
-  console.log(res);
+  outputToLog(JSON.stringify(res, null, 2));
   outputToLog("ログインできた TODO: ユーザーIDを取る");
   setupPasskeyAutofill();
 }
@@ -171,7 +171,7 @@ signinPasskeyButton.addEventListener("click", async () => {
     return;
   }
 
-  console.log(res);
+  outputToLog(JSON.stringify(res, null, 2));
   outputToLog("ログインできた TODO: ユーザーIDを取る");
   setupPasskeyAutofill();
 });
@@ -210,7 +210,7 @@ registerPasskeyButton.addEventListener("click", async () => {
   const keyID = res.id;
   saveKey(keyID);
 
-  console.log(res);
+  outputToLog(JSON.stringify(res, null, 2));
   outputToLog(`キーペアが作成された ${keyID}`);
 
   setupPasskeyAutofill();
@@ -221,10 +221,16 @@ registerPasskeyButton.addEventListener("click", async () => {
  */
 function saveKey(id) {
   localStorage.setItem("webauthnsamplekey", id);
+  displaySavedKey();
+}
+
+function deleteKey() {
+  localStorage.removeItem("webauthnsamplekey");
+  displaySavedKey();
 }
 
 /**
- * @returns {Uint8Array|null}
+ * @returns {string|null}
  */
 function getSavedKeyID() {
   const saved = localStorage.getItem("webauthnsamplekey");
@@ -232,7 +238,7 @@ function getSavedKeyID() {
     return null;
   }
 
-  return decodeBase64URIToUint8Array(saved);
+  return saved;
 }
 
 /**
@@ -254,6 +260,18 @@ async function checkPasskeyCapabilities() {
   outputToLog(`isCMA: ${isCMA ? "true" : "false"}`);
   outputToLog(`isUVPAA: ${isUVPAA ? "true" : "false"}`);
 }
+
+function displaySavedKey() {
+  /** @type {any} */
+  const displayElement = document.getElementById("saved-key");
+  displayElement.value = getSavedKeyID() ?? "";
+}
+
+document.getElementById("delete-key")?.addEventListener("click", () => {
+  deleteKey();
+});
+
+displaySavedKey();
 
 checkPasskeyCapabilities();
 
