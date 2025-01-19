@@ -6,19 +6,28 @@ import { decodeBase64URIToUint8Array } from "./conv.js";
 let autofillAbortController = null;
 
 /**
+ * @typedef {CredentialRequestOptions & { publicKey: { challenge_base64: string } }} getOptions
+ */
+
+/**
  * @typedef {CredentialCreationOptions & { publicKey: { challenge_base64: string, user: { id_base64: string }, excludeCredentials: { id_base64: string }[] }}} createOptions
  */
 
 /**
- * @returns {Promise<CredentialRequestOptions>}
+ * @returns {Promise<getOptions>}
  */
 async function createCredentailsGetOptions() {
-  return {
-    publicKey: {
-      challenge: createChallenge(),
-      rpId: getRelyingPartyID(),
-    },
-  };
+  /** @type {getOptions} */
+  const opt = await fetch("/demo/passkey/signin-options", {
+    method: "POST",
+    credentials: "include",
+  }).then((res) => res.json());
+
+  opt.publicKey.challenge = decodeBase64URIToUint8Array(
+    opt.publicKey.challenge_base64
+  );
+
+  return opt;
 }
 
 /**
@@ -46,20 +55,6 @@ async function createCredentialsCreateOptions() {
   }
 
   return opt;
-}
-
-/**
- * @returns {string}
- */
-function getRelyingPartyID() {
-  return location.hostname;
-}
-
-/**
- * @returns {Uint8Array}
- */
-function createChallenge() {
-  return new Uint8Array([0, 1, 2, 3, 4, 5]);
 }
 
 async function setupPasskeyAutofill() {
@@ -143,7 +138,13 @@ signinPasskeyButton.addEventListener("click", async () => {
   }
 
   outputToLog(JSON.stringify(res, null, 2));
-  outputToLog("ログインできた TODO: ユーザーIDを取る");
+
+  await fetch("/demo/passkey/verify", {
+    method: "POST",
+    credentials: "include",
+    body: JSON.stringify(res),
+  });
+
   setupPasskeyAutofill();
 });
 
