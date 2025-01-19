@@ -78,30 +78,41 @@ func VerifyAssertion(userID string, attestation publicKeyCredentialAttestation, 
 		return errors.New("パスキーの検証時に userHandle と userID が一致しなかった")
 	}
 
-	// 署名検証にかかわるステップ
+	// 署名検証にかかわるステップは以下
 	// 8. Let cData, authData and sig denote the value of response’s clientDataJSON, authenticatorData, and signature respectively.
 	// 19. Let hash be the result of computing a hash over the cData using SHA-256.
 	// 20. Using credentialPublicKey, verify that sig is a valid signature over the binary concatenation of authData and hash.
+	// https://www.w3.org/TR/webauthn-2/#sctn-verifying-assertion
 
-	hash := sha256.Sum256([]byte(assertion.Response.ClientDataJSON))
 	publicKey, err := publicKeyRS256(&attestation)
 	if err != nil {
 		return errors.Join(errors.New("パスキーの検証時にattestationから公開鍵を取り出せなかった"), err)
 	}
 
+	// Step 19
+	decodedCData, err := base64.RawURLEncoding.DecodeString(assertion.Response.ClientDataJSON)
+	if err != nil {
+		return errors.Join(errors.New("パスキーの検証時にClientDataJSONのデコードに失敗した"), err)
+	}
+	cDataHash := sha256.Sum256(decodedCData)
+
 	decodedAuthData, err := base64.RawURLEncoding.DecodeString(assertion.Response.AuthenticatorData)
 	if err != nil {
 		return errors.Join(errors.New("パスキーの検証時にauthenticatorDataのデコードに失敗した"), err)
 	}
+
 	decodedSig, err := base64.RawURLEncoding.DecodeString(assertion.Response.Signature)
 	if err != nil {
 		return errors.Join(errors.New("パスキーの検証時にsignatureのデコードに失敗した"), err)
 	}
 
-	var hashedMessage []byte
-	hashedMessage = append(hashedMessage, decodedAuthData...)
-	hashedMessage = append(hashedMessage, hash[:]...)
-	if err := rsa.VerifyPKCS1v15(publicKey, crypto.SHA256, hashedMessage, decodedSig); err != nil {
+	// Step 20
+	var payload []byte
+	payload = append(payload, decodedAuthData...)
+	payload = append(payload, cDataHash[:]...)
+
+	hashed := sha256.Sum256(payload)
+	if err := rsa.VerifyPKCS1v15(publicKey, crypto.SHA256, hashed[:], decodedSig); err != nil {
 		return errors.Join(errors.New("パスキーの検証時に署名の検証に失敗した"), err)
 	}
 
