@@ -50,13 +50,13 @@ func CreateOptions(rpID, rpName string, userID string, userName, userDisplayName
 }
 
 // PublicCredentialAttestation をパースする (Assertionを検証するとき)
-func ParseAttestationForVerification(jsonReader io.Reader, origin string) (*PublicKeyCredentialAttestation, error) {
+func ParseAttestationForVerification(jsonReader io.Reader, origin string) (*publicKeyCredentialAttestation, error) {
 	bytes, err := io.ReadAll(jsonReader)
 	if err != nil {
 		return nil, err
 	}
 
-	var attestation PublicKeyCredentialAttestation
+	var attestation publicKeyCredentialAttestation
 	if err := json.Unmarshal(bytes, &attestation); err != nil {
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func ParseAttestationForVerification(jsonReader io.Reader, origin string) (*Publ
 }
 
 // PublicCredentialAttestation をパースする (登録時)
-func ParseAttestationForRegistration(jsonReader io.Reader, challenge []byte, origin string) (*PublicKeyCredentialAttestation, error) {
+func ParseAttestationForRegistration(jsonReader io.Reader, challenge []byte, origin string) (*publicKeyCredentialAttestation, error) {
 	attestation, err := ParseAttestationForVerification(jsonReader, origin)
 	if err != nil {
 		return nil, err

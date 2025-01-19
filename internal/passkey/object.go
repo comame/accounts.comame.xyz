@@ -46,7 +46,7 @@ type publicKeyCredentialExcludeCredentialsOptions struct {
 
 // navigator.credentials.create の返り値を表す
 // TODO: 今後 Public にしておく必要はないと思うので、private に戻しておく
-type PublicKeyCredentialAttestation struct {
+type publicKeyCredentialAttestation struct {
 	Type     string                           `json:"type"`
 	ID       string                           `json:"id"`
 	RawID    string                           `json:"rawId"`
@@ -74,9 +74,10 @@ type publicKeyCredentialAssertion struct {
 }
 
 type authenticatorAssertionResponse struct {
-	ClientDataJSON string `json:"clientDataJSON"`
-	Signature      string `json:"signature"`
-	UserHandle     string `json:"userHandle"`
+	ClientDataJSON    string `json:"clientDataJSON"`
+	Signature         string `json:"signature"`
+	UserHandle        string `json:"userHandle"`
+	AuthenticatorData string `json:"authenticatorData"`
 
 	clientData authenticatorResponseClientData
 }

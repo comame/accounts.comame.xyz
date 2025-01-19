@@ -7,24 +7,32 @@ import (
 
 // TODO: 全然ダミー実装
 
-var keys = make(map[string]PublicKeyCredentialAttestation)
+var keys = make(map[string]publicKeyCredentialAttestation)
 
 var (
 	errBoundPublicKeyNotFound = errors.New("指定されたIDの公開鍵がユーザーに紐づけられていない")
 )
 
-func BindPublicKeyToUser(userID string, attestation PublicKeyCredentialAttestation) error {
+func BindPublicKeyToUser(userID string, attestation publicKeyCredentialAttestation) error {
 	keys[attestation.ID] = attestation
 	return nil
 }
 
-func FindPublicKey(userID string, assertion publicKeyCredentialAssertion) (*PublicKeyCredentialAttestation, error) {
+func FindPublicKeys(userID string, assertion publicKeyCredentialAssertion) (*publicKeyCredentialAttestation, error) {
 	attestation, ok := keys[assertion.ID]
 	if !ok {
 		return nil, errBoundPublicKeyNotFound
 	}
 
 	return &attestation, nil
+}
+
+func RegisteredKeyIDs(userID string) ([]string, error) {
+	var ret []string
+	for _, v := range keys {
+		ret = append(ret, v.ID)
+	}
+	return ret, nil
 }
 
 func userIDToUserHandle(userID string) string {

@@ -52,3 +52,7 @@ func parseRS256(derBase64 string) (*rsa.PublicKey, error) {
 
 	return rsaPubKey, nil
 }
+
+func publicKeyRS256(attestation *publicKeyCredentialAttestation) (*rsa.PublicKey, error) {
+	return parseRS256(attestation.Response.PublicKey)
+}

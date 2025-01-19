@@ -360,8 +360,6 @@ func handle_GET_certs(w http.ResponseWriter, _ *http.Request) {
 	w.Write(js)
 }
 
-var demoAttestation *passkey.PublicKeyCredentialAttestation
-
 func handle_Post_passkeyRegisterOptions(w http.ResponseWriter, _ *http.Request) {
 	userID := "test_user"
 
@@ -372,9 +370,10 @@ func handle_Post_passkeyRegisterOptions(w http.ResponseWriter, _ *http.Request) 
 		return
 	}
 
-	var excludeKeyIDs []string
-	if demoAttestation != nil {
-		excludeKeyIDs = append(excludeKeyIDs, demoAttestation.ID)
+	excludeKeyIDs, err := passkey.RegisteredKeyIDs(userID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	opt := passkey.CreateOptions(
@@ -414,7 +413,11 @@ func handle_Post_passkeyRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	demoAttestation = attestation
+	if err := passkey.BindPublicKeyToUser(userID, *attestation); err != nil {
+		log.Println("パスキーの紐づけに失敗", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	{
 		js, _ := json.MarshalIndent(attestation, "", "  ")
