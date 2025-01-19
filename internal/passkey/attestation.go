@@ -8,7 +8,7 @@ import (
 	"io"
 )
 
-// CredentialCreationOptions を生成する
+// navigator.credentials.create に渡す CredentialCreationOptions を生成する
 func CreateOptions(rpID, rpName string, userID string, userName, userDisplayName string, excludeKeyIDs []string, challenge []byte) credentialCreateOptions {
 	userIDBase64 := userIDToUserHandle(userID)
 	challengeBase64 := base64.RawURLEncoding.EncodeToString(challenge)
@@ -17,10 +17,13 @@ func CreateOptions(rpID, rpName string, userID string, userName, userDisplayName
 		PublicKey: publicKeyCredentialCreationOptions{
 			ChallengeBase64: challengeBase64,
 			AuthenticatorSelection: publicKeyCredentialAuthenticatorSelectionOptions{
+				// 登録できるのはその端末の認証機だけとする (他デバイスは Hybrid Transport でログインすればよい)
 				AuthenticatorAttachment: "platform",
-				RequireResidentKey:      true,
-				ResidentKey:             "required",
-				UserVerification:        "required",
+				// ユーザー名入力なしでログインしたいので、Discoverable Credential のみ受け付ける
+				RequireResidentKey: true,
+				ResidentKey:        "required",
+				// UserVerification は求める
+				UserVerification: "required",
 			},
 			Attestation:      "none",
 			PubKeyCredParams: supportedAlgorithms,
@@ -42,6 +45,7 @@ func CreateOptions(rpID, rpName string, userID string, userName, userDisplayName
 			list = append(list, publicKeyCredentialExcludeCredentialsOptions{
 				Type:     "public-key",
 				IDBase64: id,
+				// keyID なんてそうそう重複しないでしょの気持ちで、transports は指定をサボることにする
 			})
 		}
 		opt.PublicKey.ExcludeCredentials = list

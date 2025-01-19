@@ -372,7 +372,7 @@ func handle_Post_passkeyRegisterOptions(w http.ResponseWriter, _ *http.Request) 
 		return
 	}
 
-	excludeKeyIDs, err := passkey.RegisteredKeyIDs(userID)
+	excludeKeyIDs, err := passkey.ListBoundKeyIDs(userID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -452,6 +452,7 @@ func handle_Post_passkeySigninOptions(w http.ResponseWriter, _ *http.Request) {
 }
 
 func handle_Post_passkeyVerify(w http.ResponseWriter, r *http.Request) {
+	// FIXME: 当然事前に userID は分からない
 	userID := "test_user"
 
 	challenge, err := passkey.GetChallengeFromSession(userID, r)
@@ -467,7 +468,7 @@ func handle_Post_passkeyVerify(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	attestation, err := passkey.FindPublicKeys(userID, *assertion)
+	attestation, err := passkey.GetBoundPublicKey(userID, *assertion)
 	if err != nil {
 		log.Println("対応するattestationがなかった")
 		w.WriteHeader(http.StatusBadRequest)

@@ -18,7 +18,7 @@ func BindPublicKeyToUser(userID string, attestation publicKeyCredentialAttestati
 	return nil
 }
 
-func FindPublicKeys(userID string, assertion publicKeyCredentialAssertion) (*publicKeyCredentialAttestation, error) {
+func GetBoundPublicKey(userID string, assertion publicKeyCredentialAssertion) (*publicKeyCredentialAttestation, error) {
 	attestation, ok := keys[assertion.ID]
 	if !ok {
 		return nil, errBoundPublicKeyNotFound
@@ -27,7 +27,7 @@ func FindPublicKeys(userID string, assertion publicKeyCredentialAssertion) (*pub
 	return &attestation, nil
 }
 
-func RegisteredKeyIDs(userID string) ([]string, error) {
+func ListBoundKeyIDs(userID string) ([]string, error) {
 	var ret []string
 	for _, v := range keys {
 		ret = append(ret, v.ID)

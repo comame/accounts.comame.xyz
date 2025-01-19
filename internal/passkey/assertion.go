@@ -11,6 +11,7 @@ import (
 	"io"
 )
 
+// navigator.credentials.get に渡す credentialRequestOptions を生成する
 func GetOptions(rpID string, challenge []byte) credentialGetOptions {
 	challengeBase64 := base64.RawURLEncoding.EncodeToString(challenge)
 
@@ -23,6 +24,7 @@ func GetOptions(rpID string, challenge []byte) credentialGetOptions {
 	}
 }
 
+// publicKeyCredentialAssertion をパースする
 func ParseAssertion(jsonReader io.Reader, challenge []byte, origin string) (*publicKeyCredentialAssertion, error) {
 	bytes, err := io.ReadAll(jsonReader)
 	if err != nil {
@@ -69,6 +71,7 @@ func ParseAssertion(jsonReader io.Reader, challenge []byte, origin string) (*pub
 	return &assertion, nil
 }
 
+// publicKeyCredentialAssertion を検証して、userID を取り出す
 func VerifyAssertion(userID string, attestation publicKeyCredentialAttestation, assertion publicKeyCredentialAssertion) error {
 	if attestation.ID != assertion.ID {
 		return errors.New("パスキーの検証時に keyId が一致しなかった")

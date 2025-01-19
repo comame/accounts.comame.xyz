@@ -27,6 +27,8 @@ var supportedAlgorithms = []publicKeyCredentialPubKeyCredParamsOptions{
 	// },
 }
 
+// algの数値からアルゴリズム名を取り出す
+// 例: -257 -> RS256
 func getAlgFromNumber(num int) (alg string, ok bool) {
 	for _, def := range supportedAlgorithms {
 		if def.Alg == num {
