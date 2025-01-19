@@ -360,7 +360,7 @@ func handle_GET_certs(w http.ResponseWriter, _ *http.Request) {
 	w.Write(js)
 }
 
-var demoAttestation *passkey.PublicCredentialAttestation
+var demoAttestation *passkey.PublicKeyCredentialAttestation
 
 func handle_Post_passkeyRegisterOptions(w http.ResponseWriter, _ *http.Request) {
 	userID := "test_user"
@@ -380,7 +380,7 @@ func handle_Post_passkeyRegisterOptions(w http.ResponseWriter, _ *http.Request) 
 	opt := passkey.CreateOptions(
 		passkey.RelyingPartyID(),
 		"accounts.comame.xyz",
-		[]byte(userID),
+		userID,
 		userID,
 		userID,
 		excludeKeyIDs,

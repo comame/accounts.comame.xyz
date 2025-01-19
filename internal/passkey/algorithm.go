@@ -7,7 +7,7 @@ import (
 	"errors"
 )
 
-var supportedAlgorithms = []credentialCreationPubKeyCredParamsOptions{
+var supportedAlgorithms = []publicKeyCredentialPubKeyCredParamsOptions{
 	{
 		Type:    "public-key",
 		Alg:     -257,
