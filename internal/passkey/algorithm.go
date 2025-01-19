@@ -9,6 +9,7 @@ import (
 
 var supportedAlgorithms = []publicKeyCredentialPubKeyCredParamsOptions{
 	{
+		// Windows, iOS
 		Type:    "public-key",
 		Alg:     -257,
 		algName: "RS256",
@@ -19,8 +20,9 @@ var supportedAlgorithms = []publicKeyCredentialPubKeyCredParamsOptions{
 	// 	algName: "Ed25519",
 	// },
 	// {
-	// 	Type: "public-key",
-	// 	Alg:  -7,
+	// 	// Android
+	// 	Type:    "public-key",
+	// 	Alg:     -7,
 	// 	algName: "ES256",
 	// },
 }

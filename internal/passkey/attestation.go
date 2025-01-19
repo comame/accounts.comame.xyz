@@ -22,6 +22,7 @@ func CreateOptions(rpID, rpName string, userID string, userName, userDisplayName
 				ResidentKey:             "required",
 				UserVerification:        "required",
 			},
+			Attestation:      "none",
 			PubKeyCredParams: supportedAlgorithms,
 			RP: publicKeyCredentialRPOptions{
 				ID:   rpID,

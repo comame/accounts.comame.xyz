@@ -11,6 +11,7 @@ type publicKeyCredentialCreationOptions struct {
 	PubKeyCredParams       []publicKeyCredentialPubKeyCredParamsOptions     `json:"pubKeyCredParams"`
 	RP                     publicKeyCredentialRPOptions                     `json:"rp"`
 	User                   publicKeyCredentialUserOptions                   `json:"user"`
+	Attestation            string                                           `json:"attestation"`
 	ExcludeCredentials     []publicKeyCredentialExcludeCredentialsOptions   `json:"excludeCredentials,omitempty"`
 }
 

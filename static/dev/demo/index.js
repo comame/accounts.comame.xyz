@@ -179,6 +179,7 @@ registerPasskeyButton.addEventListener("click", async () => {
   }
 
   outputToLog(`キーペアが作成された`);
+  outputToLog(res.id);
   outputToLog(JSON.stringify(res, null, 2));
 
   await fetch("/demo/passkey/register", {

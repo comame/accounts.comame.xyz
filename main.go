@@ -377,7 +377,7 @@ func handle_Post_passkeyRegisterOptions(w http.ResponseWriter, _ *http.Request) 
 	}
 
 	opt := passkey.CreateOptions(
-		passkey.RelyingPartyID(),
+		passkey.RelyingPartyID(os.Getenv("HOST")),
 		"accounts.comame.xyz",
 		userID,
 		userID,
