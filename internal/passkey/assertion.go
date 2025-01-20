@@ -110,7 +110,11 @@ func VerifyAssertion(userID string, attestation publicKeyCredentialAttestation, 
 	switch attestation.Response.PublicKeyAlgorithm {
 	case algorithmRS256:
 		if err := verifyRS256(&attestation, payload, decodedSig); err != nil {
-			return errors.Join(errors.New("パスキーの検証時に署名の検証に失敗した"), err)
+			return errors.Join(errors.New("パスキーの検証時にRS256署名の検証に失敗した"), err)
+		}
+	case algorithmES256:
+		if err := verifyES256(&attestation, payload, decodedSig); err != nil {
+			return errors.Join(errors.New("パスキーの検証時にES256署名の検証に失敗した"), err)
 		}
 	default:
 		return errors.New("未知のアルゴリズム")

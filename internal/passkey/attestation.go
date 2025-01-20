@@ -82,7 +82,12 @@ func ParseAttestationForVerification(jsonReader io.Reader, origin string) (*publ
 	case algorithmRS256:
 		_, err := parseRS256PublicKey(&attestation)
 		if err != nil {
-			return nil, fmt.Errorf("attestationの公開鍵のパースに失敗した %v", err)
+			return nil, fmt.Errorf("attestationのRS256公開鍵のパースに失敗した %v", err)
+		}
+	case algorithmES256:
+		_, err := parseES256PublicKey(&attestation)
+		if err != nil {
+			return nil, fmt.Errorf("attestationのES256公開鍵のパースに失敗した %v", err)
 		}
 	default:
 		// 直前で isSupportedAlgorithm を通しているので、明らかにおかしい
