@@ -10,7 +10,7 @@ import (
 
 // navigator.credentials.create に渡す CredentialCreationOptions を生成する
 func CreateOptions(rpID, rpName string, userID string, userName, userDisplayName string, excludeKeyIDs []string, challenge []byte) credentialCreateOptions {
-	userIDBase64 := ConvertUserIDToUserHandle(userID)
+	userIDBase64 := base64.RawURLEncoding.EncodeToString([]byte(userID))
 	challengeBase64 := base64.RawURLEncoding.EncodeToString(challenge)
 
 	opt := credentialCreateOptions{

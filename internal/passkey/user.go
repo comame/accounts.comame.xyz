@@ -38,10 +38,6 @@ func ListBoundKeyIDs(userID string) ([]string, error) {
 	return ret, nil
 }
 
-func ConvertUserIDToUserHandle(userID string) string {
-	return base64.RawURLEncoding.EncodeToString([]byte(userID))
-}
-
 // PublicKeyCredentialAssertion から userID を **検証せずに** 取り出す
 func AssumeUserID(assertion *publicKeyCredentialAssertion) (string, error) {
 	b, err := base64.RawURLEncoding.DecodeString(assertion.Response.UserHandle)
