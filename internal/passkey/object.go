@@ -44,7 +44,6 @@ type publicKeyCredentialExcludeCredentialsOptions struct {
 }
 
 // navigator.credentials.create の返り値を表す
-// TODO: 今後 Public にしておく必要はないと思うので、private に戻しておく
 type publicKeyCredentialAttestation struct {
 	Type     string                           `json:"type"`
 	ID       string                           `json:"id"`

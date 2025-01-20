@@ -70,13 +70,9 @@ func ParseAssertion(jsonReader io.Reader, challenge []byte, origin string) (*pub
 }
 
 // publicKeyCredentialAssertion を検証して、userID を取り出す
-func VerifyAssertion(userID string, attestation publicKeyCredentialAttestation, assertion publicKeyCredentialAssertion) error {
+func VerifyAssertion(attestation publicKeyCredentialAttestation, assertion publicKeyCredentialAssertion) (userID string, err error) {
 	if attestation.ID != assertion.ID {
-		return errors.New("パスキーの検証時に keyId が一致しなかった")
-	}
-
-	if assertion.Response.UserHandle != userIDToUserHandle(userID) {
-		return errors.New("パスキーの検証時に userHandle と userID が一致しなかった")
+		return "", errors.New("パスキーの検証時に keyId が一致しなかった")
 	}
 
 	// 署名検証にかかわるステップは以下
@@ -88,18 +84,18 @@ func VerifyAssertion(userID string, attestation publicKeyCredentialAttestation, 
 	// Step 19
 	decodedCData, err := base64.RawURLEncoding.DecodeString(assertion.Response.ClientDataJSON)
 	if err != nil {
-		return errors.Join(errors.New("パスキーの検証時にClientDataJSONのデコードに失敗した"), err)
+		return "", errors.Join(errors.New("パスキーの検証時にClientDataJSONのデコードに失敗した"), err)
 	}
 	cDataHash := sha256.Sum256(decodedCData)
 
 	decodedAuthData, err := base64.RawURLEncoding.DecodeString(assertion.Response.AuthenticatorData)
 	if err != nil {
-		return errors.Join(errors.New("パスキーの検証時にauthenticatorDataのデコードに失敗した"), err)
+		return "", errors.Join(errors.New("パスキーの検証時にauthenticatorDataのデコードに失敗した"), err)
 	}
 
 	decodedSig, err := base64.RawURLEncoding.DecodeString(assertion.Response.Signature)
 	if err != nil {
-		return errors.Join(errors.New("パスキーの検証時にsignatureのデコードに失敗した"), err)
+		return "", errors.Join(errors.New("パスキーの検証時にsignatureのデコードに失敗した"), err)
 	}
 
 	// Step 20
@@ -110,17 +106,22 @@ func VerifyAssertion(userID string, attestation publicKeyCredentialAttestation, 
 	switch attestation.Response.PublicKeyAlgorithm {
 	case algorithmRS256:
 		if err := verifyRS256(&attestation, payload, decodedSig); err != nil {
-			return errors.Join(errors.New("パスキーの検証時にRS256署名の検証に失敗した"), err)
+			return "", errors.Join(errors.New("パスキーの検証時にRS256署名の検証に失敗した"), err)
 		}
 	case algorithmES256:
 		if err := verifyES256(&attestation, payload, decodedSig); err != nil {
-			return errors.Join(errors.New("パスキーの検証時にES256署名の検証に失敗した"), err)
+			return "", errors.Join(errors.New("パスキーの検証時にES256署名の検証に失敗した"), err)
 		}
 	default:
-		return errors.New("未知のアルゴリズム")
+		return "", errors.New("未知のアルゴリズム")
 	}
 
 	// TODO: Step 21 該当の公開鍵が使われた回数に応じてリスク判定を行う
 
-	return nil
+	assumedUserID, err := AssumeUserID(&assertion)
+	if err != nil {
+		return "", errors.Join(errors.New("パスキーの検証時にuserHandleのパースに失敗した"), err)
+	}
+
+	return assumedUserID, nil
 }

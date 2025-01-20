@@ -365,7 +365,7 @@ func handle_GET_certs(w http.ResponseWriter, _ *http.Request) {
 func handle_Post_passkeyRegisterOptions(w http.ResponseWriter, _ *http.Request) {
 	userID := "test_user"
 
-	challenge, err := passkey.CreateChallengeAndBindSession(userID, w)
+	challenge, err := passkey.CreateChallengeAndBindSession(w)
 	if err != nil {
 		log.Printf("パスキーのチャンレジ作成に失敗した %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -401,7 +401,7 @@ func handle_Post_passkeyRegisterOptions(w http.ResponseWriter, _ *http.Request) 
 func handle_Post_passkeyRegister(w http.ResponseWriter, r *http.Request) {
 	userID := "test_user"
 
-	challenge, err := passkey.GetChallengeFromSession(userID, r)
+	challenge, err := passkey.GetChallengeFromSession(w, r)
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -430,9 +430,7 @@ func handle_Post_passkeyRegister(w http.ResponseWriter, r *http.Request) {
 }
 
 func handle_Post_passkeySigninOptions(w http.ResponseWriter, _ *http.Request) {
-	userID := "test_user"
-
-	challenge, err := passkey.CreateChallengeAndBindSession(userID, w)
+	challenge, err := passkey.CreateChallengeAndBindSession(w)
 	if err != nil {
 		log.Printf("パスキーのチャンレジ作成に失敗した %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -452,10 +450,7 @@ func handle_Post_passkeySigninOptions(w http.ResponseWriter, _ *http.Request) {
 }
 
 func handle_Post_passkeyVerify(w http.ResponseWriter, r *http.Request) {
-	// FIXME: 当然事前に userID は分からない
-	userID := "test_user"
-
-	challenge, err := passkey.GetChallengeFromSession(userID, r)
+	challenge, err := passkey.GetChallengeFromSession(w, r)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -468,20 +463,28 @@ func handle_Post_passkeyVerify(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	attestation, err := passkey.GetBoundPublicKey(userID, *assertion)
+	unauthorizedUserID, err := passkey.AssumeUserID(assertion)
+	if err != nil {
+		log.Println("assertionからuserIDを取り出せなかった", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	attestation, err := passkey.GetBoundPublicKey(unauthorizedUserID, *assertion)
 	if err != nil {
 		log.Println("対応するattestationがなかった")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	if err := passkey.VerifyAssertion(userID, *attestation, *assertion); err != nil {
+	userID, err := passkey.VerifyAssertion(*attestation, *assertion)
+	if err != nil {
 		log.Println("assertionの検証に失敗", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	log.Println("成功！")
+	log.Println("成功！", userID)
 	w.WriteHeader(http.StatusOK)
 }
 

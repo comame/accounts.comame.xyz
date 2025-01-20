@@ -10,9 +10,9 @@ import (
 )
 
 // challenge を生成してセッションに紐づける
-func CreateChallengeAndBindSession(userID string, w http.ResponseWriter) ([]byte, error) {
-	buf := make([]byte, 32)
-	n, err := random.Bytes(buf)
+func CreateChallengeAndBindSession(w http.ResponseWriter) (challenge []byte, err error) {
+	challengeBytes := make([]byte, 32)
+	n, err := random.Bytes(challengeBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -20,43 +20,49 @@ func CreateChallengeAndBindSession(userID string, w http.ResponseWriter) ([]byte
 		return nil, errors.New("challengeが32バイトではない")
 	}
 
-	str := base64.RawURLEncoding.EncodeToString(buf)
+	challengeStr := base64.RawURLEncoding.EncodeToString(challengeBytes)
 
-	if err := kvs.PasskeyChallenge_save(str, userID); err != nil {
+	sessionID, err := random.String(32)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := kvs.PasskeyChallenge_save(challengeStr, sessionID); err != nil {
 		return nil, err
 	}
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "pkc",
-		Value:    str, // FIXME: チャレンジを直接Cookieに保存しているが、これはとても危険
+		Value:    sessionID,
 		MaxAge:   10 * 60,
 		HttpOnly: true,
 		SameSite: http.SameSiteStrictMode,
 	})
 
-	return buf, nil
+	return challengeBytes, nil
 }
 
 // セッションに紐づけられたchallengeを取得する
-func GetChallengeFromSession(userID string, r *http.Request) ([]byte, error) {
+func GetChallengeFromSession(w http.ResponseWriter, r *http.Request) (challenge []byte, err error) {
 	cookie, err := r.Cookie("pkc")
 	if err != nil {
 		return nil, err
 	}
 
-	str := cookie.Value
-	buf, err := base64.RawURLEncoding.DecodeString(str)
+	sessionID := cookie.Value
+	if sessionID == "" {
+		return nil, errors.New("challengeのセッションIDが空")
+	}
+
+	defer kvs.PasskeyChallenge_delete(sessionID)
+	challengeString, err := kvs.PasskeyChallenge_get(sessionID)
 	if err != nil {
 		return nil, err
 	}
 
-	defer kvs.PasskeyChallenge_delete(str)
-	kvsUserID, err := kvs.PasskeyChallenge_get(str)
+	buf, err := base64.RawURLEncoding.DecodeString(challengeString)
 	if err != nil {
 		return nil, err
-	}
-	if kvsUserID != userID {
-		return nil, errors.New("パスキー登録時にkvsに保存されたuserIDがセッションと異なる")
 	}
 
 	return buf, nil
