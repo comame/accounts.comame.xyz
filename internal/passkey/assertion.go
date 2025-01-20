@@ -1,8 +1,6 @@
 package passkey
 
 import (
-	"crypto"
-	"crypto/rsa"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
@@ -87,11 +85,6 @@ func VerifyAssertion(userID string, attestation publicKeyCredentialAttestation, 
 	// 20. Using credentialPublicKey, verify that sig is a valid signature over the binary concatenation of authData and hash.
 	// https://www.w3.org/TR/webauthn-2/#sctn-verifying-assertion
 
-	publicKey, err := publicKeyRS256(&attestation)
-	if err != nil {
-		return errors.Join(errors.New("パスキーの検証時にattestationから公開鍵を取り出せなかった"), err)
-	}
-
 	// Step 19
 	decodedCData, err := base64.RawURLEncoding.DecodeString(assertion.Response.ClientDataJSON)
 	if err != nil {
@@ -114,9 +107,13 @@ func VerifyAssertion(userID string, attestation publicKeyCredentialAttestation, 
 	payload = append(payload, decodedAuthData...)
 	payload = append(payload, cDataHash[:]...)
 
-	hashed := sha256.Sum256(payload)
-	if err := rsa.VerifyPKCS1v15(publicKey, crypto.SHA256, hashed[:], decodedSig); err != nil {
-		return errors.Join(errors.New("パスキーの検証時に署名の検証に失敗した"), err)
+	switch attestation.Response.PublicKeyAlgorithm {
+	case algorithmRS256:
+		if err := verifyRS256(&attestation, payload, decodedSig); err != nil {
+			return errors.Join(errors.New("パスキーの検証時に署名の検証に失敗した"), err)
+		}
+	default:
+		return errors.New("未知のアルゴリズム")
 	}
 
 	// TODO: Step 21 該当の公開鍵が使われた回数に応じてリスク判定を行う

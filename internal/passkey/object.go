@@ -23,10 +23,8 @@ type publicKeyCredentialAuthenticatorSelectionOptions struct {
 }
 
 type publicKeyCredentialPubKeyCredParamsOptions struct {
-	Type string `json:"type"`
-	Alg  int    `json:"alg"`
-
-	algName string
+	Type string    `json:"type"`
+	Alg  algorithm `json:"alg"`
 }
 
 type publicKeyCredentialRPOptions struct {
@@ -59,7 +57,7 @@ type authenticatorAttestationResponse struct {
 	// base64uri エンコードされた AuthenticatorAttestationResponse.getPublicKey()
 	PublicKey string `json:"publicKey"`
 	// AuthenticatorAttestationResponse.getPublicKeyAlgorithm()
-	PublicKeyAlgorithm int `json:"publicKeyAlgorithm"`
+	PublicKeyAlgorithm algorithm `json:"publicKeyAlgorithm"`
 	// AuthenticatorAttestationResponse.getTransports()
 	Transports []string `json:"transports"`
 

@@ -74,19 +74,19 @@ func ParseAttestationForVerification(jsonReader io.Reader, origin string) (*publ
 		return nil, errors.New("attestationのIDとrawIDが一致しなかった")
 	}
 
-	alg, ok := getAlgFromNumber(attestation.Response.PublicKeyAlgorithm)
-	if !ok {
+	if !isSupportedAlgorithm(attestation.Response.PublicKeyAlgorithm) {
 		return nil, fmt.Errorf("attestationのサポートしていない alg が渡された %d", attestation.Response.PublicKeyAlgorithm)
 	}
 
-	switch alg {
-	case "RS256":
-		_, err := parseRS256(attestation.Response.PublicKey)
+	switch attestation.Response.PublicKeyAlgorithm {
+	case algorithmRS256:
+		_, err := parseRS256PublicKey(&attestation)
 		if err != nil {
 			return nil, fmt.Errorf("attestationの公開鍵のパースに失敗した %v", err)
 		}
 	default:
-		panic("未知のアルゴリズム名 " + alg)
+		// 直前で isSupportedAlgorithm を通しているので、明らかにおかしい
+		panic(fmt.Sprintf("未知のアルゴリズム %d", attestation.Response.PublicKeyAlgorithm))
 	}
 
 	clientDataJSON, err := base64.RawStdEncoding.DecodeString(attestation.Response.ClientDataJSON)

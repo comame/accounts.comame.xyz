@@ -28,7 +28,7 @@ func CreateChallengeAndBindSession(userID string, w http.ResponseWriter) ([]byte
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "pkc",
-		Value:    str,
+		Value:    str, // FIXME: チャレンジを直接Cookieに保存しているが、これはとても危険
 		MaxAge:   10 * 60,
 		HttpOnly: true,
 		SameSite: http.SameSiteStrictMode,

@@ -1,45 +1,51 @@
 package passkey
 
 import (
+	"crypto"
 	"crypto/rsa"
+	"crypto/sha256"
 	"crypto/x509"
 	"encoding/base64"
 	"errors"
 )
 
+type algorithm int
+
+var (
+	algorithmRS256 algorithm = -257
+	// algorithmEd25519 algorithm = -8
+	// algorithmES256   algorithm = -7
+)
+
 var supportedAlgorithms = []publicKeyCredentialPubKeyCredParamsOptions{
 	{
 		// Windows, iOS
-		Type:    "public-key",
-		Alg:     -257,
-		algName: "RS256",
+		Type: "public-key",
+		Alg:  algorithmRS256,
 	},
 	// {
-	// 	Type:    "public-key",
-	// 	Alg:     -8,
-	// 	algName: "Ed25519",
+	// 	Type: "public-key",
+	// 	Alg:  algorithmEd25519,
 	// },
 	// {
 	// 	// Android
-	// 	Type:    "public-key",
-	// 	Alg:     -7,
-	// 	algName: "ES256",
+	// 	Type: "public-key",
+	// 	Alg:  algorithmES256,
 	// },
 }
 
-// algの数値からアルゴリズム名を取り出す
-// 例: -257 -> RS256
-func getAlgFromNumber(num int) (alg string, ok bool) {
-	for _, def := range supportedAlgorithms {
-		if def.Alg == num {
-			return def.algName, true
+func isSupportedAlgorithm(alg algorithm) bool {
+	for _, v := range supportedAlgorithms {
+		if v.Alg == alg {
+			return true
 		}
 	}
-	return "", false
+
+	return false
 }
 
-func parseRS256(derBase64 string) (*rsa.PublicKey, error) {
-	bytes, err := base64.URLEncoding.DecodeString(derBase64)
+func parseRS256PublicKey(attestation *publicKeyCredentialAttestation) (*rsa.PublicKey, error) {
+	bytes, err := base64.URLEncoding.DecodeString(attestation.Response.PublicKey)
 	if err != nil {
 		return nil, err
 	}
@@ -57,6 +63,16 @@ func parseRS256(derBase64 string) (*rsa.PublicKey, error) {
 	return rsaPubKey, nil
 }
 
-func publicKeyRS256(attestation *publicKeyCredentialAttestation) (*rsa.PublicKey, error) {
-	return parseRS256(attestation.Response.PublicKey)
+func verifyRS256(attestation *publicKeyCredentialAttestation, payload, signature []byte) error {
+	publicKey, err := parseRS256PublicKey(attestation)
+	if err != nil {
+		return err
+	}
+
+	hashed := sha256.Sum256(payload)
+	if err := rsa.VerifyPKCS1v15(publicKey, crypto.SHA256, hashed[:], signature); err != nil {
+		return err
+	}
+
+	return nil
 }
