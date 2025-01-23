@@ -18,3 +18,7 @@ func String(length uint) (string, error) {
 	}
 	return result, nil
 }
+
+func Bytes(buf []byte) (n int, err error) {
+	return rand.Read(buf)
+}
