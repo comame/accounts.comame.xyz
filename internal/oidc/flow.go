@@ -10,11 +10,11 @@ var (
 
 func IdentFlowFromResponseType(responseType string) Flow {
 	if responseType == "code" {
-		return FlowImplicit
+		return FlowCode
 	}
 
 	if responseType == "id_token" {
-		return FlowCode
+		return FlowImplicit
 	}
 
 	// 無意味な値を返しておく

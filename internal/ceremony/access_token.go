@@ -1,4 +1,4 @@
-package oidc
+package ceremony
 
 import (
 	"errors"
@@ -9,7 +9,7 @@ import (
 	"github.com/comame/accounts.comame.xyz/internal/timenow"
 )
 
-func CreateAccessToken(sub, scopes string) (token string, expiresIn int64, err error) {
+func createAccessToken(sub, scopes string) (token string, expiresIn int64, err error) {
 	now := timenow.Now()
 
 	t, err := random.String(32)
@@ -28,7 +28,7 @@ func CreateAccessToken(sub, scopes string) (token string, expiresIn int64, err e
 	return t, 3600, nil
 }
 
-func FindAccessToken(token string) (sub, scope string, err error) {
+func findAccessToken(token string) (sub, scope string, err error) {
 	sub, scope, createdAt, err := db.AccessToken_get(token)
 	if err != nil {
 		return "", "", err
