@@ -5,22 +5,22 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/comame/accounts.comame.xyz/internal/oidc"
 	"github.com/comame/accounts.comame.xyz/internal/random"
 )
 
 type loginSession struct {
-	ID             string `json:"id"`
-	RelyingPartyID string `json:"relying_party_id"`
-	// FIXME: いずれ循環参照がなくなるはずなので、そのタイミングで oidc.Flow に型を戻す
-	Flow        string `json:"flow"`
-	RedirectURI string `json:"redirect_uri"`
-	Scopes      string `json:"scopes"`
-	State       string `json:"state"`
-	Nonce       string `json:"nonce"`
+	ID             string    `json:"id"`
+	RelyingPartyID string    `json:"relying_party_id"`
+	Flow           oidc.Flow `json:"flow"`
+	RedirectURI    string    `json:"redirect_uri"`
+	Scopes         string    `json:"scopes"`
+	State          string    `json:"state"`
+	Nonce          string    `json:"nonce"`
 }
 
 func LoginSession_save(
-	sub, redirectURI, scope, state, nonce string, flow string,
+	sub, redirectURI, scope, state, nonce string, flow oidc.Flow,
 ) (string, error) {
 	id, err := random.String(64)
 	if err != nil {

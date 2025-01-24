@@ -82,7 +82,7 @@ func AuthenticationRequest(w http.ResponseWriter, body url.Values) {
 		return
 	}
 
-	sessionID, err := kvs.LoginSession_save(request.ClientId, request.RedirectURI, request.Scope, request.State, request.Nonce, string(flow))
+	sessionID, err := kvs.LoginSession_save(request.ClientId, request.RedirectURI, request.Scope, request.State, request.Nonce, flow)
 	if err != nil {
 		displayErrorResponse(w, oidc.ErrAuthenticationErrServerError)
 		return
