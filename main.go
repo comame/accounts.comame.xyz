@@ -183,59 +183,12 @@ func handle_GET_apiSigninPassword(w http.ResponseWriter, r *http.Request) {
 	ceremony.SigninWithPassword(w, r.Body)
 }
 
-type req_POST_signinGoogle struct {
-	SessionID string `json:"state_id"`
-}
-
 func handle_POST_signinGoogle(w http.ResponseWriter, r *http.Request) {
 	ceremony.StartGoogleSignin(w, r.Body)
 }
 
 func handle_GET_oidCallbackGoogle(w http.ResponseWriter, r *http.Request) {
-	q := r.URL.Query()
-
-	state := q.Get("state")
-	code := q.Get("code")
-
-	if state == "" || code == "" {
-		log.Println("state か code が渡されていない")
-		w.WriteHeader(http.StatusBadRequest)
-		io.WriteString(w, `{ "error": "bad_request" }`)
-		return
-	}
-
-	c, err := r.Cookie("rp")
-	if err != nil {
-		log.Println("Cookie がない")
-		w.WriteHeader(http.StatusBadRequest)
-		io.WriteString(w, `{ "error": "bad_request" }`)
-		return
-	}
-	if c.Value != state {
-		log.Println("state が Cookie に保存されたものと異なる")
-		w.WriteHeader(http.StatusBadRequest)
-		io.WriteString(w, `{ "error": "bad_request" }`)
-		return
-	}
-
-	res, err := oidc.CallbackGoogle(code, state, os.Getenv("GOOGLE_OIDC_CLIENT_ID"), os.Getenv("GOOGLE_OIDC_CLIENT_SECRET"), os.Getenv("HOST"))
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
-		io.WriteString(w, `{ "error": "bad_request" }`)
-		return
-	}
-
-	loc, err := oidc.CreateRedirectURLFromAuthenticationResponse(res)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
-		io.WriteString(w, `{ "error": "bad_request" }`)
-		return
-	}
-
-	w.Header().Set("Location", loc)
-	w.WriteHeader(http.StatusFound)
+	ceremony.HandleCallbackFromGoogle(w, r)
 }
 
 func handle_GET_wellknownOpenIDConfiguration(w http.ResponseWriter, r *http.Request) {
