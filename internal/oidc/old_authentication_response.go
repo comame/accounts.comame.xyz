@@ -5,16 +5,6 @@ import (
 	"net/url"
 )
 
-type AuthenticationResponse struct {
-	State   string
-	Code    string
-	IDToken string
-	Error   string
-
-	Flow        Flow
-	RedirectURI string
-}
-
 func CreateRedirectURLFromAuthenticationResponse(res *AuthenticationResponse) (string, error) {
 	u, err := url.Parse(res.RedirectURI)
 	if err != nil {

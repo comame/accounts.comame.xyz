@@ -9,16 +9,6 @@ import (
 	"github.com/comame/json-go/builder"
 )
 
-type userInfo struct {
-	Sub               string `json:"sub"`
-	Email             string `json:"email"`
-	EmailVerified     bool   `json:"email_verified"`
-	Name              string `json:"name"`
-	PreferredUsername string `json:"preferred_username"`
-	Profile           string `json:"profile"`
-	Picture           string `json:"picture"`
-}
-
 func GetUserinfoJSON(token string) ([]byte, error) {
 	sub, scope, err := FindAccessToken(token)
 	if err != nil {

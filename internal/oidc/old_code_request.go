@@ -10,24 +10,6 @@ import (
 	"github.com/comame/accounts.comame.xyz/internal/kvs"
 )
 
-type codeRequest struct {
-	ClientID     string
-	ClientSecret string
-	GrantType    string
-	Code         string
-	RedirectURI  string
-}
-
-type codeResponse struct {
-	AccessToken  string `json:"access_token,omitempty"`
-	TokenType    string `json:"token_type,omitempty"`
-	ExpiresIn    int64  `json:"expires_in,omitempty"`
-	RefreshToken string `json:"refresh_token,omitempty"`
-	Scope        string `json:"scope,omitempty"`
-	Error        string `json:"error,omitempty"`
-	IDToken      string `json:"id_token,omitempty"`
-}
-
 func ParseCodeRequest(values url.Values) codeRequest {
 	return codeRequest{
 		ClientID:     values.Get("client_id"),

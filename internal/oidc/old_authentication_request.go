@@ -10,31 +10,6 @@ var (
 	errInvalidAuthenticationRequest = errors.New("invalid authentication request")
 )
 
-type AuthenticationRequest struct {
-	Scope        string
-	ResponseType string
-	ClientId     string
-	RedirectURI  string
-	State        string
-	Nonce        string
-	Prompt       LoginPrompt
-	// Negative MaxAge (-1) indicates unspecified.
-	MaxAge      int64
-	IDTokenHint string
-	// unsupported parameter
-	Request string
-}
-
-type LoginPrompt string
-
-var (
-	LoginPromptUnspecified   LoginPrompt = ""
-	LoginPromptNone          LoginPrompt = "none"
-	LoginPromptLogin         LoginPrompt = "login"
-	LoginPromptConsent       LoginPrompt = "consent"
-	LoginPromptSelectAccount LoginPrompt = "select_account"
-)
-
 func (p LoginPrompt) validate() bool {
 	return p == LoginPromptUnspecified ||
 		p == LoginPromptNone ||
