@@ -12,7 +12,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/comame/accounts.comame.xyz/internal/auth"
 	"github.com/comame/accounts.comame.xyz/internal/ceremony"
 	"github.com/comame/accounts.comame.xyz/internal/db"
 	"github.com/comame/accounts.comame.xyz/internal/kvs"
@@ -180,77 +179,8 @@ func handle_POST_userinfo(w http.ResponseWriter, r *http.Request) {
 	userinfoRequest(w, r)
 }
 
-type req_GET_apiSigninPassword struct {
-	UserId         string `json:"user_id"`
-	Password       string `json:"password"`
-	CSRFToken      string `json:"csrf_token"`
-	RelyingPartyID string `json:"relying_party_id"`
-	UserAgentID    string `json:"user_agent_id"`
-	StateID        string `json:"state_id"`
-}
-
 func handle_GET_apiSigninPassword(w http.ResponseWriter, r *http.Request) {
-	b, err := io.ReadAll(r.Body)
-	if err != nil {
-		log.Println("failed to read request body")
-		w.WriteHeader(http.StatusBadRequest)
-		io.WriteString(w, `"{"error": "bad_request" }`)
-		return
-	}
-
-	var req req_GET_apiSigninPassword
-	if err := json.Unmarshal(b, &req); err != nil {
-		log.Println("failed to parse json")
-		w.WriteHeader(http.StatusBadRequest)
-		io.WriteString(w, `"{"error": "bad_request" }`)
-		return
-	}
-
-	passOk, err := auth.AuthenticateByPassword(r.Context(), req.UserId, req.Password, req.RelyingPartyID, req.UserAgentID)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
-		io.WriteString(w, `{ "error": "bad_request" }`)
-		return
-	}
-	if !passOk {
-		log.Println("パスワードが違う")
-		w.WriteHeader(http.StatusBadRequest)
-		io.WriteString(w, `{ "error": "invalid_credential" }`)
-		return
-	}
-
-	roleOk, err := auth.Authorized(req.UserId, req.RelyingPartyID)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
-		io.WriteString(w, `{ "error": "bad_request" }`)
-		return
-	}
-	if !roleOk {
-		log.Println("権限がない")
-		w.WriteHeader(http.StatusBadRequest)
-		io.WriteString(w, `{ "error": "unauthorized" }`)
-		return
-	}
-
-	ar, err := oidc.PostAuthentication(req.UserId, req.StateID, req.RelyingPartyID, req.UserAgentID, auth.AuthenticationMethodPassword)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
-		io.WriteString(w, `{ "error": "bad_request" }`)
-		return
-	}
-	loc, err := oidc.CreateRedirectURLFromAuthenticationResponse(ar)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
-		io.WriteString(w, `{ "error": "bad_request" }`)
-		return
-	}
-
-	// TODO: 通常のリダイレクトにしたい
-	io.WriteString(w, fmt.Sprintf(`{ "location": "%s" }`, loc))
+	ceremony.SigninWithPassword(w, r.Body)
 }
 
 type req_POST_signinGoogle struct {
