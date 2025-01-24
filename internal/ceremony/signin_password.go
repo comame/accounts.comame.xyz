@@ -56,7 +56,7 @@ func SigninWithPassword(w http.ResponseWriter, r io.Reader) {
 		return
 	}
 
-	authenticationResopnse, err := oidc.PostAuthentication(request.UserId, request.StateID, request.RelyingPartyID, request.UserAgentID, auth.AuthenticationMethodPassword)
+	authenticationResopnse, err := issueIDToken(request.UserId, request.StateID, request.RelyingPartyID, request.UserAgentID, auth.AuthenticationMethodPassword)
 	if err != nil {
 		log.Println(err)
 		responseError(w, messageBadRequest)
