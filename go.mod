@@ -10,7 +10,6 @@ require (
 	github.com/comame/router-go v1.3.0
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/redis/go-redis/v9 v9.7.0
-	golang.org/x/exp v0.0.0-20241217172543-b2144cdd0a67
 )
 
 require (
