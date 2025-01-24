@@ -13,7 +13,6 @@ import (
 	"github.com/comame/accounts.comame.xyz/internal/db"
 	"github.com/comame/accounts.comame.xyz/internal/kvs"
 	"github.com/comame/accounts.comame.xyz/internal/scripts"
-	"github.com/comame/router-go"
 )
 
 func init() {
@@ -47,36 +46,38 @@ func main() {
 	}
 
 	log.Println("Start http://localhost:8080")
-	http.ListenAndServe(":8080", getAppHandler())
+	if err := http.ListenAndServe(":8080", getAppHandler()); err != nil {
+		panic(err)
+	}
 }
 
 func getAppHandler() http.Handler {
-	router.Get("/signin", handle_GET_signin)
+	http.HandleFunc("GET /signin", handle_GET_signin)
 
-	router.Get("/authenticate", handle_GET_authenticate)
-	router.Post("/authenticate", handle_POST_authenticate)
-	router.Post("/code", handle_POST_code)
-	router.Get("/userinfo", handle_GET_userinfo)
-	router.Post("/userinfo", handle_POST_userinfo)
-	router.Get("/.well-known/openid-configuration", handle_GET_wellknownOpenIDConfiguration)
-	router.Get("/certs", handle_GET_certs)
+	http.HandleFunc("GET /authenticate", handle_GET_authenticate)
+	http.HandleFunc("POST /authenticate", handle_POST_authenticate)
+	http.HandleFunc("POST /code", handle_POST_code)
+	http.HandleFunc("GET /userinfo", handle_GET_userinfo)
+	http.HandleFunc("POST /userinfo", handle_POST_userinfo)
+	http.HandleFunc("GET /.well-known/openid-configuration", handle_GET_wellknownOpenIDConfiguration)
+	http.HandleFunc("GET /certs", handle_GET_certs)
 
-	router.Post("/signin/google", handle_POST_signinGoogle)
-	router.Post("/api/signin-password", handle_GET_apiSigninPassword)
-	router.Get("/oidc-callback/google", handle_GET_oidCallbackGoogle)
+	http.HandleFunc("POST /signin/google", handle_POST_signinGoogle)
+	http.HandleFunc("POST /api/signin-password", handle_GET_apiSigninPassword)
+	http.HandleFunc("GET /oidc-callback/google", handle_GET_oidCallbackGoogle)
 
-	router.Post("/demo/passkey/register-options", handle_Post_passkeyRegisterOptions)
-	router.Post("/demo/passkey/register", handle_Post_passkeyRegister)
-	router.Post("/demo/passkey/signin-options", handle_Post_passkeySigninOptions)
-	router.Post("/demo/passkey/verify", handle_Post_passkeyVerify)
+	http.HandleFunc("POST /demo/passkey/register-options", handle_Post_passkeyRegisterOptions)
+	http.HandleFunc("POST /demo/passkey/register", handle_Post_passkeyRegister)
+	http.HandleFunc("POST /demo/passkey/signin-options", handle_Post_passkeySigninOptions)
+	http.HandleFunc("POST /demo/passkey/verify", handle_Post_passkeyVerify)
 
-	router.Get("/*", handle_GET_rest)
+	http.HandleFunc("GET /", handle_GET_rest)
 
-	router.All("/*", func(w http.ResponseWriter, _ *http.Request) {
+	http.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 	})
 
-	return router.Handler()
+	return http.DefaultServeMux
 }
 
 func handle_GET_signin(w http.ResponseWriter, r *http.Request) {
