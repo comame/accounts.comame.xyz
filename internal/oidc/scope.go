@@ -1,13 +1,12 @@
 package oidc
 
 import (
+	"slices"
 	"strings"
-
-	"golang.org/x/exp/slices"
 )
 
 // scopes が target を満たすかどうかを返す
-func hasScope(scopes, target string) bool {
+func ContainsScope(scopes, target string) bool {
 	a := strings.Split(scopes, " ")
 	b := strings.Split(target, " ")
 

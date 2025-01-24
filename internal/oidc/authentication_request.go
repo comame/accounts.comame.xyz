@@ -2,12 +2,9 @@ package oidc
 
 import (
 	"errors"
+	"fmt"
 	"net/url"
 	"strconv"
-)
-
-var (
-	errInvalidAuthenticationRequest = errors.New("invalid authentication request")
 )
 
 type AuthenticationRequest struct {
@@ -35,44 +32,78 @@ var (
 	LoginPromptSelectAccount LoginPrompt = "select_account"
 )
 
-func (p LoginPrompt) validate() bool {
-	return p == LoginPromptUnspecified ||
-		p == LoginPromptNone ||
-		p == LoginPromptLogin ||
-		p == LoginPromptConsent ||
-		p == LoginPromptSelectAccount
+type AuthenticationResponse struct {
+	State   string
+	Code    string
+	IDToken string
+	Error   string
+
+	Flow        Flow
+	RedirectURI string
 }
 
-func ParseAuthenticationRequestFromQuery(q url.Values) (*AuthenticationRequest, error) {
-	rawMaxAge := q.Get("max_age")
+func ParseAuthenticationRequest(v url.Values) (*AuthenticationRequest, error) {
+	rawMaxAge := v.Get("max_age")
 	maxAge, err := strconv.ParseInt(rawMaxAge, 0, 64)
 	if err != nil && rawMaxAge != "" {
-		return nil, errInvalidAuthenticationRequest
+		return nil, fmt.Errorf("max_ageのパースに失敗 %s", rawMaxAge)
 	}
 	if err != nil && rawMaxAge == "" {
 		maxAge = -1
 	}
 
 	req := AuthenticationRequest{
-		Scope:        q.Get("scope"),
-		ResponseType: q.Get("response_type"),
-		ClientId:     q.Get("client_id"),
-		RedirectURI:  q.Get("redirect_uri"),
-		State:        q.Get("state"),
-		Nonce:        q.Get("nonce"),
-		Prompt:       LoginPrompt(q.Get("prompt")),
+		Scope:        v.Get("scope"),
+		ResponseType: v.Get("response_type"),
+		ClientId:     v.Get("client_id"),
+		RedirectURI:  v.Get("redirect_uri"),
+		State:        v.Get("state"),
+		Nonce:        v.Get("nonce"),
+		Prompt:       LoginPrompt(v.Get("prompt")),
 		MaxAge:       maxAge,
-		IDTokenHint:  q.Get("id_token_hint"),
-		Request:      q.Get("request"),
+		IDTokenHint:  v.Get("id_token_hint"),
+		Request:      v.Get("request"),
 	}
 
 	return &req, nil
 }
 
-func (r *AuthenticationRequest) Assert() error {
-	if !r.Prompt.validate() {
-		return errInvalidAuthenticationRequest
+func CreateRedirectURLFromAuthenticationResponse(res *AuthenticationResponse) (string, error) {
+	u, err := url.Parse(res.RedirectURI)
+	if err != nil {
+		return "", err
 	}
 
-	return nil
+	q := make(url.Values)
+
+	if res.State != "" {
+		q.Set("state", res.State)
+	}
+
+	if res.Error != "" {
+		q.Set("error", res.Error)
+
+		// FIXME: ここの判定を enum ではなくする
+		switch res.Flow {
+		case FlowCode:
+			u.RawQuery = q.Encode()
+			return u.String(), nil
+		case FlowImplicit:
+			return u.String() + "#" + q.Encode(), nil
+		default:
+			return "", errors.New("invalid flow value")
+		}
+	}
+
+	switch res.Flow {
+	case FlowCode:
+		q.Set("code", res.Code)
+		u.RawQuery = q.Encode()
+		return u.String(), nil
+	case FlowImplicit:
+		q.Set("id_token", res.IDToken)
+		return u.String() + "#" + q.Encode(), nil
+	default:
+		return "", errors.New("invalid flow value")
+	}
 }

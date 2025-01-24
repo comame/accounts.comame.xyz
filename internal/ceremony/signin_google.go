@@ -1,26 +1,71 @@
-// 外部アカウント連携
-
-package oidc
+package ceremony
 
 import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
+	"os"
 
 	"github.com/comame/accounts.comame.xyz/internal/auth"
 	"github.com/comame/accounts.comame.xyz/internal/db"
 	"github.com/comame/accounts.comame.xyz/internal/httpclient"
 	"github.com/comame/accounts.comame.xyz/internal/jwt"
 	"github.com/comame/accounts.comame.xyz/internal/kvs"
+	"github.com/comame/accounts.comame.xyz/internal/oidc"
 	"github.com/comame/accounts.comame.xyz/internal/random"
 	"github.com/comame/accounts.comame.xyz/internal/timenow"
 )
 
-func GenerateGoogleAuthURL(loginSessionID, clientID, clientSecret, myOrigin string) (state, redirect string, err error) {
+type signinGoogleAPIRequest struct {
+	SessionID string `json:"state_id"`
+}
+
+var (
+	googleClientID     = os.Getenv("GOOGLE_OIDC_CLIENT_ID")
+	googleClientSecret = os.Getenv("GOOGLE_OIDC_CLIENT_SECRET")
+	origin             = os.Getenv("HOST")
+)
+
+func StartGoogleSignin(w http.ResponseWriter, r io.Reader) {
+	body, err := io.ReadAll(r)
+	if err != nil {
+		responseError(w, messageBadRequest)
+		return
+	}
+
+	var request signinGoogleAPIRequest
+	if err := json.Unmarshal(body, &request); err != nil {
+		responseError(w, messageBadRequest)
+		return
+	}
+
+	state, redirectURI, err := createGoogleAuthenticationURL(request.SessionID, googleClientID, origin)
+	if err != nil {
+		log.Println(err)
+		responseError(w, messageBadRequest)
+		return
+	}
+
+	// FIXME: Cookie に直接 state を保存していて危険
+	http.SetCookie(w, &http.Cookie{
+		Name:     "rp",
+		Value:    state,
+		MaxAge:   120,
+		Secure:   true,
+		HttpOnly: true,
+		Path:     "/",
+	})
+
+	io.WriteString(w, fmt.Sprintf(`{ "location": "%s"}`, redirectURI))
+}
+
+func createGoogleAuthenticationURL(loginSessionID, clientID, myOrigin string) (state, redirectURL string, err error) {
 	_, err = kvs.LoginSession_get(loginSessionID)
 	if err != nil {
 		return "", "", err
@@ -54,7 +99,53 @@ func GenerateGoogleAuthURL(loginSessionID, clientID, clientSecret, myOrigin stri
 	return state, u.String(), nil
 }
 
-func CallbackGoogle(code, state, clientID, clientSecret, myOrigin string) (*AuthenticationResponse, error) {
+func HandleCallbackFromGoogle(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
+
+	googleState := query.Get("state")
+	googleCode := query.Get("code")
+
+	if googleState == "" {
+		log.Println("Googleからのコールバックに state がない")
+		responseError(w, messageBadRequest)
+		return
+	}
+	if googleCode == "" {
+		log.Println("Googleからのコールバックに code がない")
+		responseError(w, messageBadRequest)
+		return
+	}
+
+	cookieState, err := r.Cookie("rp")
+	if err != nil {
+		log.Println("セッションに紐づけられたstateがない")
+		responseError(w, messageBadRequest)
+		return
+	}
+	if cookieState.Value != googleState {
+		responseError(w, messageBadRequest)
+		return
+	}
+
+	authenticationResponse, err := callbackGoogleInternal(googleCode, googleState, googleClientID, googleClientSecret, origin)
+	if err != nil {
+		log.Println(err)
+		responseError(w, messageBadRequest)
+		return
+	}
+
+	redirectURI, err := oidc.CreateRedirectURLFromAuthenticationResponse(authenticationResponse)
+	if err != nil {
+		log.Println(err)
+		responseError(w, messageBadRequest)
+		return
+	}
+
+	w.Header().Set("Location", redirectURI)
+	w.WriteHeader(http.StatusFound)
+}
+
+func callbackGoogleInternal(code, state, clientID, clientSecret, myOrigin string) (*oidc.AuthenticationResponse, error) {
 	saved, err := kvs.ExternalLoginSession_get(state)
 	if err != nil {
 		return nil, err
@@ -162,14 +253,14 @@ func CallbackGoogle(code, state, clientID, clientSecret, myOrigin string) (*Auth
 	}
 
 	// TODO: user_agent_id を消す
-	res, err := PostAuthentication(sub, saved.LoginSession, session.RelyingPartyID, "", auth.AuthenticationMethodGoogle)
+	res, err := createAuthenticationResponse(sub, saved.LoginSession, session.RelyingPartyID)
 	if err != nil {
 		return nil, err
 	}
 	return res, nil
 }
 
-func doGoogleCodeRequest(code, clientID, clientSecret, myOrigin string) (*codeResponse, error) {
+func doGoogleCodeRequest(code, clientID, clientSecret, myOrigin string) (*oidc.CodeResponse, error) {
 	q := make(url.Values)
 	q.Set("client_id", clientID)
 	q.Set("client_secret", clientSecret)
@@ -195,7 +286,7 @@ func doGoogleCodeRequest(code, clientID, clientSecret, myOrigin string) (*codeRe
 		return nil, err
 	}
 
-	var cres codeResponse
+	var cres oidc.CodeResponse
 	if err := json.Unmarshal(resb, &cres); err != nil {
 		return nil, err
 	}

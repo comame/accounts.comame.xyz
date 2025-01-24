@@ -1,21 +1,41 @@
-package oidc
+package ceremony
 
 import (
 	"errors"
+	"fmt"
+	"io"
+	"net/http"
 
 	"github.com/comame/accounts.comame.xyz/internal/auth"
 	"github.com/comame/accounts.comame.xyz/internal/db"
 	"github.com/comame/accounts.comame.xyz/internal/jwt"
 	"github.com/comame/accounts.comame.xyz/internal/kvs"
+	"github.com/comame/accounts.comame.xyz/internal/oidc"
 	"github.com/comame/accounts.comame.xyz/internal/random"
 	"github.com/comame/accounts.comame.xyz/internal/timenow"
 )
 
+var (
+	messageBadRequest        = "bad_request"
+	messageInvalidCredential = "invalid_credential"
+	messageUnauthorized      = "unauthorized"
+)
+
+func responseError(w http.ResponseWriter, message string) {
+	w.WriteHeader(http.StatusBadRequest)
+	io.WriteString(w, fmt.Sprintf(`{ "error": "%s" }`, message))
+}
+
 // IDToken を発行する。sub が確定したのち呼ぶ。
-func PostAuthentication(
-	sub, stateID, aud, userAgentID string,
-	loginType auth.AuthenticationMethod,
-) (*AuthenticationResponse, error) {
+func createAuthenticationResponse(sub, stateID, aud string) (*oidc.AuthenticationResponse, error) {
+	authorized, err := auth.Authorized(sub, aud)
+	if err != nil {
+		return nil, err
+	}
+	if !authorized {
+		return nil, errors.New("ロールがない")
+	}
+
 	state, err := kvs.LoginSession_get(stateID)
 	if err != nil {
 		return nil, err
@@ -66,9 +86,8 @@ func PostAuthentication(
 		return nil, err
 	}
 
-	flow := Flow(state.Flow)
-	switch flow {
-	case FlowCode:
+	switch oidc.Flow(state.Flow) {
+	case oidc.FlowCode:
 		code, err := random.String(32)
 		if err != nil {
 			return nil, err
@@ -76,19 +95,19 @@ func PostAuthentication(
 		if err := kvs.CodeState_save(code, aud, sub, token, state.Scopes, state.RedirectURI); err != nil {
 			return nil, err
 		}
-		res := &AuthenticationResponse{
+		res := &oidc.AuthenticationResponse{
 			Code:        code,
-			Flow:        FlowCode,
+			Flow:        oidc.FlowCode,
 			RedirectURI: state.RedirectURI,
 		}
 		if state.State != "" {
 			res.State = state.State
 		}
 		return res, nil
-	case FlowImplicit:
-		res := &AuthenticationResponse{
+	case oidc.FlowImplicit:
+		res := &oidc.AuthenticationResponse{
 			IDToken:     token,
-			Flow:        FlowImplicit,
+			Flow:        oidc.FlowImplicit,
 			RedirectURI: state.RedirectURI,
 		}
 		if state.State != "" {

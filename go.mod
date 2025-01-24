@@ -1,4 +1,4 @@
-go 1.22.0
+go 1.23
 
 toolchain go1.23.0
 
@@ -7,10 +7,8 @@ module github.com/comame/accounts.comame.xyz
 require (
 	github.com/comame/json-go v1.0.2
 	github.com/comame/readenv-go v1.1.0
-	github.com/comame/router-go v1.3.0
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/redis/go-redis/v9 v9.7.0
-	golang.org/x/exp v0.0.0-20241217172543-b2144cdd0a67
 )
 
 require (

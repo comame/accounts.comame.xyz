@@ -1,27 +1,12 @@
-package oidc
+package ceremony
 
 import (
 	"encoding/json"
 
 	"github.com/comame/accounts.comame.xyz/internal/db"
 	"github.com/comame/accounts.comame.xyz/internal/jwt"
+	"github.com/comame/accounts.comame.xyz/internal/oidc"
 )
-
-type discovery struct {
-	Issuer                            string   `json:"issuer"`
-	AuthorizationEndpoint             string   `json:"authorization_endpoint"`
-	TokenEndpoint                     string   `json:"token_endpoint"`
-	UserInfoEndpoint                  string   `json:"userinfo_endpoint"`
-	JWKsURI                           string   `json:"jwks_uri"`
-	ResponseTypesSupported            []string `json:"response_types_supported"`
-	SubjectTypesSupported             []string `json:"subject_types_supported"`
-	IDTokenSigningAlgValuesSupported  []string `json:"id_token_signing_alg_values_supported"`
-	ScopesSupported                   []string `json:"scopes_supported"`
-	TokenEndpointAuthMethodsSupported []string `json:"token_endpoint_auth_methods_supported"`
-	ClaimsSupported                   []string `json:"claims_supported"`
-	CodeChallengeMethodsSupported     []string `json:"code_challenge_methods_supported"`
-	GrantTypesSupported               []string `json:"grant_types_supported"`
-}
 
 func GetDiscoveryCertsJSON() ([]byte, error) {
 	keypair, err := db.RSAKeypair_get()
@@ -52,7 +37,7 @@ func GetDiscoveryCertsJSON() ([]byte, error) {
 }
 
 func GetDiscoveryConfigurationJSON(issuer string) ([]byte, error) {
-	d := discovery{
+	d := oidc.Discovery{
 		Issuer:                            issuer,
 		AuthorizationEndpoint:             issuer + "/authenticate",
 		TokenEndpoint:                     issuer + "/code",

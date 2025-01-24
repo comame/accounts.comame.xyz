@@ -15,6 +15,7 @@ var (
 	AuthenticationMethodGoogle   AuthenticationMethod = "google"
 )
 
+// FIXME: 使われていないので、消すなりなんなり
 func CreateAuthentication(
 	tx *sql.Tx,
 	aud, sub, userAgentID string,
@@ -29,6 +30,7 @@ func CreateAuthentication(
 	return nil
 }
 
+// 権限があるかどうかチェック
 func Authorized(sub, clientId string) (bool, error) {
 	count, err := db.RoleAccess_authorized(sub, clientId)
 	if err != nil {
