@@ -28,6 +28,7 @@ type Payload struct {
 	Nonce string `json:"nonce"`
 
 	// Custom claim
+	// FIXME: なんかうまいことやる
 	Roles []string `json:"roles,omitempty"`
 }
 

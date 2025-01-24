@@ -169,7 +169,7 @@ func CallbackGoogle(code, state, clientID, clientSecret, myOrigin string) (*Auth
 	return res, nil
 }
 
-func doGoogleCodeRequest(code, clientID, clientSecret, myOrigin string) (*codeResponse, error) {
+func doGoogleCodeRequest(code, clientID, clientSecret, myOrigin string) (*CodeResponse, error) {
 	q := make(url.Values)
 	q.Set("client_id", clientID)
 	q.Set("client_secret", clientSecret)
@@ -195,7 +195,7 @@ func doGoogleCodeRequest(code, clientID, clientSecret, myOrigin string) (*codeRe
 		return nil, err
 	}
 
-	var cres codeResponse
+	var cres CodeResponse
 	if err := json.Unmarshal(resb, &cres); err != nil {
 		return nil, err
 	}

@@ -1,41 +1,6 @@
 package oidc
 
-type AuthenticationRequest struct {
-	Scope        string
-	ResponseType string
-	ClientId     string
-	RedirectURI  string
-	State        string
-	Nonce        string
-	Prompt       LoginPrompt
-	// Negative MaxAge (-1) indicates unspecified.
-	MaxAge      int64
-	IDTokenHint string
-	// unsupported parameter
-	Request string
-}
-
-type LoginPrompt string
-
-var (
-	LoginPromptUnspecified   LoginPrompt = ""
-	LoginPromptNone          LoginPrompt = "none"
-	LoginPromptLogin         LoginPrompt = "login"
-	LoginPromptConsent       LoginPrompt = "consent"
-	LoginPromptSelectAccount LoginPrompt = "select_account"
-)
-
-type AuthenticationResponse struct {
-	State   string
-	Code    string
-	IDToken string
-	Error   string
-
-	Flow        Flow
-	RedirectURI string
-}
-
-type codeRequest struct {
+type CodeRequest struct {
 	ClientID     string
 	ClientSecret string
 	GrantType    string
@@ -43,7 +8,7 @@ type codeRequest struct {
 	RedirectURI  string
 }
 
-type codeResponse struct {
+type CodeResponse struct {
 	AccessToken  string `json:"access_token,omitempty"`
 	TokenType    string `json:"token_type,omitempty"`
 	ExpiresIn    int64  `json:"expires_in,omitempty"`
@@ -53,7 +18,7 @@ type codeResponse struct {
 	IDToken      string `json:"id_token,omitempty"`
 }
 
-type discovery struct {
+type Discovery struct {
 	Issuer                            string   `json:"issuer"`
 	AuthorizationEndpoint             string   `json:"authorization_endpoint"`
 	TokenEndpoint                     string   `json:"token_endpoint"`
@@ -69,7 +34,7 @@ type discovery struct {
 	GrantTypesSupported               []string `json:"grant_types_supported"`
 }
 
-type userInfo struct {
+type UserInfoResponse struct {
 	Sub               string `json:"sub"`
 	Email             string `json:"email"`
 	EmailVerified     bool   `json:"email_verified"`

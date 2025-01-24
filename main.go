@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/comame/accounts.comame.xyz/internal/auth"
+	"github.com/comame/accounts.comame.xyz/internal/ceremony"
 	"github.com/comame/accounts.comame.xyz/internal/db"
 	"github.com/comame/accounts.comame.xyz/internal/kvs"
 	"github.com/comame/accounts.comame.xyz/internal/oidc"
@@ -498,61 +499,7 @@ func handle_GET_rest(w http.ResponseWriter, r *http.Request) {
 }
 
 func authenticationRequest(w http.ResponseWriter, body url.Values) {
-	req, err := oidc.ParseAuthenticationRequestFromQuery(body)
-	if err != nil {
-		log.Println("failed to parse authenticationRequest")
-		log.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
-		io.WriteString(w, `{ "error": "bad_request" }`)
-		return
-	}
-
-	if err := req.Assert(); err != nil {
-		log.Println("failed to assert authenticationRequest")
-		log.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
-		io.WriteString(w, `{ "error": "bad_request" }`)
-		return
-	}
-
-	id, err := oidc.PreAuthenticate(*req)
-	if err != nil {
-		log.Println(err)
-		perr, ok := err.(*oidc.PreAuthenticateError)
-		if !ok {
-			// ここ
-			w.WriteHeader(http.StatusBadRequest)
-			io.WriteString(w, `{ "error": "bad_request" }`)
-			return
-		}
-		if !perr.NotifyToClient {
-			w.WriteHeader(http.StatusBadRequest)
-			io.WriteString(w, `{ "error": "bad_request" }`)
-			return
-		}
-
-		u, err := url.Parse(req.RedirectURI)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			io.WriteString(w, `{ "error": "bad_request" }`)
-			return
-		}
-
-		q := u.Query()
-		q.Add("error", perr.Error())
-		if req.State != "" {
-			q.Add("state", req.State)
-		}
-		u.RawQuery = q.Encode()
-
-		w.Header().Add("Location", u.String())
-		w.WriteHeader(http.StatusFound)
-		return
-	}
-
-	u := fmt.Sprintf("/signin?sid=%s&cid=%s", id, req.ClientId)
-	w.Header().Add("Location", u)
-	w.WriteHeader(http.StatusFound)
+	ceremony.AuthenticationRequest(w, body)
 }
 
 func userinfoRequest(w http.ResponseWriter, r *http.Request) {

@@ -26,7 +26,7 @@ func GetUserinfoJSON(token string) ([]byte, error) {
 		return nil, err
 	}
 
-	var ui userInfo
+	var ui UserInfoResponse
 	if err := json.Unmarshal([]byte(uis), &ui); err != nil {
 		return nil, err
 	}
@@ -36,12 +36,12 @@ func GetUserinfoJSON(token string) ([]byte, error) {
 		builder.Entry("sub", builder.String(sub)),
 	)
 
-	if hasScope(scope, "email") {
+	if ContainsScope(scope, "email") {
 		res.MustSet("email", builder.String(ui.Email))
 		res.MustSet("email_verified", builder.Bool(ui.EmailVerified))
 	}
 
-	if hasScope(scope, "profile") {
+	if ContainsScope(scope, "profile") {
 		res.MustSet("name", builder.String(ui.Name))
 		res.MustSet("preferred_username", builder.String(ui.PreferredUsername))
 		res.MustSet("profile", builder.String(ui.Profile))

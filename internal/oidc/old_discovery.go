@@ -36,7 +36,7 @@ func GetDiscoveryCertsJSON() ([]byte, error) {
 }
 
 func GetDiscoveryConfigurationJSON(issuer string) ([]byte, error) {
-	d := discovery{
+	d := Discovery{
 		Issuer:                            issuer,
 		AuthorizationEndpoint:             issuer + "/authenticate",
 		TokenEndpoint:                     issuer + "/code",

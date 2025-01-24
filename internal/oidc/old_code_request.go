@@ -10,8 +10,8 @@ import (
 	"github.com/comame/accounts.comame.xyz/internal/kvs"
 )
 
-func ParseCodeRequest(values url.Values) codeRequest {
-	return codeRequest{
+func ParseCodeRequest(values url.Values) CodeRequest {
+	return CodeRequest{
 		ClientID:     values.Get("client_id"),
 		ClientSecret: values.Get("client_secret"),
 		GrantType:    values.Get("grant_type"),
@@ -20,10 +20,10 @@ func ParseCodeRequest(values url.Values) codeRequest {
 	}
 }
 
-func HandleCodeRequest(r codeRequest) (*codeResponse, error) {
+func HandleCodeRequest(r CodeRequest) (*CodeResponse, error) {
 	rp, err := db.RelyingParty_select(r.ClientID)
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
-		return &codeResponse{
+		return &CodeResponse{
 			Error: "invalid_client",
 		}, nil
 	}
@@ -32,14 +32,14 @@ func HandleCodeRequest(r codeRequest) (*codeResponse, error) {
 	}
 
 	if auth.CalculatePasswordHash(r.ClientSecret, r.ClientID) != rp.HashedClientSecret {
-		return &codeResponse{
+		return &CodeResponse{
 			Error: "invalid_client",
 		}, nil
 	}
 
 	state, err := kvs.CodeState_get(r.Code)
 	if err != nil {
-		return &codeResponse{
+		return &CodeResponse{
 			Error: "invalid_grant",
 		}, nil
 	}
@@ -63,7 +63,7 @@ func HandleCodeRequest(r codeRequest) (*codeResponse, error) {
 		return nil, err
 	}
 
-	return &codeResponse{
+	return &CodeResponse{
 		AccessToken: at,
 		TokenType:   "Bearer",
 		ExpiresIn:   exp,
