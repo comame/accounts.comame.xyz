@@ -188,38 +188,7 @@ type req_POST_signinGoogle struct {
 }
 
 func handle_POST_signinGoogle(w http.ResponseWriter, r *http.Request) {
-	b, err := io.ReadAll(r.Body)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		io.WriteString(w, `{ "error": "bad_request" }`)
-		return
-	}
-
-	var req req_POST_signinGoogle
-	if err := json.Unmarshal(b, &req); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		io.WriteString(w, `{ "error": "bad_request" }`)
-		return
-	}
-
-	state, redirect, err := oidc.GenerateGoogleAuthURL(req.SessionID, os.Getenv("GOOGLE_OIDC_CLIENT_ID"), os.Getenv("GOOGLE_OIDC_CLIENT_ID"), os.Getenv("HOST"))
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
-		io.WriteString(w, `{ "error": "bad_request" }`)
-		return
-	}
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     "rp",
-		Value:    state,
-		MaxAge:   120,
-		Secure:   true,
-		HttpOnly: true,
-		Path:     "/",
-	})
-
-	io.WriteString(w, fmt.Sprintf(`{ "location": "%s"}`, redirect))
+	ceremony.StartGoogleSignin(w, r.Body)
 }
 
 func handle_GET_oidCallbackGoogle(w http.ResponseWriter, r *http.Request) {
