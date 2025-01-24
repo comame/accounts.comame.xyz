@@ -13,7 +13,6 @@ import (
 	"github.com/comame/accounts.comame.xyz/internal/ceremony"
 	"github.com/comame/accounts.comame.xyz/internal/db"
 	"github.com/comame/accounts.comame.xyz/internal/kvs"
-	"github.com/comame/accounts.comame.xyz/internal/oidc"
 	"github.com/comame/accounts.comame.xyz/internal/passkey"
 	"github.com/comame/accounts.comame.xyz/internal/scripts"
 	"github.com/comame/router-go"
@@ -145,7 +144,7 @@ func handle_GET_oidCallbackGoogle(w http.ResponseWriter, r *http.Request) {
 }
 
 func handle_GET_wellknownOpenIDConfiguration(w http.ResponseWriter, r *http.Request) {
-	j, err := oidc.GetDiscoveryConfigurationJSON("https://accounts.comame.xyz")
+	j, err := ceremony.GetDiscoveryConfigurationJSON("https://accounts.comame.xyz")
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -157,7 +156,7 @@ func handle_GET_wellknownOpenIDConfiguration(w http.ResponseWriter, r *http.Requ
 }
 
 func handle_GET_certs(w http.ResponseWriter, _ *http.Request) {
-	js, err := oidc.GetDiscoveryCertsJSON()
+	js, err := ceremony.GetDiscoveryCertsJSON()
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)

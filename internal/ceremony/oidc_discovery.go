@@ -1,10 +1,11 @@
-package oidc
+package ceremony
 
 import (
 	"encoding/json"
 
 	"github.com/comame/accounts.comame.xyz/internal/db"
 	"github.com/comame/accounts.comame.xyz/internal/jwt"
+	"github.com/comame/accounts.comame.xyz/internal/oidc"
 )
 
 func GetDiscoveryCertsJSON() ([]byte, error) {
@@ -36,7 +37,7 @@ func GetDiscoveryCertsJSON() ([]byte, error) {
 }
 
 func GetDiscoveryConfigurationJSON(issuer string) ([]byte, error) {
-	d := Discovery{
+	d := oidc.Discovery{
 		Issuer:                            issuer,
 		AuthorizationEndpoint:             issuer + "/authenticate",
 		TokenEndpoint:                     issuer + "/code",
