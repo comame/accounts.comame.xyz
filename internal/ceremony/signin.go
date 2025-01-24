@@ -27,10 +27,7 @@ func responseError(w http.ResponseWriter, message string) {
 }
 
 // IDToken を発行する。sub が確定したのち呼ぶ。
-func issueIDToken(
-	sub, stateID, aud, userAgentID string,
-	loginType auth.AuthenticationMethod,
-) (*oidc.AuthenticationResponse, error) {
+func createAuthenticationResponse(sub, stateID, aud string) (*oidc.AuthenticationResponse, error) {
 	authorized, err := auth.Authorized(sub, aud)
 	if err != nil {
 		return nil, err
@@ -89,8 +86,8 @@ func issueIDToken(
 		return nil, err
 	}
 
-	switch state.Flow {
-	case deprecatedFlowCode:
+	switch oidc.Flow(state.Flow) {
+	case oidc.FlowCode:
 		code, err := random.String(32)
 		if err != nil {
 			return nil, err
@@ -100,17 +97,17 @@ func issueIDToken(
 		}
 		res := &oidc.AuthenticationResponse{
 			Code:        code,
-			Flow:        oidc.DeprecatedFlow(deprecatedFlowCode),
+			Flow:        oidc.FlowCode,
 			RedirectURI: state.RedirectURI,
 		}
 		if state.State != "" {
 			res.State = state.State
 		}
 		return res, nil
-	case deprecatedFlowImplicit:
+	case oidc.FlowImplicit:
 		res := &oidc.AuthenticationResponse{
 			IDToken:     token,
-			Flow:        oidc.DeprecatedFlow(deprecatedFlowImplicit),
+			Flow:        oidc.FlowImplicit,
 			RedirectURI: state.RedirectURI,
 		}
 		if state.State != "" {

@@ -45,7 +45,6 @@ func SigninWithPassword(w http.ResponseWriter, r io.Reader) {
 		return
 	}
 
-	// FIXME: ロール確認をログイン手段ごとに書かないようにする
 	roleIsOK, err := auth.Authorized(request.UserId, request.RelyingPartyID)
 	if err != nil {
 		responseError(w, messageBadRequest)
@@ -56,7 +55,7 @@ func SigninWithPassword(w http.ResponseWriter, r io.Reader) {
 		return
 	}
 
-	authenticationResopnse, err := issueIDToken(request.UserId, request.StateID, request.RelyingPartyID, request.UserAgentID, auth.AuthenticationMethodPassword)
+	authenticationResopnse, err := createAuthenticationResponse(request.UserId, request.StateID, request.RelyingPartyID)
 	if err != nil {
 		log.Println(err)
 		responseError(w, messageBadRequest)

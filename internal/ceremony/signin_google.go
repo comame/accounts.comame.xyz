@@ -253,7 +253,7 @@ func callbackGoogleInternal(code, state, clientID, clientSecret, myOrigin string
 	}
 
 	// TODO: user_agent_id を消す
-	res, err := issueIDToken(sub, saved.LoginSession, session.RelyingPartyID, "", auth.AuthenticationMethodGoogle)
+	res, err := createAuthenticationResponse(sub, saved.LoginSession, session.RelyingPartyID)
 	if err != nil {
 		return nil, err
 	}

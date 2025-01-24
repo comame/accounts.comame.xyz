@@ -70,24 +70,19 @@ func AuthenticationRequest(w http.ResponseWriter, body url.Values) {
 		return
 	}
 
-	var flow int
-	switch request.ResponseType {
-	case "code":
-		flow = deprecatedFlowCode
-	case "id_token":
-		flow = deprecatedFlowImplicit
-	default:
-		redirectErrorResponse(w, request.RedirectURI, request.State, oidc.ErrAuthenticationErrUnsupportedResponseType)
+	flow := oidc.IdentFlowFromResponseType(request.ResponseType)
+	if flow == oidc.FlowUnused {
+		displayErrorResponse(w, oidc.ErrAuthenticationErrInvalidRequest)
 		return
 	}
 
 	// Implicit Flow では nonce が必須
-	if flow == deprecatedFlowImplicit && request.Nonce == "" {
+	if flow == oidc.FlowImplicit && request.Nonce == "" {
 		redirectErrorResponse(w, request.RedirectURI, request.State, oidc.ErrAuthenticationErrInvalidRequest)
 		return
 	}
 
-	sessionID, err := kvs.LoginSession_save(request.ClientId, request.RedirectURI, request.Scope, request.State, request.Nonce, flow)
+	sessionID, err := kvs.LoginSession_save(request.ClientId, request.RedirectURI, request.Scope, request.State, request.Nonce, string(flow))
 	if err != nil {
 		displayErrorResponse(w, oidc.ErrAuthenticationErrServerError)
 		return
@@ -96,12 +91,7 @@ func AuthenticationRequest(w http.ResponseWriter, body url.Values) {
 	continueToSignInPage(w, sessionID, request.ClientId)
 }
 
-var (
-	deprecatedFlowCode     = 0
-	deprecatedFlowImplicit = 1
-)
-
-func displayErrorResponse(w http.ResponseWriter, _message oidc.AuthenticationError) {
+func displayErrorResponse(w http.ResponseWriter, _ oidc.AuthenticationError) {
 	w.WriteHeader(http.StatusBadRequest)
 	io.WriteString(w, badRequestJSONString)
 }

@@ -38,7 +38,7 @@ type AuthenticationResponse struct {
 	IDToken string
 	Error   string
 
-	Flow        DeprecatedFlow
+	Flow        Flow
 	RedirectURI string
 }
 
@@ -85,10 +85,10 @@ func CreateRedirectURLFromAuthenticationResponse(res *AuthenticationResponse) (s
 
 		// FIXME: ここの判定を enum ではなくする
 		switch res.Flow {
-		case 0:
+		case FlowCode:
 			u.RawQuery = q.Encode()
 			return u.String(), nil
-		case 1:
+		case FlowImplicit:
 			return u.String() + "#" + q.Encode(), nil
 		default:
 			return "", errors.New("invalid flow value")
@@ -96,11 +96,11 @@ func CreateRedirectURLFromAuthenticationResponse(res *AuthenticationResponse) (s
 	}
 
 	switch res.Flow {
-	case 0:
+	case FlowCode:
 		q.Set("code", res.Code)
 		u.RawQuery = q.Encode()
 		return u.String(), nil
-	case 1:
+	case FlowImplicit:
 		q.Set("id_token", res.IDToken)
 		return u.String() + "#" + q.Encode(), nil
 	default:
