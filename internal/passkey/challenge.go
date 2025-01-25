@@ -1,7 +1,7 @@
 package passkey
 
 import (
-	"encoding/base64"
+	"context"
 	"errors"
 	"net/http"
 
@@ -20,14 +20,12 @@ func CreateChallengeAndBindSession(w http.ResponseWriter) (challenge []byte, err
 		return nil, errors.New("challengeが32バイトではない")
 	}
 
-	challengeStr := base64.RawURLEncoding.EncodeToString(challengeBytes)
-
 	sessionID, err := random.String(32)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := kvs.PasskeyChallenge_save(challengeStr, sessionID); err != nil {
+	if err := kvs.Set2(context.Background(), kvs.KeyPasskeyChallenge(sessionID), challengeBytes, 10*60); err != nil {
 		return nil, err
 	}
 
@@ -54,13 +52,8 @@ func GetChallengeFromSession(w http.ResponseWriter, r *http.Request) (challenge 
 		return nil, errors.New("challengeのセッションIDが空")
 	}
 
-	defer kvs.PasskeyChallenge_delete(sessionID)
-	challengeString, err := kvs.PasskeyChallenge_get(sessionID)
-	if err != nil {
-		return nil, err
-	}
-
-	buf, err := base64.RawURLEncoding.DecodeString(challengeString)
+	defer kvs.Del(context.Background(), kvs.KeyPasskeyChallenge(sessionID))
+	buf, err := kvs.Get2[[]byte](r.Context(), kvs.KeyPasskeyChallenge(sessionID))
 	if err != nil {
 		return nil, err
 	}
