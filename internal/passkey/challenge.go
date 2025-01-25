@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/comame/accounts.comame.xyz/internal/cookie"
 	"github.com/comame/accounts.comame.xyz/internal/kvs"
 	"github.com/comame/accounts.comame.xyz/internal/random"
 )
@@ -30,7 +31,7 @@ func CreateChallengeAndBindSession(w http.ResponseWriter) (challenge []byte, err
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:     "pkc",
+		Name:     cookie.PasskeyChallenge,
 		Value:    sessionID,
 		MaxAge:   10 * 60,
 		HttpOnly: true,
@@ -42,7 +43,7 @@ func CreateChallengeAndBindSession(w http.ResponseWriter) (challenge []byte, err
 
 // セッションに紐づけられたchallengeを取得する
 func GetChallengeFromSession(w http.ResponseWriter, r *http.Request) (challenge []byte, err error) {
-	cookie, err := r.Cookie("pkc")
+	cookie, err := r.Cookie(cookie.PasskeyChallenge)
 	if err != nil {
 		return nil, err
 	}

@@ -3,10 +3,12 @@ package ceremony
 import (
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"slices"
 
+	"github.com/comame/accounts.comame.xyz/internal/cookie"
 	"github.com/comame/accounts.comame.xyz/internal/db"
 	"github.com/comame/accounts.comame.xyz/internal/kvs"
 	"github.com/comame/accounts.comame.xyz/internal/oidc"
@@ -88,7 +90,21 @@ func AuthenticationRequest(w http.ResponseWriter, body url.Values) {
 		return
 	}
 
-	continueToSignInPage(w, sessionID, request.ClientId)
+	http.SetCookie(w, &http.Cookie{
+		Name:     cookie.LoginSession,
+		Value:    sessionID,
+		Secure:   true,
+		HttpOnly: true,
+		MaxAge:   600,
+	})
+
+	if err := createEmptySigninSession(w); err != nil {
+		log.Println(err)
+		displayErrorResponse(w, oidc.ErrAuthenticationErrServerError)
+		return
+	}
+
+	continueToSignInPage(w, request.ClientId)
 }
 
 func displayErrorResponse(w http.ResponseWriter, _ oidc.AuthenticationError) {
@@ -114,8 +130,8 @@ func redirectErrorResponse(w http.ResponseWriter, redirectURI, state string, mes
 	w.WriteHeader(http.StatusFound)
 }
 
-func continueToSignInPage(w http.ResponseWriter, sessionID, clientID string) {
-	u := fmt.Sprintf("/signin?sid=%s&cid=%s", sessionID, clientID)
+func continueToSignInPage(w http.ResponseWriter, clientID string) {
+	u := fmt.Sprintf("/signin?cid=%s", clientID)
 	w.Header().Add("Location", u)
 	w.WriteHeader(http.StatusFound)
 }

@@ -16,7 +16,7 @@ import { getUserAgentId } from "./getUserAgentId"
 import { fetchApi } from "./fetchApi"
 
 const App = () => {
-    const { stateId, relyingPartyId, csrfToken } = useQueryParams()
+    const { relyingPartyId } = useQueryParams()
 
     const [id, setId] = useState("")
     const [password, setPassword] = useState("")
@@ -54,10 +54,8 @@ const App = () => {
         const res = await fetchApi("/api/signin-password", {
             user_id: id,
             password,
-            csrf_token: csrfToken,
             relying_party_id: relyingPartyId,
             user_agent_id: getUserAgentId(),
-            state_id: stateId ?? "",
         })
 
         if ("error" in res && res.error === "invalid_credential") {
@@ -75,16 +73,11 @@ const App = () => {
             throw "unreachable"
         }
 
-        location.replace(res.location)
+        await continueSignin(relyingPartyId)
     }
 
     const signinWithGoogle = async () => {
-        if (!stateId) {
-            throw "bad_request"
-        }
-
         let result = await fetchApi("/signin/google", {
-            state_id: stateId,
             user_agent_id: getUserAgentId(),
         })
 
@@ -174,6 +167,19 @@ const App = () => {
             <Global />
         </Themed>
     )
+}
+
+async function continueSignin(clientID: string) {
+    const url = new URL("/api/signin/continue", location.origin)
+    url.searchParams.append("client_id", clientID)
+
+    const form = document.createElement("form")
+    form.action = url.toString()
+    form.method = "POST"
+
+    document.body.appendChild(form)
+
+    form.submit()
 }
 
 const InputContainer = styled.div`

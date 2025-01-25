@@ -65,6 +65,7 @@ func getAppHandler() http.Handler {
 	http.HandleFunc("POST /signin/google", handle_POST_signinGoogle)
 	http.HandleFunc("POST /api/signin-password", handle_GET_apiSigninPassword)
 	http.HandleFunc("GET /oidc-callback/google", handle_GET_oidCallbackGoogle)
+	http.HandleFunc("POST /api/signin/continue", handle_POST_apiSigninContinue)
 
 	http.HandleFunc("POST /demo/passkey/register-options", handle_Post_passkeyRegisterOptions)
 	http.HandleFunc("POST /demo/passkey/register", handle_Post_passkeyRegister)
@@ -82,11 +83,9 @@ func getAppHandler() http.Handler {
 
 func handle_GET_signin(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
-
-	stateID := q.Get("sid")
 	clientID := q.Get("cid")
 
-	if stateID == "" || clientID == "" {
+	if clientID == "" {
 		// TODO: ちゃんとエラー画面を出す
 		io.WriteString(w, "err")
 		return
@@ -131,7 +130,7 @@ func handle_POST_userinfo(w http.ResponseWriter, r *http.Request) {
 }
 
 func handle_GET_apiSigninPassword(w http.ResponseWriter, r *http.Request) {
-	ceremony.SigninWithPassword(w, r.Body)
+	ceremony.SigninWithPassword(w, r)
 }
 
 func handle_POST_signinGoogle(w http.ResponseWriter, r *http.Request) {
@@ -189,6 +188,10 @@ func handle_GET_rest(w http.ResponseWriter, r *http.Request) {
 	}
 	srv := http.FileServer(http.FS(sub))
 	srv.ServeHTTP(w, r)
+}
+
+func handle_POST_apiSigninContinue(w http.ResponseWriter, r *http.Request) {
+	ceremony.ContinueAuthenticated(w, r)
 }
 
 func authenticationRequest(w http.ResponseWriter, body url.Values) {

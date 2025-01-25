@@ -13,6 +13,7 @@ import (
 	"os"
 
 	"github.com/comame/accounts.comame.xyz/internal/auth"
+	"github.com/comame/accounts.comame.xyz/internal/cookie"
 	"github.com/comame/accounts.comame.xyz/internal/db"
 	"github.com/comame/accounts.comame.xyz/internal/httpclient"
 	"github.com/comame/accounts.comame.xyz/internal/jwt"
@@ -54,7 +55,7 @@ func StartGoogleSignin(w http.ResponseWriter, r io.Reader) {
 
 	// FIXME: Cookie に直接 state を保存していて危険
 	http.SetCookie(w, &http.Cookie{
-		Name:     "rp",
+		Name:     cookie.ExternalLoginSession,
 		Value:    state,
 		MaxAge:   120,
 		Secure:   true,
@@ -116,7 +117,7 @@ func HandleCallbackFromGoogle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cookieState, err := r.Cookie("rp")
+	cookieState, err := r.Cookie(cookie.ExternalLoginSession)
 	if err != nil {
 		log.Println("セッションに紐づけられたstateがない")
 		responseError(w, messageBadRequest)
