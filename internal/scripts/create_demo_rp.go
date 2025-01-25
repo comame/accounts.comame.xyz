@@ -18,6 +18,9 @@ func CreateDemoRP(args ...string) error {
 	if err := db.RoleAccess_insert("admin", "demo.accounts.comame.dev"); err != nil {
 		return err
 	}
+	if err := db.RoleAccess_insert("everyone", "demo.accounts.comame.dev"); err != nil {
+		return err
+	}
 
 	if err := db.RelyingParty_newRedirectURI("demo.accounts.comame.dev", "http://localhost:8080/dev/callback.html"); err != nil {
 		return err
