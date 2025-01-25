@@ -134,7 +134,7 @@ func handle_GET_apiSigninPassword(w http.ResponseWriter, r *http.Request) {
 }
 
 func handle_POST_signinGoogle(w http.ResponseWriter, r *http.Request) {
-	ceremony.StartGoogleSignin(w, r.Body)
+	ceremony.StartGoogleSignin(w, r)
 }
 
 func handle_GET_oidCallbackGoogle(w http.ResponseWriter, r *http.Request) {

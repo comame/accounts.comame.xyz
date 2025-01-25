@@ -39,16 +39,19 @@ func SigninWithPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !passwordIsOK {
+		log.Println("パスワードが違う")
 		responseError(w, messageInvalidCredential)
 		return
 	}
 
 	roleIsOK, err := auth.Authorized(request.UserId, request.RelyingPartyID)
 	if err != nil {
+		log.Println(err)
 		responseError(w, messageBadRequest)
 		return
 	}
 	if !roleIsOK {
+		log.Println("権限がない")
 		responseError(w, messageUnauthorized)
 		return
 	}

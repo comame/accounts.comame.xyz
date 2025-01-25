@@ -33,8 +33,8 @@ var (
 	origin             = os.Getenv("HOST")
 )
 
-func StartGoogleSignin(w http.ResponseWriter, r io.Reader) {
-	body, err := io.ReadAll(r)
+func StartGoogleSignin(w http.ResponseWriter, r *http.Request) {
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		responseError(w, messageBadRequest)
 		return
@@ -46,8 +46,17 @@ func StartGoogleSignin(w http.ResponseWriter, r io.Reader) {
 		return
 	}
 
-	state, redirectURI, err := createGoogleAuthenticationURL(request.SessionID, googleClientID, origin)
+	loginSessionCookie, err := r.Cookie(cookie.LoginSession)
 	if err != nil {
+		log.Println(err)
+		displayErrorResponse(w, oidc.ErrAuthenticationErrInvalidRequest)
+		return
+	}
+	loginSessionID := loginSessionCookie.Value
+
+	state, redirectURI, err := createGoogleAuthenticationURL(loginSessionID, googleClientID, origin)
+	if err != nil {
+		// TODO: 当然ながらここでエラーを吐くので、直す
 		log.Println(err)
 		responseError(w, messageBadRequest)
 		return
@@ -128,53 +137,57 @@ func HandleCallbackFromGoogle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	authenticationResponse, err := callbackGoogleInternal(googleCode, googleState, googleClientID, googleClientSecret, origin)
+	userID, clientID, err := callbackGoogleInternal(googleCode, googleState, googleClientID, googleClientSecret, origin)
 	if err != nil {
 		log.Println(err)
 		responseError(w, messageBadRequest)
 		return
 	}
 
-	redirectURI, err := oidc.CreateRedirectURLFromAuthenticationResponse(authenticationResponse)
-	if err != nil {
+	if err := markSigninSessionAuthenticated(r, userID); err != nil {
 		log.Println(err)
 		responseError(w, messageBadRequest)
 		return
 	}
 
-	w.Header().Set("Location", redirectURI)
-	w.WriteHeader(http.StatusFound)
+	// TODO: signin?g=1にリダイレクト
+	q := make(url.Values)
+	q.Set("g", "1")
+	q.Set("cid", clientID)
+
+	w.Header().Set("Location", "/signin?"+q.Encode())
+	w.WriteHeader(http.StatusSeeOther)
 }
 
-func callbackGoogleInternal(code, state, clientID, clientSecret, myOrigin string) (*oidc.AuthenticationResponse, error) {
-	saved, err := kvs.ExternalLoginSession_get(state)
+func callbackGoogleInternal(googleCode, googleState, googleClientID, googleClientSecret, myOrigin string) (userID, clientID string, err error) {
+	saved, err := kvs.ExternalLoginSession_get(googleState)
 	if err != nil {
-		return nil, err
+		return "", "", err
 	}
-	kvs.ExternalLoginSession_delete(state)
+	kvs.ExternalLoginSession_delete(googleState)
 
 	if saved.Provider != "google" {
-		return nil, errors.New("google ログインを要求していないのに Authentication Response を受け取った")
+		return "", "", errors.New("google ログインを要求していないのに Authentication Response を受け取った")
 	}
 
 	session, err := kvs.LoginSession_get(saved.LoginSession)
 	if err != nil {
-		return nil, err
+		return "", "", err
 	}
 
-	codeRes, err := doGoogleCodeRequest(code, clientID, clientSecret, myOrigin)
+	codeRes, err := doGoogleCodeRequest(googleCode, googleClientID, googleClientSecret, myOrigin)
 	if err != nil {
-		return nil, err
+		return "", "", err
 	}
 
 	tokenHeader, err := jwt.ExtractJWTHeader(codeRes.IDToken)
 	if err != nil {
-		return nil, err
+		return "", "", err
 	}
 
 	keys, err := getGoogleKeys()
 	if err != nil {
-		return nil, err
+		return "", "", err
 	}
 
 	var key *jwt.JWKKey
@@ -185,46 +198,46 @@ func callbackGoogleInternal(code, state, clientID, clientSecret, myOrigin string
 		}
 	}
 	if key == nil {
-		return nil, errors.New("id_token を署名した公開鍵が Google の Certs に存在しない")
+		return "", "", errors.New("id_token を署名した公開鍵が Google の Certs に存在しない")
 	}
 
 	keypub, err := jwt.DecodeJWK(*key)
 	if err != nil {
-		return nil, err
+		return "", "", err
 	}
 
 	claim, err := jwt.DecodeJWT(codeRes.IDToken, keypub)
 	if err != nil {
-		return nil, err
+		return "", "", err
 	}
 
 	now := timenow.Now().Unix()
 
 	if claim.Iss != "https://accounts.google.com" {
-		return nil, errors.New("iss が Google でない")
+		return "", "", errors.New("iss が Google でない")
 	}
 
 	if claim.Exp < now {
-		return nil, errors.New("id_token が失効している")
+		return "", "", errors.New("id_token が失効している")
 	}
 
 	if now < claim.Iat {
-		return nil, errors.New("iat が未来")
+		return "", "", errors.New("iat が未来")
 	}
 
-	if claim.Aud != clientID {
-		return nil, errors.New("aud が自分ではない")
+	if claim.Aud != googleClientID {
+		return "", "", errors.New("aud が自分ではない")
 	}
 
 	if claim.Nonce != saved.Nonce {
-		return nil, errors.New("nonce が異なる")
+		return "", "", errors.New("nonce が異なる")
 	}
 
 	var sub string
 
 	linkedSub, isLinked, err := db.OpUser_get(claim.Sub, "google")
 	if err != nil {
-		return nil, err
+		return "", "", err
 	}
 	if isLinked {
 		sub = linkedSub
@@ -234,11 +247,11 @@ func callbackGoogleInternal(code, state, clientID, clientSecret, myOrigin string
 		// 外部連携の場合、暗黙的にアカウントを作成する
 		_, err := db.User_get(sub)
 		if err != nil && !errors.Is(err, sql.ErrNoRows) {
-			return nil, err
+			return "", "", err
 		}
 		if err != nil {
 			if err := createGoogleUser(sub); err != nil {
-				return nil, err
+				return "", "", err
 			}
 		}
 	}
@@ -247,18 +260,13 @@ func callbackGoogleInternal(code, state, clientID, clientSecret, myOrigin string
 
 	roleOk, err := auth.Authorized(sub, session.RelyingPartyID)
 	if err != nil {
-		return nil, err
+		return "", "", err
 	}
 	if !roleOk {
-		return nil, errors.New("権限がない")
+		return "", "", errors.New("権限がない")
 	}
 
-	// TODO: user_agent_id を消す
-	res, err := createAuthenticationResponse(sub, saved.LoginSession, session.RelyingPartyID)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
+	return sub, session.RelyingPartyID, nil
 }
 
 func doGoogleCodeRequest(code, clientID, clientSecret, myOrigin string) (*oidc.CodeResponse, error) {

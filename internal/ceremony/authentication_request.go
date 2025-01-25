@@ -19,6 +19,7 @@ const badRequestJSONString = `{ "error": "bad_request" }`
 func AuthenticationRequest(w http.ResponseWriter, body url.Values) {
 	request, err := oidc.ParseAuthenticationRequest(body)
 	if err != nil {
+		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
 		io.WriteString(w, badRequestJSONString)
 		return
@@ -45,12 +46,14 @@ func AuthenticationRequest(w http.ResponseWriter, body url.Values) {
 
 	// 必須パラメータのチェック
 	if request.Scope == "" || request.ResponseType == "" || request.ClientId == "" || request.RedirectURI == "" {
+		log.Println("必須パラメータがついてない")
 		displayErrorResponse(w, oidc.ErrAuthenticationErrInvalidRequest)
 		return
 	}
 
 	// Relying Party の存在確認
 	if _, err := db.RelyingParty_select(request.ClientId); err != nil {
+		log.Println("RPが登録されていない", request.ClientId)
 		displayErrorResponse(w, oidc.ErrAuthenticationErrInvalidRequest)
 		return
 	}
@@ -58,16 +61,19 @@ func AuthenticationRequest(w http.ResponseWriter, body url.Values) {
 	// redirect_uri の完全一致確認
 	redirectURIs, err := db.RelyingParty_selectRedirectURIs(request.ClientId)
 	if err != nil {
+		log.Println(err)
 		displayErrorResponse(w, oidc.ErrAuthenticationErrInvalidRequest)
 		return
 	}
 	if !slices.Contains(redirectURIs, request.RedirectURI) {
+		log.Println("redirect_uriが一致しない")
 		displayErrorResponse(w, oidc.ErrAuthenticationErrInvalidRequest)
 		return
 	}
 
 	// scope に openid が含まれるか確認
 	if !oidc.ContainsScope(request.Scope, "openid") {
+		log.Println("scopeがおかしい")
 		redirectErrorResponse(w, request.RedirectURI, request.State, oidc.ErrAuthenticationErrInvalidScope)
 		return
 	}

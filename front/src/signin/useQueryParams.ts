@@ -9,5 +9,13 @@ export function useQueryParams() {
         [],
     )
 
-    return { relyingPartyId }
+    const isGoogleCallback = useMemo(
+        () =>
+            decodeURIComponent(
+                new URL(location.href).searchParams.get("g") ?? "",
+            ),
+        [],
+    )
+
+    return { relyingPartyId, isGoogleCallback }
 }
