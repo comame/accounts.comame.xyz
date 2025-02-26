@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { createRoot } from "react-dom/client"
 
 import styled from "styled-components"
-import { Button, TextField } from "@charcoal-ui/react"
+import { Button, LoadingSpinner, TextField } from "@charcoal-ui/react"
 import { Themed } from "../theme"
 import { useQueryParams } from "./useQueryParams"
 import {
@@ -16,7 +16,21 @@ import { getUserAgentId } from "./getUserAgentId"
 import { fetchApi } from "./fetchApi"
 
 const App = () => {
-    const { stateId, relyingPartyId, csrfToken } = useQueryParams()
+    const { relyingPartyId, isGoogleCallback } = useQueryParams()
+
+    let loadingDefaultValue = false
+    if (isGoogleCallback !== "") {
+        loadingDefaultValue = true
+    }
+    // Googleログインのコールバックだったら初めからローディング表示を出す
+    const [loading, setLoading] = useState(loadingDefaultValue)
+
+    // Googleログインのコールバックだったら即座にログイン続行
+    useEffect(() => {
+        if (isGoogleCallback !== "") {
+            continueSignin(relyingPartyId)
+        }
+    }, [isGoogleCallback, relyingPartyId])
 
     const [id, setId] = useState("")
     const [password, setPassword] = useState("")
@@ -29,7 +43,6 @@ const App = () => {
         idRef.current?.focus()
     }, [])
 
-    const [sendingPassword, setSendingPassword] = useState(false)
     const [invalidCredential, setInvalidCredential] = useState(false)
     const [isEmptyId, setIsEmptyId] = useState(false)
     const [isEmptyPassword, setIsEmptyPassword] = useState(false)
@@ -49,20 +62,18 @@ const App = () => {
             return
         }
 
-        setSendingPassword(true)
+        setLoading(true)
 
         const res = await fetchApi("/api/signin-password", {
             user_id: id,
             password,
-            csrf_token: csrfToken,
             relying_party_id: relyingPartyId,
             user_agent_id: getUserAgentId(),
-            state_id: stateId ?? "",
         })
 
         if ("error" in res && res.error === "invalid_credential") {
             setInvalidCredential(true)
-            setSendingPassword(false)
+            setLoading(false)
             passwordRef.current?.focus()
             return
         }
@@ -75,16 +86,11 @@ const App = () => {
             throw "unreachable"
         }
 
-        location.replace(res.location)
+        await continueSignin(relyingPartyId)
     }
 
     const signinWithGoogle = async () => {
-        if (!stateId) {
-            throw "bad_request"
-        }
-
         let result = await fetchApi("/signin/google", {
-            state_id: stateId,
             user_agent_id: getUserAgentId(),
         })
 
@@ -98,6 +104,11 @@ const App = () => {
 
     return (
         <Themed>
+            {loading && (
+                <LoadingSpinnerContainer>
+                    <LoadingSpinner />
+                </LoadingSpinnerContainer>
+            )}
             <Layout>
                 <LayoutItem>
                     <LayoutItemHeader>
@@ -124,6 +135,7 @@ const App = () => {
                                               : undefined
                                     }
                                     ref={idRef}
+                                    disabled={loading}
                                 ></TextField>
                                 <TextField
                                     showLabel
@@ -146,6 +158,7 @@ const App = () => {
                                               : undefined
                                     }
                                     ref={passwordRef}
+                                    disabled={loading}
                                 ></TextField>
                             </InputContainer>
                             <ButtonsContainer>
@@ -154,7 +167,7 @@ const App = () => {
                                     fullWidth
                                     onClick={onSubmitPassword}
                                     type="submit"
-                                    disabled={sendingPassword}
+                                    disabled={loading}
                                 >
                                     ログイン
                                 </Button>
@@ -163,6 +176,7 @@ const App = () => {
                                     fullWidth
                                     onClick={signinWithGoogle}
                                     type="button"
+                                    disabled={loading}
                                 >
                                     Google でログイン
                                 </Button>
@@ -174,6 +188,19 @@ const App = () => {
             <Global />
         </Themed>
     )
+}
+
+async function continueSignin(clientID: string) {
+    const url = new URL("/api/signin/continue", location.origin)
+    url.searchParams.append("client_id", clientID)
+
+    const form = document.createElement("form")
+    form.action = url.toString()
+    form.method = "POST"
+
+    document.body.appendChild(form)
+
+    form.submit()
 }
 
 const InputContainer = styled.div`
@@ -188,6 +215,13 @@ const ButtonsContainer = styled.div`
     gap: ${({ theme }) => theme.spacing[24]}px;
 
     margin-bottom: ${(props) => props.theme.spacing[40]}px;
+`
+
+const LoadingSpinnerContainer = styled.div`
+    position: fixed;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 `
 
 createRoot(document.getElementById("app")!).render(<App />)

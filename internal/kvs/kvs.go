@@ -24,14 +24,14 @@ func Keys(ctx context.Context, pattern string) ([]string, error) {
 }
 
 func Set(ctx context.Context, key string, value string, expireSec int64) error {
-	if err := cl.Set(ctx, key, value, expireSec); err != nil {
+	if err := Set2(ctx, key, value, expireSec); err != nil {
 		return err
 	}
 	return nil
 }
 
 func Get(ctx context.Context, key string) (string, error) {
-	v, err := cl.Get(ctx, key)
+	v, err := Get2[string](ctx, key)
 	if err != nil {
 		return "", err
 	}

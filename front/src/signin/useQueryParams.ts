@@ -1,27 +1,21 @@
 import { useMemo } from "react"
 
 export function useQueryParams() {
-    const csrfToken = useMemo(
-        () =>
-            (document.getElementById("csrf-token") as HTMLMetaElement).content,
-        []
-    )
     const relyingPartyId = useMemo(
         () =>
             decodeURIComponent(
-                new URL(location.href).searchParams.get("cid") ?? ""
+                new URL(location.href).searchParams.get("cid") ?? "",
             ),
-        []
-    )
-    const stateId = useMemo(
-        () => new URL(location.href).searchParams.get("sid"),
-        []
+        [],
     )
 
-    const userId = useMemo(
-        () => new URL(location.href).searchParams.get("u"),
-        []
+    const isGoogleCallback = useMemo(
+        () =>
+            decodeURIComponent(
+                new URL(location.href).searchParams.get("g") ?? "",
+            ),
+        [],
     )
 
-    return { csrfToken, relyingPartyId, stateId, userId }
+    return { relyingPartyId, isGoogleCallback }
 }

@@ -1,10 +1,11 @@
 package passkey
 
 import (
-	"encoding/base64"
+	"context"
 	"errors"
 	"net/http"
 
+	"github.com/comame/accounts.comame.xyz/internal/cookie"
 	"github.com/comame/accounts.comame.xyz/internal/kvs"
 	"github.com/comame/accounts.comame.xyz/internal/random"
 )
@@ -20,19 +21,17 @@ func CreateChallengeAndBindSession(w http.ResponseWriter) (challenge []byte, err
 		return nil, errors.New("challengeが32バイトではない")
 	}
 
-	challengeStr := base64.RawURLEncoding.EncodeToString(challengeBytes)
-
 	sessionID, err := random.String(32)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := kvs.PasskeyChallenge_save(challengeStr, sessionID); err != nil {
+	if err := kvs.Set2(context.Background(), kvs.KeyPasskeyChallenge(sessionID), challengeBytes, 10*60); err != nil {
 		return nil, err
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:     "pkc",
+		Name:     cookie.PasskeyChallenge,
 		Value:    sessionID,
 		MaxAge:   10 * 60,
 		HttpOnly: true,
@@ -44,7 +43,7 @@ func CreateChallengeAndBindSession(w http.ResponseWriter) (challenge []byte, err
 
 // セッションに紐づけられたchallengeを取得する
 func GetChallengeFromSession(w http.ResponseWriter, r *http.Request) (challenge []byte, err error) {
-	cookie, err := r.Cookie("pkc")
+	cookie, err := r.Cookie(cookie.PasskeyChallenge)
 	if err != nil {
 		return nil, err
 	}
@@ -54,13 +53,8 @@ func GetChallengeFromSession(w http.ResponseWriter, r *http.Request) (challenge 
 		return nil, errors.New("challengeのセッションIDが空")
 	}
 
-	defer kvs.PasskeyChallenge_delete(sessionID)
-	challengeString, err := kvs.PasskeyChallenge_get(sessionID)
-	if err != nil {
-		return nil, err
-	}
-
-	buf, err := base64.RawURLEncoding.DecodeString(challengeString)
+	defer kvs.Del(context.Background(), kvs.KeyPasskeyChallenge(sessionID))
+	buf, err := kvs.Get2[[]byte](r.Context(), kvs.KeyPasskeyChallenge(sessionID))
 	if err != nil {
 		return nil, err
 	}

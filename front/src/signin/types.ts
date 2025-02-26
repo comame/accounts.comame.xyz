@@ -3,7 +3,7 @@ export type apis = {
     "/api/signin-session": [sessionLoginRequest, sessionResponse]
     "/api/signin-continue-nointeraction-fail": [
         continueNoSessionRequest,
-        continueNoSessionResponse
+        continueNoSessionResponse,
     ]
     "/signin/google": [signinRpRequest, continueResponse]
 }
@@ -36,19 +36,15 @@ type continueResponse =
       }
 
 type requestBase = {
-    csrf_token: string
     relying_party_id: string
     user_agent_id: string
 }
 
-type sessionLoginRequest = {
-    state_id: string
-} & requestBase
+type sessionLoginRequest = requestBase
 
 type passwordRequest = {
     user_id: string
     password: string
-    state_id: string
 } & requestBase
 
 type continueNoSessionRequest = {
@@ -64,6 +60,5 @@ type continueNoSessionResponse =
       }
 
 type signinRpRequest = {
-    state_id: string
     user_agent_id: string
 }

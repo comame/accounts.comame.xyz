@@ -3,13 +3,11 @@ package ceremony
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
 
 	"github.com/comame/accounts.comame.xyz/internal/auth"
-	"github.com/comame/accounts.comame.xyz/internal/oidc"
 )
 
 // FIXME: 使っていないパラメーターを整理する
@@ -21,8 +19,8 @@ type signinPasswordAPIRequest struct {
 	StateID        string `json:"state_id"`
 }
 
-func SigninWithPassword(w http.ResponseWriter, r io.Reader) {
-	body, err := io.ReadAll(r)
+func SigninWithPassword(w http.ResponseWriter, r *http.Request) {
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		responseError(w, messageBadRequest)
 		return
@@ -41,33 +39,28 @@ func SigninWithPassword(w http.ResponseWriter, r io.Reader) {
 		return
 	}
 	if !passwordIsOK {
+		log.Println("パスワードが違う")
 		responseError(w, messageInvalidCredential)
 		return
 	}
 
 	roleIsOK, err := auth.Authorized(request.UserId, request.RelyingPartyID)
 	if err != nil {
+		log.Println(err)
 		responseError(w, messageBadRequest)
 		return
 	}
 	if !roleIsOK {
+		log.Println("権限がない")
 		responseError(w, messageUnauthorized)
 		return
 	}
 
-	authenticationResopnse, err := createAuthenticationResponse(request.UserId, request.StateID, request.RelyingPartyID)
-	if err != nil {
+	if err := markSigninSessionAuthenticated(r, request.UserId); err != nil {
 		log.Println(err)
 		responseError(w, messageBadRequest)
 		return
 	}
 
-	redirectURI, err := oidc.CreateRedirectURLFromAuthenticationResponse(authenticationResopnse)
-	if err != nil {
-		log.Println(err)
-		responseError(w, messageBadRequest)
-		return
-	}
-
-	io.WriteString(w, fmt.Sprintf(`{ "location": "%s" }`, redirectURI))
+	io.WriteString(w, `{ "result": "ok" }`)
 }
